@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="CLI Arguments" tests="34" assertions="324" errors="1" failures="10" skipped="0" time="131.496034">
+    <testsuite name="Tests\Feature\ApprovalRoutingTest" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ApprovalRoutingTest.php" tests="4" assertions="77" errors="0" failures="1" skipped="0" time="107.829319">
+      <testcase name="test_all_transaction_types_require_unit_approval_and_assistant_forwarding" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ApprovalRoutingTest.php" line="11" class="Tests\Feature\ApprovalRoutingTest" classname="Tests.Feature.ApprovalRoutingTest" assertions="22" time="99.900634">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ApprovalRoutingTest::test_all_transaction_types_require_unit_approval_and_assistant_forwarding&#13;
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'unit_approved'
++'pending'
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ApprovalRoutingTest.php:18</failure>
+      </testcase>
+      <testcase name="test_revision_restarts_chain_and_final_approval_applies_benefits_once" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ApprovalRoutingTest.php" line="26" class="Tests\Feature\ApprovalRoutingTest" classname="Tests.Feature.ApprovalRoutingTest" assertions="27" time="2.561881"/>
+      <testcase name="test_assistant_monitors_all_units_with_private_documents_but_cannot_manage_staff" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ApprovalRoutingTest.php" line="42" class="Tests\Feature\ApprovalRoutingTest" classname="Tests.Feature.ApprovalRoutingTest" assertions="15" time="4.927274"/>
+      <testcase name="test_head_reports_return_for_revision_then_forward_to_admin" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ApprovalRoutingTest.php" line="50" class="Tests\Feature\ApprovalRoutingTest" classname="Tests.Feature.ApprovalRoutingTest" assertions="13" time="0.439529"/>
+    </testsuite>
+    <testsuite name="Tests\Feature\CvuFlowTest" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuFlowTest.php" tests="6" assertions="73" errors="0" failures="0" skipped="0" time="9.994407">
+      <testcase name="test_values_portal_requires_own_id_confirmation_and_active_record_without_extra_approval" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuFlowTest.php" line="12" class="Tests\Feature\CvuFlowTest" classname="Tests.Feature.CvuFlowTest" assertions="23" time="5.747368"/>
+      <testcase name="test_readmission_submit_review_interview_issue_and_private_slip" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuFlowTest.php" line="25" class="Tests\Feature\CvuFlowTest" classname="Tests.Feature.CvuFlowTest" assertions="11" time="1.327579"/>
+      <testcase name="test_clearance_slot_capacity_and_complete_checks" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuFlowTest.php" line="35" class="Tests\Feature\CvuFlowTest" classname="Tests.Feature.CvuFlowTest" assertions="9" time="0.241910"/>
+      <testcase name="test_seminar_capacity_eligibility_and_head_access" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuFlowTest.php" line="44" class="Tests\Feature\CvuFlowTest" classname="Tests.Feature.CvuFlowTest" assertions="8" time="1.467577"/>
+      <testcase name="test_head_views_render_and_years_are_limited" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuFlowTest.php" line="52" class="Tests\Feature\CvuFlowTest" classname="Tests.Feature.CvuFlowTest" assertions="7" time="0.447096"/>
+      <testcase name="test_student_id_confirmation_has_no_code_and_cannot_link_another_account" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuFlowTest.php" line="56" class="Tests\Feature\CvuFlowTest" classname="Tests.Feature.CvuFlowTest" assertions="15" time="0.762877"/>
+    </testsuite>
+    <testsuite name="Tests\Feature\LeadershipOnboardingTest" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\LeadershipOnboardingTest.php" tests="4" assertions="43" errors="0" failures="2" skipped="0" time="7.541930">
+      <testcase name="test_registration_returns_to_scrollable_landing_and_leadership_form" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\LeadershipOnboardingTest.php" line="29" class="Tests\Feature\LeadershipOnboardingTest" classname="Tests.Feature.LeadershipOnboardingTest" assertions="11" time="5.701282"/>
+      <testcase name="test_submission_acceptance_and_portal_access_across_both_apps" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\LeadershipOnboardingTest.php" line="38" class="Tests\Feature\LeadershipOnboardingTest" classname="Tests.Feature.LeadershipOnboardingTest" assertions="20" time="1.649122">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\LeadershipOnboardingTest::test_submission_acceptance_and_portal_access_across_both_apps&#13;
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'approved'
++'pending'
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\LeadershipOnboardingTest.php:59</failure>
+      </testcase>
+      <testcase name="test_acceptance_rejects_wrong_role_organization_and_unsubmitted_members" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\LeadershipOnboardingTest.php" line="68" class="Tests\Feature\LeadershipOnboardingTest" classname="Tests.Feature.LeadershipOnboardingTest" assertions="6" time="0.152511">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\LeadershipOnboardingTest::test_acceptance_rejects_wrong_role_organization_and_unsubmitted_members&#13;
+Expected response status code [422] but received 302.
+Failed asserting that 302 is identical to 422.
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:175
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\LeadershipOnboardingTest.php:77</failure>
+      </testcase>
+      <testcase name="test_incomplete_submission_does_not_create_membership_or_request" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\LeadershipOnboardingTest.php" line="87" class="Tests\Feature\LeadershipOnboardingTest" classname="Tests.Feature.LeadershipOnboardingTest" assertions="6" time="0.039014"/>
+    </testsuite>
+    <testsuite name="Tests\Feature\PublicWebsiteTest" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\PublicWebsiteTest.php" tests="2" assertions="7" errors="0" failures="2" skipped="0" time="0.209400">
+      <testcase name="test_public_screens_and_service_filters" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\PublicWebsiteTest.php" line="9" class="Tests\Feature\PublicWebsiteTest" classname="Tests.Feature.PublicWebsiteTest" assertions="2" time="0.064146">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\PublicWebsiteTest::test_public_screens_and_service_filters&#13;
+Failed asserting that '&lt;!doctype html&gt;&lt;html lang="en"&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;&lt;title&gt;iServe · Urdaneta City University&lt;/title&gt;&lt;link rel="stylesheet" href="http://localhost/app.css"&gt;&lt;link rel="stylesheet" href="http://localhost/public-site.css"&gt;&lt;script src="http://localhost/landing.js" defer&gt;&lt;/script&gt;&lt;/head&gt;\r\n
+&lt;body class="public-site"&gt;&lt;header class="site-header"&gt;&lt;a class="site-brand" href="/"&gt;&lt;img src="http://localhost/design-assets/public/brand.png" alt="UCU and CSLD logos"&gt;&lt;span&gt;&lt;strong&gt;URDANETA CITY UNIVERSITY&lt;/strong&gt;&lt;small&gt;CENTER FOR STUDENT LEADERSHIP AND DEVELOPMENT&lt;/small&gt;&lt;/span&gt;&lt;/a&gt;&lt;nav aria-label="Main navigation"&gt;\r\n
+&lt;a href="/#home" \r\n
+data-section-link="home"&gt;Home&lt;/a&gt;\r\n
+&lt;a href="/#services" \r\n
+data-section-link="services"&gt;Services&lt;/a&gt;\r\n
+&lt;a href="/#units" \r\n
+data-section-link="units"&gt;Units&lt;/a&gt;\r\n
+&lt;a href="/#announcements" \r\n
+data-section-link="announcements"&gt;Announcements&lt;/a&gt;\r\n
+&lt;a href="/#about" \r\n
+data-section-link="about"&gt;About&lt;/a&gt;\r\n
+&lt;a class="portal-button" href="/profile"&gt;● &amp;nbsp; Profile&lt;/a&gt;&lt;/nav&gt;&lt;/header&gt;\r\n
+&lt;main&gt;\r\n
+&lt;section id="home" class="landing-section" aria-label="Home"&gt;&lt;section class="site-hero home-hero" style="--hero:url('http://localhost/design-assets/public/campus.png')"&gt;&lt;div class="hero-copy"&gt;&lt;p class="overline"&gt;i S E R V E &lt;span&gt;&lt;/span&gt;&lt;/p&gt;&lt;h1&gt;Student services,&lt;br&gt;&lt;em&gt;made clear.&lt;/em&gt;&lt;/h1&gt;&lt;p&gt;One trusted place to find every CSLD&lt;br&gt;transaction at Urdaneta City University.&lt;/p&gt;&lt;a class="site-button red-button" href="/#services"&gt;Browse all transactions &lt;b&gt;→&lt;/b&gt;&lt;/a&gt;&lt;small class="hero-foot"&gt;STUDENTS &amp;nbsp; | &amp;nbsp; LEADERS &amp;nbsp; | &amp;nbsp; A BRIGHTER TOMORROW&lt;/small&gt;&lt;/div&gt;&lt;div class="campus-mark"&gt;&lt;small&gt;PEOPLE&lt;br&gt;PURPOSE&lt;br&gt;PROGRESS&lt;/small&gt;&lt;b&gt;UCU&lt;/b&gt;&lt;small&gt;URDANETA CITY&lt;br&gt;UNIVERSITY&lt;/small&gt;&lt;/div&gt;&lt;/section&gt;\r\n
+&lt;form class="home-search" action="/#services"&gt;&lt;h2&gt;What service do you need?&lt;/h2&gt;&lt;input name="service_q" aria-label="Search services" placeholder="Search for a transaction, service, or keyword..."&gt;&lt;button class="site-button"&gt;Find a service &lt;b&gt;→&lt;/b&gt;&lt;/button&gt;&lt;/form&gt;\r\n
+&lt;/section&gt;\r\n
+&lt;section id="services" class="landing-section" aria-label="Services"&gt;&lt;section class="site-hero directory-hero" style="--hero:url('http://localhost/design-assets/public/campus.png')"&gt;&lt;div class="hero-copy"&gt;&lt;p class="breadcrumb"&gt;Home / Services &lt;span&gt;&lt;/span&gt;&lt;/p&gt;&lt;h1&gt;Services &lt;em&gt;Directory&lt;/em&gt;&lt;/h1&gt;&lt;p&gt;Find the right CSLD transaction by service or unit.&lt;/p&gt;&lt;form class="hero-search" action="/#services"&gt;&lt;label for="service-search"&gt;Search services&lt;/label&gt;&lt;div&gt;&lt;input id="service-search" name="service_q" value="" placeholder="Enter a transaction or keyword"&gt;\r\n
+&lt;button class="site-button"&gt;Search &lt;b&gt;→&lt;/b&gt;&lt;/button&gt;&lt;/div&gt;&lt;/form&gt;&lt;/div&gt;&lt;div class="campus-mark"&gt;&lt;b&gt;UCU&lt;/b&gt;&lt;small&gt;URDANETA CITY&lt;br&gt;UNIVERSITY&lt;/small&gt;&lt;/div&gt;&lt;/section&gt;\r\n
+&lt;section class="directory-body"&gt;&lt;aside class="unit-filter"&gt;&lt;h3&gt;Filter by unit&lt;/h3&gt;&lt;a class="selected" href="/?service_q=#services"&gt;▦ &amp;nbsp; All units&lt;/a&gt;\r\n
+&lt;a class="" href="/?service_unit=leadership&amp;service_q=#services"&gt;&lt;span class="icon" style="width:28px;height:28px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(0.96551724137931);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Student Leadership&lt;/a&gt;\r\n
+&lt;a class="" href="/?service_unit=scholarship&amp;service_q=#services"&gt;&lt;span class="icon" style="width:28px;height:28px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.55207768521713);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Scholarship and Financial&lt;/a&gt;\r\n
+&lt;a class="" href="/?service_unit=values&amp;service_q=#services"&gt;&lt;span class="icon" style="width:28px;height:28px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/a067a.svg" alt="" style="transform:scale(0.45608994093635);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Character and Values Formation&lt;/a&gt;\r\n
+&lt;hr&gt;&lt;h3&gt;9 services&lt;/h3&gt;&lt;/aside&gt;&lt;div class="directory-results"&gt;&lt;div class="section-heading"&gt;&lt;h2&gt;Services&lt;/h2&gt;&lt;span&gt;9 services&lt;/span&gt;&lt;/div&gt;\r\n
+&lt;article class="directory-unit"&gt;&lt;b class="unit-number"&gt;01&lt;/b&gt;&lt;div&gt;&lt;h3&gt;&lt;span class="round-icon"&gt;&lt;span class="icon" style="width:30px;height:30px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.0344827586207);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;Student Leadership Unit&lt;/h3&gt;&lt;div class="directory-service-grid "&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Student Leadership / University Organization\r\n
+&lt;a class="outline-button" href="/apply/leadership"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;/div&gt;&lt;/div&gt;&lt;/article&gt;\r\n
+&lt;article class="directory-unit"&gt;&lt;b class="unit-number"&gt;02&lt;/b&gt;&lt;div&gt;&lt;h3&gt;&lt;span class="round-icon"&gt;&lt;span class="icon" style="width:30px;height:30px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.59151180558979);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;Scholarship and Financial Unit&lt;/h3&gt;&lt;div class="directory-service-grid "&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Tuition Discount\r\n
+&lt;a class="outline-button" href="/scholar/information"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;/div&gt;&lt;/div&gt;&lt;/article&gt;\r\n
+&lt;article class="directory-unit"&gt;&lt;b class="unit-number"&gt;03&lt;/b&gt;&lt;div&gt;&lt;h3&gt;&lt;span class="round-icon"&gt;&lt;span class="icon" style="width:30px;height:30px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/a067a.svg" alt="" style="transform:scale(0.48866779386038);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;Character and Values Formation&lt;/h3&gt;&lt;div class="directory-service-grid split"&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Complaints and Concerns\r\n
+&lt;a class="outline-button" href="/apply/complaint"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Lost &amp;amp; Found\r\n
+&lt;a class="outline-button" href="/lost-found"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Re-admission\r\n
+&lt;a class="outline-button" href="/apply/readmission"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;ID Replacement\r\n
+&lt;a class="outline-button" href="/apply/id-replacement"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Community Service\r\n
+&lt;a class="outline-button" href="/community-link"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Seminars\r\n
+&lt;a class="outline-button" href="/apply/seminar"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="service-link"&gt;&lt;span&gt;▤&lt;/span&gt;Clearance\r\n
+&lt;a class="outline-button" href="/apply/clearance"&gt;View service &amp;nbsp; ›&lt;/a&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;/div&gt;&lt;/div&gt;&lt;/article&gt;\r\n
+ \r\n
+&lt;/div&gt;&lt;/section&gt;\r\n
+&lt;/section&gt;\r\n
+&lt;section id="units" class="landing-section" aria-label="Units"&gt;&lt;section class="unit-catalog" id="choose-unit"&gt;&lt;small class="overline"&gt;EXPLORE OUR SERVICES&lt;/small&gt;&lt;h2&gt;Choose a unit&lt;/h2&gt;&lt;div class="unit-cards"&gt;\r\n
+&lt;article class="unit-card" style="--unit-photo:url('http://localhost/design-assets/public/leadership.png')"&gt;&lt;div class="unit-photo"&gt;&lt;b&gt;01&lt;/b&gt;&lt;/div&gt;&lt;h3&gt;&lt;span class="round-icon"&gt;&lt;span class="icon" style="width:30px;height:30px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.0344827586207);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;a href="/apply/leadership"&gt;Student Leadership Unit&lt;/a&gt;&lt;/h3&gt;&lt;div class="unit-service-grid"&gt;\r\n
+&lt;a class="service-link" href="/apply/leadership"&gt;&lt;span&gt;▤&lt;/span&gt;Student Leadership / University Organization\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;/div&gt;&lt;small class="card-motto"&gt;LEAD ORGANIZE SERVE&lt;/small&gt;&lt;/article&gt;\r\n
+&lt;article class="unit-card" style="--unit-photo:url('http://localhost/design-assets/public/scholarship.png')"&gt;&lt;div class="unit-photo"&gt;&lt;b&gt;02&lt;/b&gt;&lt;/div&gt;&lt;h3&gt;&lt;span class="round-icon"&gt;&lt;span class="icon" style="width:30px;height:30px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.59151180558979);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;a href="/scholar/information"&gt;Scholarship and Financial Unit&lt;/a&gt;&lt;/h3&gt;&lt;div class="unit-service-grid"&gt;\r\n
+&lt;a class="service-link" href="/scholar/information"&gt;&lt;span&gt;▤&lt;/span&gt;Tuition Discount\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;/div&gt;&lt;small class="card-motto"&gt;ACCESS SUPPORT EMPOWER&lt;/small&gt;&lt;/article&gt;\r\n
+&lt;article class="unit-card" style="--unit-photo:url('http://localhost/design-assets/public/values.png')"&gt;&lt;div class="unit-photo"&gt;&lt;b&gt;03&lt;/b&gt;&lt;/div&gt;&lt;h3&gt;&lt;span class="round-icon"&gt;&lt;span class="icon" style="width:30px;height:30px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/a067a.svg" alt="" style="transform:scale(0.48866779386038);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;a href="/transactions"&gt;Character and Values Formation&lt;/a&gt;&lt;/h3&gt;&lt;div class="unit-service-grid"&gt;\r\n
+&lt;a class="service-link" href="/apply/complaint"&gt;&lt;span&gt;▤&lt;/span&gt;Complaints and Concerns\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;a class="service-link" href="/lost-found"&gt;&lt;span&gt;▤&lt;/span&gt;Lost &amp;amp; Found\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;a class="service-link" href="/apply/readmission"&gt;&lt;span&gt;▤&lt;/span&gt;Re-admission\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;a class="service-link" href="/apply/id-replacement"&gt;&lt;span&gt;▤&lt;/span&gt;ID Replacement\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;a class="service-link" href="/community-link"&gt;&lt;span&gt;▤&lt;/span&gt;Community Service\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;a class="service-link" href="/apply/seminar"&gt;&lt;span&gt;▤&lt;/span&gt;Seminars\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;a class="service-link" href="/apply/clearance"&gt;&lt;span&gt;▤&lt;/span&gt;Clearance\r\n
+&lt;b&gt;›&lt;/b&gt;\r\n
+&lt;/a&gt;\r\n
+&lt;/div&gt;&lt;small class="card-motto"&gt;DISCIPLINE INTEGRITY SERVICE&lt;/small&gt;&lt;/article&gt;\r\n
+&lt;/div&gt;&lt;/section&gt;\r\n
+\r\n
+&lt;div id="unit-leadership" class="landing-unit-detail"&gt;\r\n
+&lt;section class="site-hero unit-hero" style="--hero:url('http://localhost/design-assets/public/leadership.png')"&gt;&lt;p class="breadcrumb"&gt;Home / Units / Student Leadership Unit &lt;span&gt;&lt;/span&gt;&lt;/p&gt;&lt;div class="unit-hero-copy"&gt;&lt;b class="hero-number"&gt;01&lt;/b&gt;&lt;div&gt;&lt;small class="overline"&gt;UNIT 01&lt;/small&gt;&lt;h1&gt;\r\n
+Student&lt;br&gt;&lt;em&gt;Leadership Unit&lt;/em&gt;\r\n
+&lt;/h1&gt;&lt;p&gt;Student leadership and university organization services.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;\r\n
+&lt;/section&gt;\r\n
+&lt;section class="unit-detail"&gt;&lt;div class="section-heading"&gt;&lt;h2&gt;Available transaction&lt;/h2&gt;\r\n
+&lt;/div&gt;&lt;div class="transaction-list "&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.3103448275862);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Student Leadership / University Organization&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/apply/leadership"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="transaction-info"&gt;&lt;b&gt;ⓘ&lt;/b&gt;&lt;p&gt;\r\n
+Student Leadership / University Organization\r\n
+&lt;/p&gt;&lt;/div&gt;\r\n
+&lt;div class="unit-neighbors"&gt;\r\n
+&lt;a href="/#unit-scholarship"&gt;&lt;span&gt;‹&lt;/span&gt;&lt;span class="icon" style="width:36px;height:36px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.70981416670774);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Scholarship and Financial Unit&lt;span&gt;›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;a href="/#unit-values"&gt;&lt;span&gt;‹&lt;/span&gt;&lt;span class="icon" style="width:36px;height:36px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/a067a.svg" alt="" style="transform:scale(0.58640135263245);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Character and Values Formation&lt;span&gt;›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;/div&gt;&lt;/section&gt;\r\n
+\r\n
+&lt;/div&gt;\r\n
+&lt;div id="unit-scholarship" class="landing-unit-detail"&gt;\r\n
+&lt;section class="site-hero unit-hero" style="--hero:url('http://localhost/design-assets/public/scholarship.png')"&gt;&lt;p class="breadcrumb"&gt;Home / Units / Scholarship and Financial Unit &lt;span&gt;&lt;/span&gt;&lt;/p&gt;&lt;div class="unit-hero-copy"&gt;&lt;b class="hero-number"&gt;02&lt;/b&gt;&lt;div&gt;&lt;small class="overline"&gt;UNIT 02&lt;/small&gt;&lt;h1&gt;\r\n
+Scholarship and&lt;br&gt;&lt;em&gt;Financial Unit&lt;/em&gt;\r\n
+&lt;/h1&gt;&lt;p&gt;Access the unit’s confirmed financial-support transaction.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;\r\n
+&lt;/section&gt;\r\n
+&lt;section class="unit-detail"&gt;&lt;div class="section-heading"&gt;&lt;h2&gt;Available transaction&lt;/h2&gt;\r\n
+&lt;/div&gt;&lt;div class="transaction-list "&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.7492482870804);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Tuition Discount&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/scholar/information"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="transaction-info"&gt;&lt;b&gt;ⓘ&lt;/b&gt;&lt;p&gt;\r\n
+&lt;strong&gt;Transaction information&lt;/strong&gt;&lt;br&gt;Open Tuition Discount to view the official process and requirements.\r\n
+&lt;/p&gt;&lt;/div&gt;\r\n
+&lt;div class="unit-neighbors"&gt;\r\n
+&lt;a href="/#unit-leadership"&gt;&lt;span&gt;‹&lt;/span&gt;&lt;span class="icon" style="width:36px;height:36px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.2413793103448);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Student Leadership Unit&lt;span&gt;›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;a href="/#unit-values"&gt;&lt;span&gt;‹&lt;/span&gt;&lt;span class="icon" style="width:36px;height:36px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/a067a.svg" alt="" style="transform:scale(0.58640135263245);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Character and Values Formation&lt;span&gt;›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;/div&gt;&lt;/section&gt;\r\n
+\r\n
+&lt;/div&gt;\r\n
+&lt;div id="unit-values" class="landing-unit-detail"&gt;\r\n
+&lt;section class="site-hero unit-hero" style="--hero:url('http://localhost/design-assets/public/values.png')"&gt;&lt;p class="breadcrumb"&gt;Home / Units / Character and Values Formation &lt;span&gt;&lt;/span&gt;&lt;/p&gt;&lt;div class="unit-hero-copy"&gt;&lt;b class="hero-number"&gt;03&lt;/b&gt;&lt;div&gt;&lt;small class="overline"&gt;UNIT 03&lt;/small&gt;&lt;h1&gt;\r\n
+ Character and&lt;br&gt;&lt;em&gt;Values Formation&lt;/em&gt;\r\n
+&lt;/h1&gt;&lt;p&gt;Access the unit’s confirmed student-support transactions.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;\r\n
+&lt;/section&gt;\r\n
+&lt;section class="unit-detail"&gt;&lt;div class="section-heading"&gt;&lt;h2&gt;Available transactions&lt;/h2&gt;\r\n
+&lt;span&gt;7 services&lt;/span&gt;\r\n
+&lt;/div&gt;&lt;div class="transaction-list split"&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;b class="service-number"&gt;01&lt;/b&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/7ffe5.svg" alt="" style="transform:scale(1.1869102539676);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Complaints and Concerns&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/apply/complaint"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;b class="service-number"&gt;02&lt;/b&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/0596a.svg" alt="" style="transform:scale(1.2201152045619);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Lost &amp;amp; Found&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/lost-found"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;b class="service-number"&gt;03&lt;/b&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/c1105.svg" alt="" style="transform:scale(1.2931855925513);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Re-admission&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/apply/readmission"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;b class="service-number"&gt;04&lt;/b&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/25646.svg" alt="" style="transform:scale(1.3103448275862);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;ID Replacement&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/apply/id-replacement"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;b class="service-number"&gt;05&lt;/b&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.3103448275862);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Community Service&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/community-link"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;b class="service-number"&gt;06&lt;/b&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/19391.svg" alt="" style="transform:scale(1.3103448275862);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Seminars&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/apply/seminar"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;article class="transaction-card"&gt;\r\n
+&lt;b class="service-number"&gt;07&lt;/b&gt;\r\n
+&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:38px;height:38px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/c1105.svg" alt="" style="transform:scale(1.2931855925513);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;&lt;h3&gt;Clearance&lt;/h3&gt;\r\n
+&lt;a class="site-button red-button" href="/apply/clearance"&gt;View transaction&lt;/a&gt;\r\n
+&lt;/article&gt;\r\n
+&lt;/div&gt;\r\n
+&lt;div class="unit-neighbors"&gt;\r\n
+&lt;a href="/#unit-leadership"&gt;&lt;span&gt;‹&lt;/span&gt;&lt;span class="icon" style="width:36px;height:36px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.2413793103448);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Student Leadership Unit&lt;span&gt;›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;a href="/#unit-scholarship"&gt;&lt;span&gt;‹&lt;/span&gt;&lt;span class="icon" style="width:36px;height:36px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.70981416670774);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+Scholarship and Financial Unit&lt;span&gt;›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;/div&gt;&lt;/section&gt;\r\n
+\r\n
+&lt;/div&gt;\r\n
+&lt;/section&gt;\r\n
+&lt;section id="announcements" class="landing-section" aria-label="Announcements"&gt;&lt;section class="site-hero announcements-hero" style="--hero:url('http://localhost/design-assets/public/announcements.png')"&gt;&lt;p class="breadcrumb"&gt;Home / Announcements &lt;span&gt;&lt;/span&gt;&lt;/p&gt;&lt;div class="unit-hero-copy"&gt;&lt;b class="hero-number"&gt;A&lt;/b&gt;&lt;div&gt;&lt;small class="overline"&gt;CSLD UPDATES&lt;/small&gt;&lt;h1&gt;Announc&lt;em&gt;ements&lt;/em&gt;&lt;/h1&gt;&lt;p&gt;Official notices from the Center for Student Leadership&lt;br&gt;and Development.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;\r\n
+&lt;section class="announcements-body"&gt;&lt;div&gt;&lt;form class="announcement-filters" action="/#announcements"&gt;&lt;a class="outline-button selected" href="/#announcements"&gt;All units&lt;/a&gt;\r\n
+&lt;a class="outline-button " href="/?announcement_unit=leadership&amp;announcement_q=#announcements"&gt;Student Leadership&lt;/a&gt;\r\n
+&lt;a class="outline-button " href="/?announcement_unit=scholarship&amp;announcement_q=#announcements"&gt;Scholarship and Financial&lt;/a&gt;\r\n
+&lt;a class="outline-button " href="/?announcement_unit=values&amp;announcement_q=#announcements"&gt;Character and Values Formation&lt;/a&gt;\r\n
+ \r\n
+&lt;input name="announcement_q" value="" aria-label="Search announcements" placeholder="Search announcements"&gt;&lt;button class="sr-only"&gt;Search&lt;/button&gt;&lt;/form&gt;\r\n
+&lt;div class="announcement-empty"&gt;&lt;span class="document-circle"&gt;▤&lt;/span&gt;&lt;h2&gt;No announcements published yet&lt;/h2&gt;&lt;p&gt;Official CSLD notices will appear here once published.&lt;/p&gt;&lt;a class="outline-button" href="/#services"&gt;Explore services &amp;nbsp; ›&lt;/a&gt;&lt;/div&gt;\r\n
+&lt;/div&gt;&lt;aside class="office-card"&gt;&lt;h3&gt;&lt;img src="http://localhost/design-assets/public/office.png" alt="CSLD emblem"&gt;Center for Student Leadership and Development&lt;/h3&gt;\r\n
+&lt;a href="/#unit-leadership"&gt;&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:35px;height:35px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.2068965517241);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;Student Leadership&lt;b&gt;›&lt;/b&gt;&lt;/a&gt;\r\n
+&lt;a href="/#unit-scholarship"&gt;&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:35px;height:35px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.69009710652142);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;Scholarship and Financial&lt;b&gt;›&lt;/b&gt;&lt;/a&gt;\r\n
+&lt;a href="/#unit-values"&gt;&lt;span class="tile-icon"&gt;&lt;span class="icon" style="width:35px;height:35px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/a067a.svg" alt="" style="transform:scale(0.57011242617044);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;/span&gt;Character and Values Formation&lt;b&gt;›&lt;/b&gt;&lt;/a&gt;\r\n
+&lt;/aside&gt;&lt;/section&gt;&lt;/section&gt;\r\n
+&lt;section id="about" class="landing-section" aria-label="About"&gt;&lt;section class="site-hero about-hero" style="--hero:url('http://localhost/design-assets/public/about.png')"&gt;&lt;p class="breadcrumb"&gt;Home / About &lt;span&gt;&lt;/span&gt;&lt;/p&gt;&lt;div class="about-hero-copy"&gt;&lt;img src="http://localhost/design-assets/public/crest.png" alt="CSLD crest"&gt;&lt;div&gt;&lt;small class="overline"&gt;ABOUT THE OFFICE&lt;/small&gt;&lt;h1&gt;Center for Student&lt;br&gt;Leadership and&lt;br&gt;&lt;em&gt;Development&lt;/em&gt;&lt;/h1&gt;&lt;p&gt;CSLD brings together three student-service units&lt;br&gt;within Urdaneta City University.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;\r\n
+&lt;section class="about-body"&gt;&lt;div&gt;&lt;div class="section-heading"&gt;&lt;h2&gt;Our units&lt;/h2&gt;&lt;hr&gt;&lt;/div&gt;\r\n
+&lt;a class="about-unit" href="/#unit-leadership"&gt;&lt;b&gt;01&lt;/b&gt;&lt;span class="icon" style="width:48px;height:48px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/f941e.svg" alt="" style="transform:scale(1.6551724137931);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;h3&gt;Student Leadership Unit&lt;/h3&gt;&lt;span class="outline-button"&gt;View unit &amp;nbsp; ›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;a class="about-unit" href="/#unit-scholarship"&gt;&lt;b&gt;02&lt;/b&gt;&lt;span class="icon" style="width:48px;height:48px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/bb3ad.svg" alt="" style="transform:scale(0.94641888894366);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;h3&gt;Scholarship and Financial Unit&lt;/h3&gt;&lt;span class="outline-button"&gt;View unit &amp;nbsp; ›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;a class="about-unit" href="/#unit-values"&gt;&lt;b&gt;03&lt;/b&gt;&lt;span class="icon" style="width:48px;height:48px" aria-hidden="true"&gt;&lt;img src="http://localhost/design-assets/a067a.svg" alt="" style="transform:scale(0.7818684701766);transform-origin:top left"&gt;&lt;/span&gt;\n\r
+\n\r
+\n
+&lt;h3&gt;Character and Values Formation&lt;/h3&gt;&lt;span class="outline-button"&gt;View unit &amp;nbsp; ›&lt;/span&gt;&lt;/a&gt;\r\n
+&lt;/div&gt;&lt;aside class="access-card"&gt;&lt;span class="document-circle"&gt;▤&lt;/span&gt;&lt;h2&gt;Access student services&lt;/h2&gt;&lt;p&gt;Use iSERVE to find the confirmed&lt;br&gt;transactions offered by each unit.&lt;/p&gt;&lt;a class="site-button red-button" href="/#services"&gt;Browse services &lt;b&gt;›&lt;/b&gt;&lt;/a&gt;&lt;/aside&gt;&lt;/section&gt;&lt;/section&gt;\r\n
+&lt;/main&gt;&lt;footer class="site-footer"&gt;&lt;span&gt;&lt;/span&gt;&lt;div&gt;&lt;strong&gt;iSERVE&lt;/strong&gt;&lt;small&gt;Urdaneta City University&lt;/small&gt;&lt;/div&gt;&lt;span&gt;&lt;/span&gt;&lt;/footer&gt;&lt;/body&gt;&lt;/html&gt;\r\n
+' [UTF-8](length: 22189) contains "Student Portal" [ASCII](length: 14).
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:710
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\PublicWebsiteTest.php:10</failure>
+      </testcase>
+      <testcase name="test_notices_only_publish_with_authorized_office_and_publication_time" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\PublicWebsiteTest.php" line="16" class="Tests\Feature\PublicWebsiteTest" classname="Tests.Feature.PublicWebsiteTest" assertions="5" time="0.145254">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\PublicWebsiteTest::test_notices_only_publish_with_authorized_office_and_publication_time&#13;
+Failed asserting that '&lt;!DOCTYPE html&gt;\n
+&lt;html&gt;\n
+    &lt;head&gt;\n
+        &lt;meta charset="UTF-8" /&gt;\n
+        &lt;meta http-equiv="refresh" content="0;url='http://localhost/#announcements'" /&gt;\n
+\n
+        &lt;title&gt;Redirecting to http://localhost/#announcements&lt;/title&gt;\n
+    &lt;/head&gt;\n
+    &lt;body&gt;\n
+        Redirecting to &lt;a href="http://localhost/#announcements"&gt;http://localhost/#announcements&lt;/a&gt;.\n
+    &lt;/body&gt;\n
+&lt;/html&gt;' [ASCII](length: 370) contains "Published notice" [ASCII](length: 16).
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:710
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\PublicWebsiteTest.php:23</failure>
+      </testcase>
+    </testsuite>
+    <testsuite name="Tests\Feature\ReportsAndSettingsTest" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ReportsAndSettingsTest.php" tests="4" assertions="24" errors="0" failures="1" skipped="0" time="0.533347">
+      <testcase name="test_reports_preserve_snapshot_and_only_admin_can_review_once" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ReportsAndSettingsTest.php" line="10" class="Tests\Feature\ReportsAndSettingsTest" classname="Tests.Feature.ReportsAndSettingsTest" assertions="14" time="0.100782"/>
+      <testcase name="test_fee_settings_are_admin_only_and_rounding_totals_match_fee_lines" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ReportsAndSettingsTest.php" line="21" class="Tests\Feature\ReportsAndSettingsTest" classname="Tests.Feature.ReportsAndSettingsTest" assertions="6" time="0.140780"/>
+      <testcase name="test_seeded_student_views_and_both_other_profile_types_render" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ReportsAndSettingsTest.php" line="27" class="Tests\Feature\ReportsAndSettingsTest" classname="Tests.Feature.ReportsAndSettingsTest" assertions="1" time="0.227792">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ReportsAndSettingsTest::test_seeded_student_views_and_both_other_profile_types_render&#13;
+Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:175
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\Concerns\AssertsStatusCodes.php:16
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ReportsAndSettingsTest.php:29</failure>
+      </testcase>
+      <testcase name="test_request_notifications_respect_disabled_preferences" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\ReportsAndSettingsTest.php" line="32" class="Tests\Feature\ReportsAndSettingsTest" classname="Tests.Feature.ReportsAndSettingsTest" assertions="3" time="0.063992"/>
+    </testsuite>
+    <testsuite name="Tests\Feature\WorkflowTest" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" tests="14" assertions="100" errors="1" failures="4" skipped="0" time="5.387632">
+      <testcase name="test_activity_drafts_are_private_and_submit_retained_documents" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="14" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="16" time="0.815755"/>
+      <testcase name="test_moderator_editing_requires_president_and_same_organization" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="25" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="1" time="1.702935">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\WorkflowTest::test_moderator_editing_requires_president_and_same_organization&#13;
+Expected response status code [403] but received 500.
+Failed asserting that 500 is identical to 403.&#13;
+&#13;
+The following exception occurred during the last request:
+
+ErrorException: Undefined variable $portal in C:\Users\kennethtaro\final_system\cvu-build\app\Http\Controllers\PortalController.php:42
+Stack trace:
+#0 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Bootstrap\HandleExceptions.php(262): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;handleError(2, 'Undefined varia...', 'C:\\Users\\kennet...', 42)
+#1 C:\Users\kennethtaro\final_system\cvu-build\app\Http\Controllers\PortalController.php(42): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;Illuminate\Foundation\Bootstrap\{closure}(2, 'Undefined varia...', 'C:\\Users\\kennet...', 42)
+#2 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\ControllerDispatcher.php(46): App\Http\Controllers\PortalController-&gt;moderators(Object(Illuminate\Http\Request))
+#3 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Route.php(265): Illuminate\Routing\ControllerDispatcher-&gt;dispatch(Object(Illuminate\Routing\Route), Object(App\Http\Controllers\PortalController), 'moderators')
+#4 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Route.php(211): Illuminate\Routing\Route-&gt;runController()
+#5 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Router.php(822): Illuminate\Routing\Route-&gt;run()
+#6 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(180): Illuminate\Routing\Router-&gt;Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Auth\Middleware\EnsureEmailIsVerified.php(41): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#8 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Auth\Middleware\EnsureEmailIsVerified-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#9 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php(50): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#10 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Routing\Middleware\SubstituteBindings-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#11 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Auth\Middleware\Authenticate.php(63): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#12 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Auth\Middleware\Authenticate-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#13 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken.php(87): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#14 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Foundation\Http\Middleware\VerifyCsrfToken-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#15 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\View\Middleware\ShareErrorsFromSession.php(48): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#16 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\View\Middleware\ShareErrorsFromSession-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#17 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php(120): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#18 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php(63): Illuminate\Session\Middleware\StartSession-&gt;handleStatefulRequest(Object(Illuminate\Http\Request), Object(Illuminate\Session\Store), Object(Closure))
+#19 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Session\Middleware\StartSession-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#20 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse.php(36): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#21 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#22 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Cookie\Middleware\EncryptCookies.php(74): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#23 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Cookie\Middleware\EncryptCookies-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#24 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(137): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#25 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Router.php(821): Illuminate\Pipeline\Pipeline-&gt;then(Object(Closure))
+#26 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Router.php(800): Illuminate\Routing\Router-&gt;runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#27 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Router.php(764): Illuminate\Routing\Router-&gt;runRoute(Object(Illuminate\Http\Request), Object(Illuminate\Routing\Route))
+#28 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Routing\Router.php(753): Illuminate\Routing\Router-&gt;dispatchToRoute(Object(Illuminate\Http\Request))
+#29 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php(200): Illuminate\Routing\Router-&gt;dispatch(Object(Illuminate\Http\Request))
+#30 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(180): Illuminate\Foundation\Http\Kernel-&gt;Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#31 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php(21): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#32 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php(31): Illuminate\Foundation\Http\Middleware\TransformsRequest-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#33 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#34 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php(21): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#35 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php(51): Illuminate\Foundation\Http\Middleware\TransformsRequest-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#36 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Foundation\Http\Middleware\TrimStrings-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#37 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php(27): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#38 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Http\Middleware\ValidatePostSize-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#39 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php(109): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#40 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#41 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php(61): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#42 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Http\Middleware\HandleCors-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#43 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php(58): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#44 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Http\Middleware\TrustProxies-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#45 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks.php(22): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#46 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#47 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePathEncoding.php(26): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#48 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(219): Illuminate\Http\Middleware\ValidatePathEncoding-&gt;handle(Object(Illuminate\Http\Request), Object(Closure))
+#49 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php(137): Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#50 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php(175): Illuminate\Pipeline\Pipeline-&gt;then(Object(Closure))
+#51 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php(144): Illuminate\Foundation\Http\Kernel-&gt;sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#52 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php(607): Illuminate\Foundation\Http\Kernel-&gt;handle(Object(Illuminate\Http\Request))
+#53 C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php(397): Illuminate\Foundation\Testing\TestCase-&gt;call('POST', '/organization/m...', Array, Array, Array, Array)
+#54 C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php(28): Illuminate\Foundation\Testing\TestCase-&gt;post('/organization/m...', Array)
+#55 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\Framework\TestCase.php(1667): Tests\Feature\WorkflowTest-&gt;test_moderator_editing_requires_president_and_same_organization()
+#56 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\Framework\TestCase.php(519): PHPUnit\Framework\TestCase-&gt;runTest()
+#57 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\Framework\TestRunner\TestRunner.php(87): PHPUnit\Framework\TestCase-&gt;runBare()
+#58 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\Framework\TestCase.php(365): PHPUnit\Framework\TestRunner-&gt;run(Object(Tests\Feature\WorkflowTest))
+#59 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\Framework\TestSuite.php(369): PHPUnit\Framework\TestCase-&gt;run()
+#60 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\Framework\TestSuite.php(369): PHPUnit\Framework\TestSuite-&gt;run()
+#61 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\TextUI\TestRunner.php(64): PHPUnit\Framework\TestSuite-&gt;run()
+#62 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\src\TextUI\Application.php(211): PHPUnit\TextUI\TestRunner-&gt;run(Object(PHPUnit\TextUI\Configuration\Configuration), Object(PHPUnit\Runner\ResultCache\NullResultCache), Object(PHPUnit\Framework\TestSuite))
+#63 C:\Users\kennethtaro\final_system\cvu-build\vendor\phpunit\phpunit\phpunit(104): PHPUnit\TextUI\Application-&gt;run(Array)
+#64 {main}
+
+----------------------------------------------------------------------------------
+
+Undefined variable $portal
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:175
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\Concerns\AssertsStatusCodes.php:141
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php:28</failure>
+      </testcase>
+      <testcase name="test_auth_registration_login_logout_and_no_role_escalation" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="33" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="14" time="0.194904"/>
+      <testcase name="test_every_student_screen_and_transaction_form_renders" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="40" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="1" time="0.035374">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\WorkflowTest::test_every_student_screen_and_transaction_form_renders&#13;
+Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:175
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\Concerns\AssertsStatusCodes.php:16
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php:42</failure>
+      </testcase>
+      <testcase name="test_all_staff_roles_render_and_students_cannot_access_staff" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="46" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="6" time="0.120027"/>
+      <testcase name="test_documents_are_private_and_requests_are_owner_and_office_scoped" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="50" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="7" time="0.084741"/>
+      <testcase name="test_unverified_user_cannot_submit_and_no_financial_injection" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="57" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="4" time="0.235179"/>
+      <testcase name="test_review_transitions_office_isolation_and_notification" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="62" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="11" time="1.717435"/>
+      <testcase name="test_duplicate_open_request_blocked_and_revision_resubmission" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="71" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="2" time="0.032958">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\WorkflowTest::test_duplicate_open_request_blocked_and_revision_resubmission&#13;
+Session missing error: workflow
+Failed asserting that false is true.&#13;
+&#13;
+The following errors occurred during the last request:
+
+The name field is required.&#13;
+The student id field is required.&#13;
+The course field is required.&#13;
+The year level field is required.&#13;
+The contact field is required.
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:1642
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php:73</failure>
+      </testcase>
+      <testcase name="test_community_hours_require_review_and_modules_unlock_from_verified_hours" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="77" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="7" time="0.134198">
+        <error type="ErrorException">Tests\Feature\WorkflowTest::test_community_hours_require_review_and_modules_unlock_from_verified_hours&#13;
+ErrorException: Attempt to read property "id" on null
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Foundation\Bootstrap\HandleExceptions.php:262
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php:83</error>
+      </testcase>
+      <testcase name="test_event_capacity_time_window_reflection_and_points_are_verified_once" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="89" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="14" time="0.070384"/>
+      <testcase name="test_clearance_requires_completed_community_record" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="97" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="2" time="0.040134">
+        <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\WorkflowTest::test_clearance_requires_completed_community_record&#13;
+Session missing error: workflow
+Failed asserting that false is true.&#13;
+&#13;
+The following errors occurred during the last request:
+
+The name field is required.&#13;
+The student id field is required.&#13;
+The course field is required.&#13;
+The year level field is required.&#13;
+The contact field is required.
+&#13;
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\kennethtaro\final_system\cvu-build\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:1642
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php:98</failure>
+      </testcase>
+      <testcase name="test_organization_posts_are_member_scoped" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="100" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="4" time="0.152596"/>
+      <testcase name="test_two_factor_keeps_user_guest_until_correct_code" file="C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\WorkflowTest.php" line="105" class="Tests\Feature\WorkflowTest" classname="Tests.Feature.WorkflowTest" assertions="11" time="0.051013"/>
+    </testsuite>
+  </testsuite>
+</testsuites>

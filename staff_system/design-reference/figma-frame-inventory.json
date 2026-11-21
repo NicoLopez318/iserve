@@ -1,0 +1,2207 @@
+[
+  {
+    "id": "1:249",
+    "name": "Student Dashboard",
+    "size": {
+      "x": 1440,
+      "y": 1315
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Good morning, Franco!",
+      "Are you a android user? try our mobile application now !",
+      "iServe: ComServ App",
+      "Download ",
+      "Franco Fernandez",
+      "BSIT - 3rd Year",
+      "Student ID: 2023-2636",
+      "AY 2026-2027",
+      "1st Semester",
+      "VIEW PROFILE",
+      "Action Required",
+      "Current standing",
+      "Daily ",
+      "Hours completed",
+      "6 / 8 HOURS",
+      "70% COMPLETE",
+      "2 hours remaining",
+      "Next Schedule Aug 30",
+      "Daily",
+      "Overall",
+      "1 ACTIVE",
+      "Violation",
+      "CV-2026-00012",
+      "70%",
+      "70%",
+      "Community Service",
+      "14 of 20 hours",
+      "3 OF 12",
+      "Complete Days",
+      "RECORD & NEXT STEP",
+      "Recorded Offense",
+      "CV-2026-00021",
+      "Community Service",
+      "2 hours left • Next: Aug 30",
+      "Final Verification",
+      "After required actions are completed",
+      "Resolution requires authorized verification.",
+      "May 13, 2026",
+      "Wednesday",
+      "Dashboard",
+      "16\n",
+      "Your conduct values, and assigned and responsibilities at a glance",
+      "STUDENT \nVALUES\nPORTAL",
+      "DASHBOARD",
+      "VIOLATIONS",
+      "COMMUNITY SERVICE",
+      "DUTY JOURNAL",
+      "PROFILE",
+      "SETTINGS",
+      "Return to ISERVE",
+      "Here’s your values and conduct overview."
+    ],
+    "nodes": 122
+  },
+  {
+    "id": "1:371",
+    "name": "Student Violations",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Franco Fernandez",
+      "BSIT - 3rd Year",
+      "BSIT - 3rd Year",
+      "Student ID: 20232636",
+      "CURRENT RECORD STATUS",
+      "Violation Record",
+      "Record  Number",
+      "Date  Recorded",
+      "Last Updated",
+      "CV-2026-0021",
+      "August 20, 2026",
+      "August 28, 2026 • 3:42 pm",
+      "MINOR OFFENSE",
+      "IN PROGRESS",
+      "View Full Record",
+      "REQUIREMENT PROGRESS",
+      "70%",
+      "Community Service",
+      "Assigned",
+      "Completed",
+      "Remaining",
+      "20 Hours",
+      "14 Hours",
+      "6 Hours",
+      "View Service Details",
+      "Recorded offense",
+      "Deliberation",
+      "Decision",
+      "Community Service",
+      "Verification",
+      "August 20, 2026",
+      "Next Schedule",
+      "May 13, 2026",
+      "Wednesday",
+      "Violations",
+      "16\n",
+      "Review the official record, assigned requirements, and completion status",
+      "STUDENT \nVALUES\nPORTAL",
+      "Return to ISERVE",
+      "DASHBOARD",
+      "VIOLATIONS",
+      "COMMUNITY SERVICE",
+      "DUTY JOURNAL",
+      "PROFILE",
+      "SETTINGS"
+    ],
+    "nodes": 104
+  },
+  {
+    "id": "1:475",
+    "name": "Student Community Service",
+    "size": {
+      "x": 1440,
+      "y": 1262
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Daily ",
+      "Hours completed",
+      "6 / 8 HOURS",
+      "70% COMPLETE",
+      "2 hours remaining",
+      "Time in",
+      "March 18, 2026",
+      "8:00 AM ",
+      "March 18, 2026",
+      "4:00 PM ",
+      "Time out",
+      "Deployement",
+      "IT DEPARTMENT",
+      " Juan Dela Cruz",
+      "Monitored by:",
+      "Overall ",
+      "Hours completed",
+      "40 / 80 HOURS",
+      "50% COMPLETE",
+      "40 hours remaining",
+      "Documentation",
+      "View Album",
+      "May 13, 2026",
+      "Wednesday",
+      "Community Service",
+      "16\n",
+      "Track Assigned hours, verified attendance, schedules, and completion status",
+      "STUDENT \nVALUES\nPORTAL",
+      "Return to ISERVE",
+      "DASHBOARD",
+      "VIOLATIONS",
+      "COMMUNITY SERVICE",
+      "DUTY JOURNAL",
+      "PROFILE",
+      "SETTINGS"
+    ],
+    "nodes": 95
+  },
+  {
+    "id": "1:570",
+    "name": "Student Community Service",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Module 1",
+      "Pre-program expectation",
+      "Answer Now",
+      "Module 3",
+      "Pre-program expectation",
+      "Answer Now",
+      "Module 3",
+      "Pre-program expectation",
+      "Answer Now",
+      "Modules will unlock depends on hours completed",
+      "Module 2",
+      "Pre-program expectation",
+      "Answer Now",
+      "Module 4",
+      "Pre-program expectation",
+      "Answer Now",
+      "May 13, 2026",
+      "Wednesday",
+      "DUTY JOURNAL",
+      "16\n",
+      "A Duty Journal is a record of the student’s completed community service tasks, hours, and supervisor verification.",
+      "STUDENT \nVALUES\nPORTAL",
+      "Return to ISERVE",
+      "DASHBOARD",
+      "VIOLATIONS",
+      "COMMUNITY SERVICE",
+      "DUTY JOURNAL",
+      "PROFILE",
+      "SETTINGS"
+    ],
+    "nodes": 87
+  },
+  {
+    "id": "1:657",
+    "name": "Student Community Service",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Franco Fernandez",
+      "BS Information technology • 3rd year",
+      "Student ID : 2023-2636",
+      "Academic Year 2026-2027 • 1st Semester",
+      "Changed Photo",
+      "Active Violation",
+      "PERSONAL INFORMATION",
+      "Full Name",
+      "FrancoDonia Fernandez",
+      "Email",
+      "dev.ffernandez@gmail.com",
+      "Mobile Number",
+      "+639162071593",
+      "Address",
+      "Urdaneta City, Pangasinan",
+      "VIEW",
+      "ACADEMIC INFORMATION",
+      "Academic Information is read only.",
+      "Program",
+      "Year Level",
+      "Academic Year",
+      "Semester",
+      "BS Inforamtion Technology",
+      "3rd Year",
+      "2026-2027",
+      "1st Semester",
+      "Record History",
+      "CV-2026-00021",
+      "Minor Offense",
+      "May 13, 2026",
+      "Wednesday",
+      "Profile",
+      "16\n",
+      "Manage student information, account access, and portal preferences.",
+      "STUDENT \nVALUES\nPORTAL",
+      "Return to ISERVE",
+      "DASHBOARD",
+      "VIOLATIONS",
+      "COMMUNITY SERVICE",
+      "DUTY JOURNAL",
+      "PROFILE",
+      "SETTINGS"
+    ],
+    "nodes": 82
+  },
+  {
+    "id": "1:739",
+    "name": "Student Community Service",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "NOTIFICATION PREFERENCES",
+      "Scholarships status updates",
+      "SMS alerts",
+      "ON",
+      "ON",
+      "ON",
+      "Email alerts",
+      "ACCOUNT SECURITY",
+      "Password",
+      "Last changed June 18, 2026",
+      "ENABLED",
+      "Two-step verification",
+      "CHANGE PASSWORD",
+      "MANAGE SECURITY",
+      "SAVE CHANGES",
+      "CANCEL",
+      "All changes saved",
+      "May 13, 2026",
+      "Wednesday",
+      "Settings",
+      "16\n",
+      "Manage student information, account access, and portal preferences.",
+      "STUDENT \nVALUES\nPORTAL",
+      "Return to ISERVE",
+      "DASHBOARD",
+      "VIOLATIONS",
+      "COMMUNITY SERVICE",
+      "STUDENT MANUAL",
+      "PROFILE",
+      "SETTINGS"
+    ],
+    "nodes": 75
+  },
+  {
+    "id": "1:814",
+    "name": "Events  & Activities",
+    "size": {
+      "x": 1440,
+      "y": 1910
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Upcoming Events",
+      "May",
+      "20",
+      "Wed",
+      "May",
+      "22",
+      "Fri",
+      "May",
+      "25",
+      "Mon",
+      "Student Organization  Fair",
+      "1:00 PM - 4:00 PM • Forest",
+      "Discover organizations and find your community .",
+      "View Details",
+      "Pending",
+      "+30 points",
+      "Community Outreach Program",
+      "Give back to the community and make a positive impact.",
+      "7:00 AM - 12:00 PM • Gym",
+      "View Details",
+      "+60 points",
+      "Registered",
+      "View Full Calendar",
+      "Leadership Seminar",
+      "8:00 AM - 12:00 PM • Chapel",
+      "Learn leadership skills and develop your leadership potential.",
+      "View Details",
+      "+50 points",
+      "Open",
+      "lorem ipsum dolor sit amet consectetur adipiscing elit ullamco duis est ullamco exercitation aliquip qui pariatur proident nulla at eos placeat non est eligendi quos tempor lorem ut nobis excepturi aut at quas deleniti et placeat harum nihil at vel est velit in ut est accusamus officia quidem tempor exercitation lorem ipsum dolor sit amet consectetur adipiscing elit ullamco duis est ullamco exercitation aliquip qui pariatur proident nulla at eos placeat non est eligendi quos tempor lorem ut nobis excepturi aut at quas deleniti et ",
+      "+50 points",
+      "Register now ",
+      "attend to the event to earn the points",
+      "Join the leadership seminar and earn points for your leadership journey",
+      "Join Event",
+      "FEATURED EVENT",
+      "5%",
+      "Dashboard",
+      "Leadership Summit 2026",
+      "Empowering leaders, Building communities. Be part of the biggest leadership event of the year!",
+      "+80 points",
+      "Exclusive Badge",
+      "Ongoing Events",
+      "University Clean Drive",
+      "8:00 AM - 12:00 PM • Chapel",
+      "Attendance",
+      "Reflection",
+      "Time in",
+      "Submit",
+      "March 18, 2026",
+      "8:00 AM ",
+      "March 18, 2026",
+      "4:00 PM ",
+      "Time out",
+      "May 13, 2026",
+      "Wednesday",
+      "Events & Activities",
+      "Search events, Activities ...",
+      "16\n",
+      "Join events, complete activities, earnpoints, and unlock rewards!",
+      "May 13, 2026",
+      "Wednesday",
+      "Events & Activities",
+      "16\n",
+      "Get involved, meet your peers, and make an impact on our campus."
+    ],
+    "nodes": 208
+  },
+  {
+    "id": "1:1022",
+    "name": "Dashboard",
+    "size": {
+      "x": 1440,
+      "y": 1322
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Upcoming Events",
+      "8:00 AM - 12:00 PM ",
+      "8:00 AM - 12:00 PM ",
+      "Chapel",
+      "Chapel",
+      "Leadership Seminar",
+      "Community Outreach",
+      "8:00 AM - 12:00 PM ",
+      "Chapel",
+      "Student Fair",
+      "22",
+      "MAY 2026",
+      "1",
+      "2",
+      "3",
+      "10",
+      "17",
+      "24",
+      "4",
+      "11",
+      "18",
+      "25",
+      "5",
+      "12",
+      "19",
+      "26",
+      "6",
+      "13",
+      "20",
+      "27",
+      "7",
+      "14",
+      "21",
+      "28",
+      "8",
+      "15",
+      "29",
+      "9",
+      "16",
+      "24",
+      "30",
+      "View All",
+      "Welcome Franco Fernandez!",
+      "President",
+      "Top Organizations",
+      "All",
+      "Participation",
+      "Achievements",
+      "Level 4",
+      "4, 200 pts",
+      "3, 850 pts",
+      "3, 500 pts",
+      "2, 870 pts",
+      "2, 450 pts",
+      "Level 3",
+      "Level 3",
+      "Level 2",
+      "Level 2",
+      "View All Leaderboards",
+      "Funtime Organization",
+      "Community Leaders",
+      "Scholar Circle",
+      "BSIT Achievers",
+      "Outreach Volunteers",
+      "Top Leaders ",
+      "Franco Fernandez",
+      "Juan Dela Cruz",
+      "530 EXP",
+      "Handy Mandy",
+      "View All",
+      "650 EXP",
+      "490 EXP",
+      "All",
+      "Participation",
+      "Achievements",
+      "650",
+      "Level 3",
+      "2",
+      "4,200  points",
+      "Total EXP",
+      "Inspiring Leader",
+      "Badge earned",
+      "Organization points",
+      "Keep Growing, keep leading!",
+      "Your Actions today, shape the leaders of tomorrow",
+      "This month ▼",
+      "Org Participation",
+      "12",
+      "85%",
+      "Events Joined",
+      "Participation rate",
+      " EXP Earned",
+      "Funtime Organization",
+      "650 EXP",
+      "May 13, 2026",
+      "Wednesday",
+      "Dashboard",
+      "16\n",
+      "Your central hub for leadership tracking, point totals, and progress."
+    ],
+    "nodes": 248
+  },
+  {
+    "id": "1:1270",
+    "name": "Student Dashboard",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "CURRENT TUITIONS",
+      "₱19,550",
+      "Discount Applied",
+      "Hoarder",
+      "Achivement Level",
+      "3 years discounted",
+      "SCHOLARSHIP STATUS",
+      "Active",
+      "85%",
+      "VIEW SCHOLARSHIPS",
+      "TUITION DISCOUNT",
+      "30%",
+      "Covered",
+      "SCHOLARSHIP SAVINGS",
+      "₱8,550",
+      "Saved this semester",
+      "ORIGINAL TUITION",
+      "₱28,500",
+      "1st Semester SY 2026 - 2027",
+      "May 13, 2026",
+      "Wednesday",
+      "Dashboard",
+      "Search events, Activities ...",
+      "16\n",
+      "Your scholarship and tuition summary at a glance,",
+      "STUDENT \nSCHOLAR\nPORTAL",
+      "DASHBOARD",
+      "TUITION DISCOUNT",
+      "PROFILE ",
+      "SETTINGS"
+    ],
+    "nodes": 72
+  },
+  {
+    "id": "1:1342",
+    "name": "TUITION & DISCOUNT",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "TUITION BREAKDOWN",
+      "FEE ITEM",
+      "TOTAL",
+      "TUITION FEE",
+      "LABORATORY",
+      "TUITION FEE",
+      "₱20,000",
+      "₱5,000",
+      "₱3,500",
+      "₱28,500",
+      "-₱6,000",
+      "-₱1,500",
+      "-₱1,050",
+      "-₱8,550",
+      "-₱19,950",
+      "₱14,000",
+      "₱3,500",
+      "₱2,450",
+      "30%",
+      "30%",
+      "30%",
+      "30%",
+      "ORIGINAL",
+      "SCHOLARSHIP RATE",
+      "DISCOUNT",
+      "AFTER DISCOUNT",
+      "May 13, 2026",
+      "Wednesday",
+      "Tuition Discount",
+      "Search events, Activities ...",
+      "16\n",
+      "Review your tuition charges, approved discount, and remaining balance.",
+      "STUDENT \nSCHOLAR\nPORTAL",
+      "DASHBOARD",
+      "TUITION DISCOUNT",
+      "PROFILE ",
+      "SETTINGS"
+    ],
+    "nodes": 71
+  },
+  {
+    "id": "1:1413",
+    "name": "Profile",
+    "size": {
+      "x": 1440,
+      "y": 1222
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Franco Fernandez",
+      "BS Information technology • 3rd year",
+      "Student ID : 2023-2636",
+      "Academic Year 2026-2027 • 1st Semester",
+      "Changed Photo",
+      "Active Scholar",
+      "Hoarder",
+      "3 years discounted",
+      "PERSONAL INFORMATION",
+      "Full Name",
+      "FrancoDonia Fernandez",
+      "University Email",
+      "dev.ffernandez@gmail.com",
+      "Mobile Number",
+      "+639162071593",
+      "Address",
+      "Urdaneta City, Pangasinan",
+      "EDIT INFORMATION",
+      "SAVER",
+      "1 YEAR",
+      "2 YEARS",
+      "3 YEARS",
+      "4 YEARS",
+      "AMASSER",
+      "HOARDER",
+      "STOCKPILER",
+      "RANKINGS",
+      "ACADEMIC INFORMATION",
+      "Academic Information is read only.",
+      "Course",
+      "Year Level",
+      "Academic Year",
+      "Student ID",
+      "BS Information Technology",
+      "3rd Year",
+      "2026-2027",
+      "2024 4213",
+      "May 13, 2026",
+      "Wednesday",
+      "Profile",
+      "Search events, Activities ...",
+      "16\n",
+      "View your personal, academic, and scholarship information.",
+      "STUDENT \nSCHOLAR\nPORTAL",
+      "DASHBOARD",
+      "TUITION DISCOUNT",
+      "PROFILE ",
+      "SETTINGS"
+    ],
+    "nodes": 101
+  },
+  {
+    "id": "1:1514",
+    "name": "Settings",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "NOTIFICATIONS",
+      "Tuition discount updates",
+      "Email alerts",
+      "ON",
+      "ON",
+      "ACCOUNT SECURITY",
+      "Password",
+      "Last changed June 18, 2026",
+      "ENABLED",
+      "Two-step verification",
+      "CHANGE PASSWORD",
+      "MANAGE SECURITY",
+      "SAVE CHANGES",
+      "CANCEL",
+      "All changes saved",
+      "May 13, 2026",
+      "Wednesday",
+      "Settings",
+      "Search events, Activities ...",
+      "16\n",
+      "Manage your notifications, security, and portal preferences.",
+      "STUDENT \nSCHOLAR\nPORTAL",
+      "DASHBOARD",
+      "TUITION DISCOUNT",
+      "PROFILE ",
+      "SETTINGS"
+    ],
+    "nodes": 68
+  },
+  {
+    "id": "1:1582",
+    "name": "Organization / Achivements",
+    "size": {
+      "x": 1440,
+      "y": 1487
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Achivements",
+      "Members",
+      "Post",
+      "lorem ipsum dolor sit amet consectetur adipiscing elit id quibusdam facilis sunt minim deserunt culpa illum quod fuga distinctio laboris eiusmod dolor dolor omnis aliqua quidem non tempor vel facilis excepturi assumenda facilis ut cupiditate consectetur est officia vero facilis aliqua corrupti expedita excepteur fuga tempor duis adipiscing deserunt est",
+      "Comment",
+      "192+",
+      "lorem ipsum dolor sit amet consectetur adipiscing elit id quibusdam facilis sunt minim deserunt culpa illum quod fuga distinctio laboris eiusmod dolor dolor omnis aliqua quidem non tempor vel facilis excepturi assumenda facilis ut cupiditate consectetur est officia vero facilis aliqua corrupti expedita excepteur fuga tempor duis adipiscing deserunt est",
+      "Comment",
+      "192+",
+      "Funtime  <technology experts>",
+      "Funtime  <technology experts>",
+      "Funtime",
+      "36 members",
+      "Level 3",
+      "1000 pts",
+      "“JITS LANG SAKALAM”",
+      "May 13, 2026",
+      "Wednesday",
+      "My Organization",
+      "Search events, Activities ...",
+      "16\n",
+      "Create and treck your organization  event proposal",
+      "May 13, 2026",
+      "Wednesday",
+      "Organization",
+      "16\n",
+      "Built by students, structured for progress, and dedicated to service."
+    ],
+    "nodes": 165
+  },
+  {
+    "id": "1:1747",
+    "name": "Organization / Members",
+    "size": {
+      "x": 1440,
+      "y": 1248
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Achivements",
+      "Members",
+      "Franco Fernandez",
+      "May Mayers",
+      "Jojo Mojojo",
+      "Mayla Malala",
+      "Bruno Krono",
+      "Brinson Bros",
+      "Jungtaek GongJu",
+      "Jungtaek GongJu",
+      "Jungtaek GongJu",
+      "Jungtaek GongJu",
+      "President",
+      "Vice President",
+      "Secretary",
+      "PRO",
+      "Auditor",
+      "Treasurer",
+      "1st Year Representative",
+      "2nd Year Representative",
+      "3rd Year Representative",
+      "4th Year Representative",
+      "Funtime  <technology experts>",
+      "Funtime  <technology experts>",
+      "Funtime",
+      "36 members",
+      "Level 3",
+      "1000 pts",
+      "“JITS LANG SAKALAM”",
+      "May 13, 2026",
+      "Wednesday",
+      "My Organization",
+      "Search events, Activities ...",
+      "16\n",
+      "Create and treck your organization  event proposal",
+      "May 13, 2026",
+      "Wednesday",
+      "Organization",
+      "16\n",
+      "Built by students, structured for progress, and dedicated to service."
+    ],
+    "nodes": 147
+  },
+  {
+    "id": "1:1894",
+    "name": "Leaderboards",
+    "size": {
+      "x": 1440,
+      "y": 1310
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Overall",
+      "Rank",
+      "004",
+      "Franco Fernandez",
+      "Franco Fernandez",
+      "Franco Fernandez",
+      "Franco Fernandez",
+      "Franco Fernandez",
+      "Franco Fernandez",
+      "Franco Fernandez",
+      "Franco Fernandez",
+      "Level 3",
+      "Level 3",
+      "Level 3",
+      "Level 3",
+      "Level 3",
+      "Level 3",
+      "Level 3",
+      "Level 3",
+      "2450 EXP",
+      "2450 EXP",
+      "2450 EXP",
+      "2450 EXP",
+      "2450 EXP",
+      "2450 EXP",
+      "2450 EXP",
+      "2450 EXP",
+      "550 EXP",
+      "550 EXP",
+      "550 EXP",
+      "550 EXP",
+      "550 EXP",
+      "550 EXP",
+      "550 EXP",
+      "550 EXP",
+      "3000 Points",
+      "3000 Points",
+      "3000 Points",
+      "3000 Points",
+      "3000 Points",
+      "3000 Points",
+      "3000 Points",
+      "3000 Points",
+      "Funtime",
+      "Funtime",
+      "Funtime",
+      "Funtime",
+      "Funtime",
+      "Funtime",
+      "Funtime",
+      "Funtime",
+      "005",
+      "006",
+      "007",
+      "008",
+      "Student",
+      "Level",
+      "Participation EXP",
+      "Achievement EXP",
+      "Total Points",
+      "Participation",
+      "Achivements",
+      "Top Leaders",
+      "Top Organization",
+      "LEADER",
+      "Level 1",
+      "Level 2",
+      "Level 3",
+      "Level 4",
+      "ACTIVE LEADER",
+      "INSPIRING LEADER",
+      "?",
+      "Leadership Levels",
+      "May 13, 2026",
+      "Wednesday",
+      "Leaderboards",
+      "Search events, Activities ...",
+      "16\n",
+      "Create and treck your organization  event proposal",
+      "May 13, 2026",
+      "Wednesday",
+      "Leaderboards",
+      "16\n",
+      "See who is climbing the ranks and driving change in our community."
+    ],
+    "nodes": 184
+  },
+  {
+    "id": "1:2078",
+    "name": "Profile",
+    "size": {
+      "x": 1440,
+      "y": 2171
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Franco Fernandez",
+      "Bachelor of Science in Information Technology",
+      "4th Year ",
+      "Funtime Organization",
+      "This month ▼",
+      "My Stats",
+      "3000",
+      "3",
+      "2450",
+      "15",
+      "550",
+      "Top 1",
+      "Total Points",
+      "Level",
+      "Participation EXP",
+      "Badges Earned",
+      "Achievements EXP",
+      "Top Leader Ranking",
+      "My Badges",
+      "Leadership Active",
+      "Community Hero",
+      "30-Day Streak",
+      "Top Participant",
+      "Team Player",
+      "Mentor Badge",
+      "Earned on May 10, 2026",
+      "Earned on May 8, 2026",
+      "Earned on May 6, 2026",
+      "Earned on May 2, 2026",
+      "Earned on April 28, 2026",
+      "Earned on Event 001",
+      "Badges you’ve earned through your participation",
+      "View All Badges",
+      "Achivement Archives",
+      "My Achievements",
+      "lorem ipsum dolor sit amet consectetur adipiscing elit id quibusdam facilis sunt minim deserunt culpa illum quod fuga distinctio laboris eiusmod dolor dolor omnis aliqua quidem non tempor vel facilis excepturi assumenda facilis ut cupiditate consectetur est officia vero facilis aliqua corrupti expedita excepteur fuga tempor duis adipiscing deserunt est",
+      "Comment",
+      "192+",
+      "Submit Achievement",
+      "lorem ipsum dolor sit amet consectetur adipiscing elit id quibusdam facilis sunt minim deserunt culpa illum quod fuga distinctio laboris eiusmod dolor dolor omnis aliqua quidem non tempor vel facilis excepturi assumenda facilis ut cupiditate consectetur est officia vero facilis aliqua corrupti expedita excepteur fuga tempor duis adipiscing deserunt est",
+      "Comment",
+      "192+",
+      "May 13, 2026",
+      "Wednesday",
+      "Profile",
+      "16\n",
+      "Discover your potential. Lead your peers. Change your world"
+    ],
+    "nodes": 173
+  },
+  {
+    "id": "1:2251",
+    "name": "Submit Achievement Button",
+    "size": {
+      "x": 1215,
+      "y": 528
+    },
+    "texts": [
+      "Achievements Proposal",
+      "Achievement Title",
+      "Description",
+      "Venue",
+      "Award Receive",
+      "Supporting Documentation",
+      "Attach file",
+      " Date Achieve",
+      "Enter achievement title",
+      "Write event description",
+      "Enter venue",
+      "Select date",
+      "Submit "
+    ],
+    "nodes": 24
+  },
+  {
+    "id": "1:2275",
+    "name": "Organization Activity Proposal",
+    "size": {
+      "x": 1440,
+      "y": 2168
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Activity Proposal",
+      "Event Title",
+      "Event Description",
+      "Venue",
+      "Expected Participants",
+      "Proposed Date",
+      "Enter event Title",
+      "Write event description",
+      "Enter venue",
+      "Enter expected number of participants",
+      "Select date",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Pre-Activity Form ",
+      "for activities conducted outside the school/university",
+      "Letter of Intent",
+      "Program Matrix",
+      "Evaluation Form",
+      "Resolution",
+      "Budget Proposal",
+      "Consent Form/Waiver",
+      "CMO No. 63",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      " (CHED Memorandum Order No. 63)",
+      "Save",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Upload files",
+      "Post-Activity Form ",
+      "for activities conducted outside the school/university",
+      "Activity Documentation",
+      "Narrative Report",
+      "Evaluation Report",
+      "Financial Report",
+      "Attendance Sheet",
+      "Consent Form/Waiver",
+      "CMO No. 63",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      "PDF, JPG or PNG  • Maximum 10 MB each",
+      " (CHED Memorandum Order No. 63)",
+      "Save",
+      "Your proposal will be sent to the Student Leadership Unit Head for reviews",
+      "Save Draft",
+      "Submit Proposal",
+      "Proposals",
+      "Under Review",
+      "Approved",
+      "Need Revision",
+      "Approved",
+      "Search proposals...",
+      "All Statuses",
+      "Propose Activity",
+      "Event",
+      "Organization Recruitment",
+      "Organization Recruitment",
+      "Organization Recruitment",
+      "Organization Recruitment",
+      "Juju mujuju",
+      "Junas Muna",
+      "Lunas Bukas",
+      "Buras Bukas",
+      "May 12, 2026",
+      "May 12, 2026",
+      "May 12, 2026",
+      "May 12, 2026",
+      "Submitted by",
+      "Date Submitted",
+      "Status",
+      "Action",
+      "Moderators",
+      "Franco Fernandez",
+      "President",
+      "May Mayers",
+      "Vice President",
+      "Jojo Mojojo",
+      "Secretary",
+      "Edit Moderators",
+      "May 13, 2026",
+      "Wednesday",
+      "Organization Activity Proposal",
+      "16\n",
+      "Creating an inclusive, accessible, and user-centric digital home."
+    ],
+    "nodes": 295
+  },
+  {
+    "id": "1:2570",
+    "name": "Achivement Archives Button",
+    "size": {
+      "x": 1216,
+      "y": 422
+    },
+    "texts": [
+      "Achivement Archive",
+      "Under Review",
+      "Approved",
+      "Need Revision",
+      "Approved",
+      "Declined",
+      "Search ...",
+      "All Statuses",
+      "Propose Activity",
+      "Title",
+      "Achivement 001",
+      "Achivement 002",
+      "Achivement 003",
+      "Achivement 004",
+      "Achivement 005",
+      "May 18, 2026",
+      "May 18, 2026",
+      "May 18, 2026",
+      "May 18, 2026",
+      "May 18, 2026",
+      "May 12, 2026",
+      "May 12, 2026",
+      "May 12, 2026",
+      "May 12, 2026",
+      "May 12, 2026",
+      "Date Achieve",
+      "Submitted",
+      "Status",
+      "Action"
+    ],
+    "nodes": 54
+  },
+  {
+    "id": "1:2624",
+    "name": "Settings",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "CSLD MIS v1.0   © 2026 Student Development System   All data is for academic purposes only",
+      "Event Reminders",
+      "Achievements Alerts",
+      "Organization Updates",
+      "Leaderboard Changes",
+      "Get reminded about upcoming events",
+      "Get notified when you earn badges",
+      "News and updates from your organizations",
+      "Updates about rankings and progress",
+      "Smart Notification",
+      "Choose what updates you want to receive",
+      "Change Password",
+      "Two-Factor Authentication",
+      "Login Devices",
+      "Update your password",
+      "Add an extra layer of security",
+      "Manage devices connected to your account",
+      "3 Devices",
+      "Enabled",
+      "Security Settings",
+      "Manage your account security",
+      "May 13, 2026",
+      "Wednesday",
+      "Settings",
+      "Search events, Activities ...",
+      "16\n",
+      "Join events, complete activities, earnpoints, and unlock rewards!",
+      "May 13, 2026",
+      "Wednesday",
+      "Settings",
+      "16\n",
+      "Personalize your experience and control your digital presence."
+    ],
+    "nodes": 129
+  },
+  {
+    "id": "1:2753",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1013
+    },
+    "texts": [
+      "Next",
+      "Student Leadership Information",
+      "Full name",
+      "Student ID",
+      "Course",
+      "Year",
+      "Organization",
+      "Position",
+      "Enter your full name",
+      "Enter your Student ID",
+      "Enter your position in organization"
+    ],
+    "nodes": 33
+  },
+  {
+    "id": "1:2786",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Next",
+      "Basic Information",
+      "Full name",
+      "Type of Client",
+      "Course",
+      "Year",
+      "Student ID",
+      "Enter your full name",
+      "Student",
+      "Enter your student ID"
+    ],
+    "nodes": 31
+  },
+  {
+    "id": "1:2817",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Next",
+      "Basic Information",
+      "Full name",
+      "Type of Client",
+      "Course",
+      "Year",
+      "Student ID",
+      "Enter your full name",
+      "Student",
+      "Enter your student ID"
+    ],
+    "nodes": 31
+  },
+  {
+    "id": "1:2848",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Next",
+      "Basic Information",
+      "Full name",
+      "Type of Client",
+      "Course",
+      "Year",
+      "Student ID",
+      "Enter your full name",
+      "Student",
+      "Enter your student ID"
+    ],
+    "nodes": 31
+  },
+  {
+    "id": "1:2879",
+    "name": "After Create Account",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Create Profile",
+      "Profile Setup",
+      "Full name",
+      "Account Type",
+      "Course",
+      "Year",
+      "Student ID",
+      "Enter your full name",
+      "Student",
+      "Enter your student ID"
+    ],
+    "nodes": 31
+  },
+  {
+    "id": "1:2930",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Next",
+      "Basic Information",
+      "Full name",
+      "Course",
+      "Year",
+      "Student ID",
+      "Enter your full name",
+      "Enter your student ID"
+    ],
+    "nodes": 26
+  },
+  {
+    "id": "1:2956",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Lost",
+      "Found",
+      "Type of Report"
+    ],
+    "nodes": 12
+  },
+  {
+    "id": "1:2968",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1350
+    },
+    "texts": [
+      "Submit",
+      "Upload",
+      "Write your concerns......",
+      "Complaint Information",
+      "Incident Information",
+      "Type Complaint",
+      "Incident Details",
+      "Others:",
+      "Harassment",
+      "Bullying",
+      "Description of Incident",
+      "I certify that the information provided is true and accurate to the best of my knowledge.",
+      "I understand that intentionally providing false information may be subject to applicable policies.",
+      "Discrimination",
+      "Verbal Misconduct",
+      "Physical Misconduct",
+      "Threats",
+      "Abuse of Authority",
+      "Policy Violation",
+      "Theft",
+      "Safety Concern",
+      "Academic Grieviance",
+      "Unprofessional Conduct",
+      "Witness:",
+      "Supporting Evidence (if any):",
+      "(if any)",
+      "Complaint Form",
+      "Date & Time of Incident:",
+      "MM/DD/YYYY 00:00AM",
+      "Location of Incident",
+      "Relation to Respondent",
+      "Respondent Complained Against:",
+      "(if relevant)",
+      "Name",
+      "Year",
+      "Contact",
+      "Course",
+      "Student ID",
+      "Surname, Firstname, MI",
+      "0000-0000"
+    ],
+    "nodes": 91
+  },
+  {
+    "id": "1:3059",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1350
+    },
+    "texts": [
+      "Upload",
+      "Supporting evidence (optional):",
+      "Name",
+      "Year",
+      "Contact",
+      "Course",
+      "Semester & Academic Year:",
+      "Name of Instructor",
+      "Subject Code",
+      "Subject ",
+      "Subject Schedule:",
+      "Student ID",
+      "Surname, Firstname, MI",
+      "Day & Time",
+      "0000-0000",
+      "Submit",
+      "Explain the circumstances that resulted in your absence or removal from the class, including the relevant date(s), reason, actions you have already taken, and why you are requesting re-admission.",
+      "Basic Information",
+      "Subject Information",
+      "Detailed Explanation",
+      "I agree to attend the scheduled interview and provide any clarification needed regarding my request.",
+      "I understand that the interview is part of the evaluation process and does not guarantee approval.",
+      "Re-Admission Request / Explanation Letter",
+      "Explanation"
+    ],
+    "nodes": 62
+  },
+  {
+    "id": "1:3121",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1350
+    },
+    "texts": [
+      "Submit",
+      "Provide relevant details about what happened, including when and where the ID was lost, stolen, damaged, or why a replacement is needed.",
+      "Student Information",
+      "Replacement Information",
+      "Placeholder",
+      "I agree to surrender my previous ID if it is still in my possession or is later recovered, when required by the school.",
+      "I understand that replacement is subject to the school's verification process, requirements, and applicable fees.",
+      "I certify that the information provided in this request is true and accurate to the best of my knowledge.",
+      "ID Replacement Form",
+      "Additional Details",
+      "Name",
+      "Year",
+      "Contact",
+      "Course",
+      "Reason for replacement",
+      "Date Lost / Damaged / Stolen",
+      " Last Seen Location:",
+      "Student ID",
+      "Surname, Firstname, MI",
+      "Select a reason",
+      "MM/DD/YYYY",
+      "0000-0000"
+    ],
+    "nodes": 56
+  },
+  {
+    "id": "1:3177",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1350
+    },
+    "texts": [
+      "Submit",
+      "• Please arrive on time for your schedule appointment. • Make sure that you memorized UCU-Hymn. • You will receive a confirmation message through your registered contact details. • Your appointment is subject to confirmation.",
+      "Student Information",
+      "Appointment Details",
+      "Name",
+      "Year",
+      "Contact",
+      "I have reviewed the information provided and information provided and confirm that it is correct.",
+      "I understand that my appointment is subject to availability and confirmation.",
+      "I agree to follow the rules and requirements of the clearance process.",
+      "Course",
+      "Select Date:",
+      "Select Time:",
+      "Student ID",
+      "Appointment of Clearance",
+      "Surname, Firstname, MI",
+      "0000-0000",
+      "Reminder"
+    ],
+    "nodes": 51
+  },
+  {
+    "id": "1:3228",
+    "name": "screen after log in",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "Join Now"
+    ],
+    "nodes": 9
+  },
+  {
+    "id": "1:3237",
+    "name": "screen after log in",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "Send Verification Code",
+      "Verify",
+      "8888",
+      "Verification code sent to j******z@gmail.com",
+      "Verification Code",
+      "Verify Student Account ",
+      "Student ID",
+      "2023 -  2020"
+    ],
+    "nodes": 20
+  },
+  {
+    "id": "1:3257",
+    "name": "screen after log in",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "Your student account has been successfully linked.",
+      "Next"
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3268",
+    "name": "screen after log in",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "Active Record Found ",
+      "Continue to Community Service"
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3279",
+    "name": "screen after log in",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "No Record Found",
+      "Proceed to the CSLD Office for more concerns",
+      "Back to Homepage"
+    ],
+    "nodes": 12
+  },
+  {
+    "id": "1:3291",
+    "name": "screen after log in",
+    "size": {
+      "x": 1440,
+      "y": 1024
+    },
+    "texts": [
+      "Name",
+      "Year",
+      "Contact",
+      "Course",
+      "Student ID",
+      "Surname, Firstname, MI",
+      "0000-0000",
+      "Submit",
+      "Student Information",
+      "I confirm that I attended this seminar session.",
+      "I confirm that the student information shown above belongs to me and is correct.",
+      "I understand that my attendance is subject to verification by the event facilitator.",
+      "Attendance Sheet"
+    ],
+    "nodes": 36
+  },
+  {
+    "id": "1:3327",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1350
+    },
+    "texts": [
+      "Name",
+      "Year",
+      "Contact",
+      "Course",
+      "Approximate Date & Time Lost",
+      "Item",
+      "Last Known Location:",
+      "Student ID",
+      "Surname, Firstname, MI",
+      "MM/DD/YYYY 00:00AM",
+      "0000-0000",
+      "Submit",
+      "Upload",
+      "Describe the item in detail. Include its brand, model, color, size, unique marks, accessories, contents, or other features that can help verify ownership......",
+      "Basic Information",
+      "Lost Item Information",
+      "Item Description & Identifying Features",
+      "I understand that I may be asked to provide additional information to verify ownership before an item is released.",
+      "I certify that the information provided is true and accurate to the best of my knowledge.",
+      "Proof of Ownership (optional):",
+      "Lost  Item Form"
+    ],
+    "nodes": 56
+  },
+  {
+    "id": "1:3383",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1350
+    },
+    "texts": [
+      "Name",
+      "Year",
+      "Contact",
+      "Course",
+      "Approximate Date & Time Found",
+      "Item",
+      "Found Location",
+      "Student ID",
+      "Surname, Firstname, MI",
+      "MM/DD/YYYY 00:00AM",
+      "0000-0000",
+      "Submit",
+      "Upload",
+      "Describe the item in detail. Include its brand, model, color, size, unique marks, accessories, contents, or other features that can help verify ownership......",
+      "Basic Information",
+      "Found Item Information",
+      "Item Description & Identifying Features",
+      "I have surrendered or will surrender the item to the designated Lost and Found personnel",
+      "I certify that the information provided is true and accurate to the best of my knowledge.",
+      "Proof of Found Item (optional):",
+      "Lost  Item Form"
+    ],
+    "nodes": 56
+  },
+  {
+    "id": "1:3439",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Complicants Concern",
+      "Lost & Found",
+      "Re-Admission",
+      "ID Replacement",
+      "Community Service",
+      "Clearance",
+      "Seminars",
+      "Select Transaction"
+    ],
+    "nodes": 22
+  },
+  {
+    "id": "1:3466",
+    "name": "button sign in",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Next"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3468",
+    "name": "button sign in",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Next"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3470",
+    "name": "button sign in",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Next"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3472",
+    "name": "button sign in",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Next"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3474",
+    "name": "button sign in",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Next"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3501",
+    "name": "Frame 550",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your full name"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3504",
+    "name": "Frame 580",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your full name"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3507",
+    "name": "Frame 572",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your full name"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3510",
+    "name": "Frame 570",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your Employee ID"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3513",
+    "name": "Frame 581",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your Employee ID"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3516",
+    "name": "Frame 573",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your Employee ID"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3519",
+    "name": "Frame 553",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your full name"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3522",
+    "name": "Frame 574",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your full name"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3525",
+    "name": "Frame 571",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your student ID"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3528",
+    "name": "Frame 575",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your student ID"
+    ],
+    "nodes": 3
+  },
+  {
+    "id": "1:3531",
+    "name": "Frame 551",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Employee"
+    ],
+    "nodes": 4
+  },
+  {
+    "id": "1:3535",
+    "name": "Frame 582",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Employee"
+    ],
+    "nodes": 4
+  },
+  {
+    "id": "1:3539",
+    "name": "Frame 576",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Employee"
+    ],
+    "nodes": 4
+  },
+  {
+    "id": "1:3543",
+    "name": "Frame 554",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Guardian"
+    ],
+    "nodes": 4
+  },
+  {
+    "id": "1:3547",
+    "name": "Frame 577",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Guardian"
+    ],
+    "nodes": 4
+  },
+  {
+    "id": "1:3551",
+    "name": "Frame 552",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your college / office"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3553",
+    "name": "Frame 583",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your college / office"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3555",
+    "name": "Frame 578",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter your college / office"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3557",
+    "name": "Frame 555",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter the name of student"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3559",
+    "name": "Frame 579",
+    "size": {
+      "x": 340,
+      "y": 47
+    },
+    "texts": [
+      "Enter the name of student"
+    ],
+    "nodes": 2
+  },
+  {
+    "id": "1:3561",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1014
+    },
+    "texts": [
+      "Submit",
+      "Student Leader Validation",
+      "Upload your following requirements ",
+      "Endorsement letter",
+      "Certificate of Candidacy",
+      "Scanned Copy of ID",
+      "Scanned Copy of Enrollment form",
+      "Upload",
+      "Upload",
+      "Upload",
+      "Upload"
+    ],
+    "nodes": 27
+  },
+  {
+    "id": "1:3588",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1013
+    },
+    "texts": [
+      "Next",
+      "Scholar Information",
+      "Details",
+      "Full name",
+      "Student ID",
+      "Course",
+      "Year",
+      "Enter your full name",
+      "Enter your student ID",
+      "Enter your block"
+    ],
+    "nodes": 27
+  },
+  {
+    "id": "1:3619",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1014
+    },
+    "texts": [
+      "Submit",
+      "Scholar Information",
+      "Details",
+      "Copy of 1×1 ID picture",
+      "Tuition Fee Discount Application Form",
+      "Copy of the registration form, back to back",
+      "Upload",
+      "Upload",
+      "Upload"
+    ],
+    "nodes": 25
+  },
+  {
+    "id": "1:3644",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1014
+    },
+    "texts": [
+      "Done",
+      "Documents Submitted Successfully\nYour scholarship discount documents have been received and now ready for review.\nYou will be notified once your application has been evaluated."
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3655",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Done",
+      "Documents Submitted Successfully\nYour complaint report documents have been received and  now ready for review.\nYou will be notified once your application has been evaluated."
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3666",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Done",
+      "Documents Submitted Successfully\nYour complaint report documents have been received and  now ready for review.\nYou will be notified once your application has been evaluated."
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3677",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Done",
+      "Ticket Number",
+      "Appointment Details",
+      "Appointment Submitted",
+      "CLR-2026-000001",
+      "Your  request has been received.",
+      "Present this number at the office for validations.",
+      "Date: Time:",
+      "September 15, 2026",
+      "10:00 AM"
+    ],
+    "nodes": 20
+  },
+  {
+    "id": "1:3697",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Done",
+      "Documents Submitted Successfully\nYour Lost & Found report have been received and now ready for review.\nYou will be notified once your application has been evaluated."
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3708",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Done",
+      "Documents Submitted Successfully\nYour Re-Admission report have been received and now ready for review.\nYou will be notified once your application has been evaluated."
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3719",
+    "name": "screen after log in",
+    "size": {
+      "x": 1423,
+      "y": 1014
+    },
+    "texts": [
+      "Done",
+      "Documents Submitted Successfully\nYour uploaded documents have been received and now ready for review.\nYou will be notified once your application has been evaluated."
+    ],
+    "nodes": 11
+  },
+  {
+    "id": "1:3770",
+    "name": "Desktop - 7",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "Create your account",
+      "Join GAcademy and start your campus journey.",
+      "Email",
+      "Enter your email",
+      "Username",
+      "Enter your username",
+      "Password",
+      "Enter your password",
+      "Confirm password",
+      "Enter your password",
+      "Already  have an Account? ",
+      "Login",
+      "Create Account",
+      "Or",
+      "Sign in with Google",
+      "iServe",
+      "Lead. Connect. Achieve.",
+      "Designed to simplify student participation, communication, and campus engagement.",
+      "Secure Login",
+      "Your data is protected with enterprise grade security"
+    ],
+    "nodes": 55
+  },
+  {
+    "id": "1:3825",
+    "name": "Frame 557",
+    "size": {
+      "x": 1423,
+      "y": 1012
+    },
+    "texts": [
+      "iServe",
+      "Level Up Your Campus Journey",
+      "Designed to simplify student participation, communication, and campus engagement.",
+      "Secure Login",
+      "Your data is protected with enterprise grade security",
+      "Welcome \nBack",
+      "Email",
+      "Enter your email",
+      "Password",
+      "Enter your password",
+      "Remember me",
+      "Forgot Password",
+      "Don’t have an Account? ",
+      "Create Account",
+      "Log in",
+      "Or",
+      "Sign in with Google"
+    ],
+    "nodes": 47
+  },
+  {
+    "id": "1:3872",
+    "name": "Frame 610",
+    "size": {
+      "x": 1440,
+      "y": 810
+    },
+    "texts": [],
+    "nodes": 2
+  },
+  {
+    "id": "1:3874",
+    "name": "Frame 611",
+    "size": {
+      "x": 1440,
+      "y": 810
+    },
+    "texts": [],
+    "nodes": 2
+  },
+  {
+    "id": "1:3876",
+    "name": "Frame 612",
+    "size": {
+      "x": 1440,
+      "y": 810
+    },
+    "texts": [],
+    "nodes": 2
+  },
+  {
+    "id": "1:3878",
+    "name": "Frame 613",
+    "size": {
+      "x": 1440,
+      "y": 810
+    },
+    "texts": [],
+    "nodes": 2
+  },
+  {
+    "id": "1:3880",
+    "name": "Frame 614",
+    "size": {
+      "x": 1440,
+      "y": 810
+    },
+    "texts": [],
+    "nodes": 2
+  },
+  {
+    "id": "1:3882",
+    "name": "Frame 615",
+    "size": {
+      "x": 1440,
+      "y": 810
+    },
+    "texts": [],
+    "nodes": 2
+  },
+  {
+    "id": "1:3884",
+    "name": "Frame 616",
+    "size": {
+      "x": 1440,
+      "y": 810
+    },
+    "texts": [],
+    "nodes": 2
+  }
+]

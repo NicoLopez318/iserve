@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ $design['title'] ?? $title ?? 'iServe CSLD' }}</title><link rel="stylesheet" href="/staff.css?v=20261120.7"><script src="/staff.js?v=20261120.3" defer></script><link rel="stylesheet" href="{{ asset('responsive.css') }}?v=20261112"></head>
+<body data-page="{{$page??'review'}}" class="{{ auth()->user()->preferences['theme']??'Light' }}"><div class="workspace">
+<aside class="sidebar"><a class="brand" href="/workspace"><img src="/staff-assets/afaaeb1608414bb233036355bd45d485ad6921e0.png" alt="University crest"><span>iServe</span></a><nav aria-label="Staff navigation">
+@foreach($menus as $key=>$label)
+ @if(in_array(auth()->user()->role,['admin','assistant'])&&$key==='leadership')<div class="nav-caption">CSLD UNITS</div>@endif
+ <a href="/workspace/{{ $key }}" class="nav-item {{ ($page??'')===$key?'active':'' }}"><span class="nav-icon{{ $key === 'dashboard' ? ' dashboard-nav-icon' : '' }}">@include('workspace.icon',['name'=>$key])</span><span>{{ $label }}</span>@if(in_array($key,['leadership','scholarship','values']))<span class="chevron">›</span>@endif</a>
+@endforeach
+</nav><form action="/logout" method="post" class="logout">@csrf<button>@include('workspace.icon',['name'=>'logout']) Log out</button></form></aside>
+<main>
+<header>
+    <div><h1>{{ $design['title']??$title??'Review' }}</h1><p>{{ $design['description']??$description??'' }}</p></div>
+    @php($staffUser = auth()->user())
+    @if($staffUser->role !== 'assistant')
+        @php($unreadCount = $staffUser->unreadNotifications()->count())
+        <div class="header-account">
+            <a class="notification-link" href="/notifications" aria-label="Notifications ({{ $unreadCount }} unread)" @if(($page ?? '') === 'notifications') aria-current="page" @endif>
+                <span class="notification-bell" aria-hidden="true"></span>
+                <span aria-hidden="true">{{ $unreadCount }}</span>
+            </a>
+            @if($staffUser->role !== 'admin')
+                <span>{{ now()->format('F j, Y') }}</span>
+                <a class="avatar" href="/workspace/settings" title="{{ $staffUser->name }}">{{ substr($staffUser->name, 0, 1) }}</a>
+            @endif
+        </div>
+    @endif
+</header>
+@if(session('success'))<div class="notice" role="status">{{session('success')}}</div>@endif
+@if($errors->any())<div class="errors" role="alert">@foreach($errors->all() as $error)<p>{{$error}}</p>@endforeach</div>@endif
+@yield('content')
+</main></div>
+@stack('dialogs')
+@if($errors->any()&&old('_dialog'))<script type="application/json" id="form-restore">{!! json_encode(['dialog'=>old('_dialog'),'fields'=>collect(session()->getOldInput())->except(['_token','password','password_confirmation','current_password'])->all()],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>@endif
+</body></html>

@@ -1,0 +1,3 @@
+@extends('layouts.blue')
+@section('content')<div class="center-page"><h1>Select Transaction</h1><section class="blue-card transaction-selection">@foreach(['complaint'=>'Complaints','lost-found'=>'Lost and Found','readmission'=>'Readmission','id-replacement'=>'ID Replacement','community'=>'Community Service','clearance'=>'Clearance Appointment','seminar'=>'Seminars'] as $k=>$l)<a class="btn orange full" href="{{ $k==='community'?'/community-link':($k==='lost-found'?'/home?choose=lost-found':'/apply/'.$k) }}">{{ $l }}</a>@endforeach<a class="back-link" href="/home">Return to iServe</a></section></div>@endsection
+

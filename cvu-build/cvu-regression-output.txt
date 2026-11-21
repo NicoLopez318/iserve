@@ -1,0 +1,28 @@
+PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12
+Configuration: C:\Users\kennethtaro\final_system\cvu-build\phpunit.xml
+
+....EEE........                                                   15 / 15 (100%)
+
+Time: 00:09.034, Memory: 50.00 MB
+
+There were 3 errors:
+
+1) Tests\Feature\CvuRegressionTest::test_seminar_deadline_eligibility_and_legacy_join_do_not_bypass_rules
+Error: Call to undefined function Tests\Feature\yesterday()
+
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuRegressionTest.php:59
+
+2) Tests\Feature\CvuRegressionTest::test_readmission_cannot_issue_before_interview_and_archive_filter_works
+Error: Call to undefined function Tests\Feature\yesterday()
+
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuRegressionTest.php:65
+
+3) Tests\Feature\CvuRegressionTest::test_clearance_save_request_info_and_past_slot_validation
+Error: Call to undefined function Tests\Feature\tomorrow()
+
+C:\Users\kennethtaro\final_system\cvu-build\tests\Feature\CvuRegressionTest.php:74
+
+ERRORS!
+Tests: 15, Assertions: 154, Errors: 3.

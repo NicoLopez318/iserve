@@ -1,0 +1,650 @@
+{
+  "cvu_head": {
+    "dashboard": {
+      "node": "21:1035",
+      "title": "Dashboard",
+      "description": "View unit activity, pending requests, and student service progress.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Clients Today",
+          "icon": "21-1050.svg"
+        },
+        {
+          "label": "Pending Reviews",
+          "icon": "21-1060.svg"
+        },
+        {
+          "label": "Active Community Service",
+          "icon": "21-1074.svg"
+        },
+        {
+          "label": "Completed Today",
+          "icon": "21-1081.svg"
+        }
+      ]
+    },
+    "complaints": {
+      "node": "21:1192",
+      "title": "Complaints & Concern",
+      "description": "Review complaints, manage case decisions, and assign required actions.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "New Complaints",
+          "icon": "21-1200.svg"
+        },
+        {
+          "label": "For Review",
+          "icon": "21-1204.svg"
+        },
+        {
+          "label": "Resolved",
+          "icon": "21-1210.svg"
+        }
+      ]
+    },
+    "lost-found": {
+      "node": "21:1357",
+      "title": "Lost & Found",
+      "description": "Manage reports, verify ownership, and track item claims.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Lost Reports",
+          "icon": "21-1366.svg"
+        },
+        {
+          "label": "Found Reports",
+          "icon": "21-1370.svg"
+        },
+        {
+          "label": "Pending Claims",
+          "icon": "21-1377.svg"
+        },
+        {
+          "label": "Released Items",
+          "icon": "21-1384.svg"
+        }
+      ]
+    },
+    "readmission": {
+      "node": "21:1525",
+      "title": "Re-Admission",
+      "description": "Review requests, schedule interviews, and issue re-admission slips.",
+      "size": {
+        "x": 1440,
+        "y": 1435
+      },
+      "cards": [
+        {
+          "label": "New  Request",
+          "icon": "21-1534.svg"
+        },
+        {
+          "label": "For Review",
+          "icon": "21-1540.svg"
+        },
+        {
+          "label": "Interview Scheduled",
+          "icon": "21-1545.svg"
+        },
+        {
+          "label": "Approved",
+          "icon": "21-1552.svg"
+        }
+      ]
+    },
+    "id-replacement": {
+      "node": "21:1738",
+      "title": "ID Replacement",
+      "description": "Review replacement requests, verify details, and track approval and release.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Total Request",
+          "icon": "21-1746.svg"
+        },
+        {
+          "label": "For Review",
+          "icon": "21-1752.svg"
+        },
+        {
+          "label": "Approved",
+          "icon": "21-1757.svg"
+        },
+        {
+          "label": "Released",
+          "icon": "21-1764.svg"
+        }
+      ]
+    },
+    "community": {
+      "node": "21:1918",
+      "title": "Community Service",
+      "description": "Assign students, monitor service hours, and verify completion.",
+      "size": {
+        "x": 1440,
+        "y": 1079
+      },
+      "cards": [
+        {
+          "label": "Overall Student",
+          "icon": "21-1926.svg"
+        },
+        {
+          "label": "On Duty today",
+          "icon": "21-1932.svg"
+        },
+        {
+          "label": "From Complaints",
+          "icon": "21-1937.svg"
+        },
+        {
+          "label": "Awaiting Assignment",
+          "icon": "21-1944.svg"
+        }
+      ]
+    },
+    "seminars": {
+      "node": "21:2458",
+      "title": "Seminar",
+      "description": "Create seminars, manage schedules, and monitor participant attendance.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Total Seminars",
+          "icon": "21-2466.svg"
+        },
+        {
+          "label": "Upcoming",
+          "icon": "21-2472.svg"
+        },
+        {
+          "label": "Ongoing Seminars",
+          "icon": "21-2477.svg"
+        },
+        {
+          "label": "Pending Verification",
+          "icon": "21-2484.svg"
+        }
+      ]
+    },
+    "clearance": {
+      "node": "21:2612",
+      "title": "Clearance",
+      "description": "Manage appointments, verify requirements, and update clearance status.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Pending Requests",
+          "icon": "21-2618.svg"
+        },
+        {
+          "label": "Appointments today",
+          "icon": "21-2624.svg"
+        },
+        {
+          "label": "Awaiting Requirements",
+          "icon": "21-2631.svg"
+        },
+        {
+          "label": "Cleared this term",
+          "icon": "21-2638.svg"
+        }
+      ]
+    },
+    "reports": {
+      "node": "21:2762",
+      "title": "Reports",
+      "description": "",
+      "size": {
+        "x": 1440,
+        "y": 1217
+      },
+      "cards": [
+        {
+          "label": "Draft reports",
+          "icon": "21-2768.svg"
+        },
+        {
+          "label": "Submitted",
+          "icon": "21-2774.svg"
+        },
+        {
+          "label": "Returned for revisions",
+          "icon": "21-2781.svg"
+        },
+        {
+          "label": "Acknowledge",
+          "icon": "21-2788.svg"
+        }
+      ]
+    },
+    "settings": {
+      "node": "21:2927",
+      "title": "Settings",
+      "description": "",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    }
+  },
+  "sfu_head": {
+    "dashboard": {
+      "node": "21:4687",
+      "title": "Scholarship & Financial Unit",
+      "description": "TuitionFee Discount Administration",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Application Receive",
+          "icon": "21-4695.svg"
+        },
+        {
+          "label": "Incomplete Requirements",
+          "icon": "21-4701.svg"
+        },
+        {
+          "label": "For Validation",
+          "icon": "21-4706.svg"
+        },
+        {
+          "label": "For Endorsement",
+          "icon": "21-4713.svg"
+        }
+      ]
+    },
+    "applications": {
+      "node": "21:4940",
+      "title": "Tuition Fee Discount Applications",
+      "description": "Review requirements, validate applications, and monitoring processing.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "New",
+          "icon": "21-4948.svg"
+        },
+        {
+          "label": "For Compliance",
+          "icon": "21-4952.svg"
+        },
+        {
+          "label": "For Validation",
+          "icon": "21-4960.svg"
+        },
+        {
+          "label": "For Endorsement",
+          "icon": "21-4966.svg"
+        },
+        {
+          "label": "Processed",
+          "icon": "21-4970.svg"
+        }
+      ]
+    },
+    "reports": {
+      "node": "21:5164",
+      "title": "Scholarships & Financial Reports",
+      "description": "Prepare and submit tuition fee discount reports for administrative review.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Draft Reports",
+          "icon": "21-5172.svg"
+        },
+        {
+          "label": "Returned for Revisions",
+          "icon": "21-5178.svg"
+        },
+        {
+          "label": "Under Assistant Review",
+          "icon": "21-5183.svg"
+        },
+        {
+          "label": "Forward to Director",
+          "icon": "21-5190.svg"
+        }
+      ]
+    },
+    "settings": {
+      "node": "21:5326",
+      "title": "Settings",
+      "description": "Manage account security, notifications, and unit defaults",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    }
+  },
+  "slu_head": {
+    "dashboard": {
+      "node": "21:5440",
+      "title": "Dashboard",
+      "description": "Manage organization, submissions, events, achievements, and portal content",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Recognized Organizations",
+          "icon": "21-5448.svg"
+        },
+        {
+          "label": "Proposals for Review",
+          "icon": "21-5454.svg"
+        },
+        {
+          "label": "Upcoming events",
+          "icon": "21-5459.svg"
+        },
+        {
+          "label": "Achievements Pending",
+          "icon": "21-5466.svg"
+        }
+      ]
+    },
+    "organizations": {
+      "node": "21:5590",
+      "title": "Organization",
+      "description": "Manage Recognition, office, memberships, achievements, and portal visibility",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "proposals": {
+      "node": "21:5811",
+      "title": "Proposals",
+      "description": "Review student organization proposals, verify requirements, and endorse complete submissions.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "events": {
+      "node": "21:6006",
+      "title": "Events & Activities",
+      "description": "published approved activities, manage registration, verify attendance, and track completion reports",
+      "size": {
+        "x": 1440,
+        "y": 1194
+      },
+      "cards": []
+    },
+    "achievements": {
+      "node": "21:6500",
+      "title": "Achievements",
+      "description": "Verify evidence, award points, and control what appears on organization and students profiles",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "points": {
+      "node": "21:6621",
+      "title": "Leaderboards & Points",
+      "description": "Configure scoring rules, review point transactions, recalculate rankings, and publish results",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "reports": {
+      "node": "21:6827",
+      "title": "Reports",
+      "description": "Collect organization reports, prepare unit summaries, and submit complete reports for administrative review",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Organization reports",
+          "icon": null
+        },
+        {
+          "label": "Organization reports",
+          "icon": null
+        },
+        {
+          "label": "Organization reports",
+          "icon": null
+        }
+      ]
+    },
+    "content": {
+      "node": "21:6931",
+      "title": "Portal Content",
+      "description": "Manage editable portal content while preserving system-generated MIS data.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "settings": {
+      "node": "21:7496",
+      "title": "Settings",
+      "description": "Manage account security, notifications, and unit defaults",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    }
+  },
+  "assistant": {
+    "dashboard": {
+      "node": "21:3418",
+      "title": "Dashboard",
+      "description": "Review reportsfrom all three units and forward complete submissions",
+      "size": {
+        "x": 1440,
+        "y": 1599
+      },
+      "cards": [
+        {
+          "label": "New Submissions",
+          "icon": "21-3424.svg"
+        },
+        {
+          "label": "Needs Follow-up",
+          "icon": "21-3430.svg"
+        },
+        {
+          "label": "Ready to Forward",
+          "icon": "21-3437.svg"
+        },
+        {
+          "label": "Overdue",
+          "icon": "21-3442.svg"
+        }
+      ]
+    },
+    "inbox": {
+      "node": "21:3658",
+      "title": "Report inbox",
+      "description": "View and manage all submitted reports from CSLD units.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "leadership": {
+      "node": "21:3777",
+      "title": "Student Leadership",
+      "description": "Review and validate reports from student organizations under student leadership",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "scholarship": {
+      "node": "21:3875",
+      "title": "Scholarship & Financial",
+      "description": "Review and manage all submitted reports from scholarship & financial unit",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "values": {
+      "node": "21:3973",
+      "title": "Character & Values",
+      "description": "Review and validate reports from character & values unit under CSLD",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "history": {
+      "node": "21:4071",
+      "title": "Submission History",
+      "description": "Track and  review all report submissions and action taken through the assistant",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "settings": {
+      "node": "21:4221",
+      "title": "Settings",
+      "description": "Manage account security, notifications, and unit defaults",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "node": "26:1615",
+      "title": "Admin Dashboard",
+      "description": "Review assistant-verified repors and monitor all three units.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": [
+        {
+          "label": "Awaiting Review",
+          "icon": "26-1621.svg"
+        },
+        {
+          "label": "Under Admin Review",
+          "icon": "26-1627.svg"
+        },
+        {
+          "label": "Returned Assistant",
+          "icon": "26-1634.svg"
+        },
+        {
+          "label": "Acknowledge",
+          "icon": "26-1639.svg"
+        }
+      ]
+    },
+    "inbox": {
+      "node": "26:1810",
+      "title": "Reports for review",
+      "description": "Reports forwarded by the Assistant for final review",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "leadership": {
+      "node": "26:1904",
+      "title": "Student Leadership",
+      "description": "Final Review of Assistant-verified SLU reports.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "scholarship": {
+      "node": "26:1991",
+      "title": "Scholarship & Financial",
+      "description": "Final review of Assistant-verified SFU reports",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "values": {
+      "node": "26:2078",
+      "title": "Character & Values",
+      "description": "Final review of Assistant-verified CVU reports",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "history": {
+      "node": "26:2223",
+      "title": "Review History",
+      "description": "Admin Decisions, feedback, and reports versions",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    },
+    "settings": {
+      "node": "26:2339",
+      "title": "Settings",
+      "description": "Manage Admin preferences  and report notifications.",
+      "size": {
+        "x": 1440,
+        "y": 1024
+      },
+      "cards": []
+    }
+  }
+}

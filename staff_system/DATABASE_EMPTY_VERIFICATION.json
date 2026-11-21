@@ -1,0 +1,25 @@
+{
+    "connection": "mysql",
+    "database": "pre_defense_system",
+    "tables": {
+        "announcements": 0,
+        "assignments": 0,
+        "attendances": 0,
+        "audit_logs": 0,
+        "comments": 0,
+        "events": 0,
+        "journals": 0,
+        "migrations": 0,
+        "notifications": 0,
+        "organizations": 0,
+        "password_reset_tokens": 0,
+        "points": 0,
+        "posts": 0,
+        "proposal_drafts": 0,
+        "reports": 0,
+        "service_requests": 0,
+        "settings": 0,
+        "users": 0
+    },
+    "verification": "SQL import and transactional user\/request JSON round trip passed; all tables zero rows"
+}

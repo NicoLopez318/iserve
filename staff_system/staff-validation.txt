@@ -1,0 +1,23 @@
+
+   PASS  Tests\Feature\ApprovalRoutingTest
+  ✓ all transaction types require unit approval and assistant forwarding                                         0.52s  
+  ✓ revision restarts chain and final approval applies benefits once                                             0.06s  
+  ✓ assistant monitors all units with private documents but cannot manage staff                                  0.09s  
+  ✓ head reports return for revision then forward to admin                                                       0.04s  
+
+   PASS  Tests\Feature\StaffManagementTest
+  ✓ populated screens and management forms                                                                       0.40s  
+  ✓ negative adjustment applies only after admin approval                                                        0.03s  
+  ✓ configured clearance capacity is shared with user submission                                                 0.03s  
+  ✓ report files and settings backup are scoped                                                                  0.04s  
+
+   PASS  Tests\Feature\StaffPortalTest
+  ✓ all role screens render with real empty data                                                                 0.32s  
+  ✓ staff only login and pages                                                                                   0.02s  
+  ✓ all units submit and revision preserves snapshot history                                                     2.74s  
+  ✓ cross unit private files and reports are denied                                                              0.03s  
+  ✓ forward requires review checklist and zero data is not seeded                                                0.02s  
+
+  Tests:    13 passed (433 assertions)
+  Duration: 4.54s
+

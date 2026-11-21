@@ -1,0 +1,82 @@
+const assetPathPrefix = "https://www.figma.com/api/mcp/asset/e1691969-ed26-4196-b2d5-4719016835b3";
+const imgVector = `${assetPathPrefix}/47a8a.svg`;
+const imgEllipse66 = `${assetPathPrefix}/5e214.svg`;
+const imgEllipse67 = `${assetPathPrefix}/19fab.svg`;
+
+export default function ScreenAfterLogIn() {
+  return (
+    <div className="bg-[#223e94] overflow-clip relative rounded-[8px] shadow-[-9px_4px_76px_0px_rgba(0,0,0,0.25)] size-full" data-node-id="1:3439" data-name="screen after log in">
+      <div className="absolute flex h-[1626px] items-center justify-center left-[-280.25px] top-[-559.3px] w-[2323.502px]" data-node-id="1:3440">
+        <div className="flex-none rotate-[-179.69deg]">
+          <div className="h-[1613.484px] relative w-[2314.795px]" data-name="Vector">
+            <div className="absolute inset-[-2.08%_-1.45%]">
+              <img alt="" className="block max-w-none size-full" src={imgVector} />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="absolute blur-[16.75px] h-[18px] left-[calc(91.67%-6.42px)] top-[104px] w-[36px]" data-node-id="1:3441" />
+      <div className="absolute h-[507px] left-[-332px] top-[-130px] w-[383px]" data-node-id="1:3442">
+        <div className="absolute inset-[-6.61%_-8.75%]">
+          <img alt="" className="block max-w-none size-full" src={imgEllipse66} />
+        </div>
+      </div>
+      <div className="absolute h-[507px] left-[-306px] top-[-102px] w-[384px]" data-node-id="1:3443">
+        <div className="absolute inset-[-6.61%_-8.72%]">
+          <img alt="" className="block max-w-none size-full" src={imgEllipse67} />
+        </div>
+      </div>
+      <div className="absolute bg-[#3751a1] h-[604.404px] left-[calc(29.17%+47.96px)] rounded-[12px] top-[231.17px] w-[497px]" data-node-id="1:3444" />
+      <div className="absolute bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch flex items-center justify-center left-[calc(37.5%+7.88px)] px-[20px] py-[14px] rounded-[8px] top-[317.87px] w-[340px]" data-node-id="1:3445" data-name="button sign in">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3446">
+          Complicants Concern
+        </p>
+      </div>
+      <div className="absolute bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch flex items-center justify-center left-[calc(37.5%+7.88px)] px-[20px] py-[14px] rounded-[8px] top-[381.87px] w-[340px]" data-node-id="1:3447" data-name="button sign in">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3448">{`Lost & Found`}</p>
+      </div>
+      <div className="absolute bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch flex items-center justify-center left-[calc(37.5%+7.88px)] px-[20px] py-[14px] rounded-[8px] top-[445.87px] w-[340px]" data-node-id="1:3449" data-name="button sign in">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3450">
+          Re-Admission
+        </p>
+      </div>
+      <div className="absolute bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch flex items-center justify-center left-[calc(37.5%+7.88px)] px-[20px] py-[14px] rounded-[8px] top-[509.87px] w-[340px]" data-node-id="1:3451" data-name="button sign in">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3452">
+          ID Replacement
+        </p>
+      </div>
+      <div className="absolute bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch flex items-center justify-center left-[calc(37.5%+7.88px)] px-[20px] py-[14px] rounded-[8px] top-[573.87px] w-[340px]" data-node-id="1:3453" data-name="button sign in">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3454">
+          Community Service
+        </p>
+      </div>
+      <div className="absolute bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch flex items-center justify-center left-[calc(37.5%+7.88px)] px-[20px] py-[14px] rounded-[8px] top-[637.87px] w-[340px]" data-node-id="1:3455" data-name="button sign in">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3456">
+          Clearance
+        </p>
+      </div>
+      <div className="absolute bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch flex items-center justify-center left-[calc(37.5%+7.88px)] px-[20px] py-[14px] rounded-[8px] top-[701.87px] w-[340px]" data-node-id="1:3457" data-name="button sign in">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3458">
+          Seminars
+        </p>
+      </div>
+      <div className="absolute h-[507px] left-[calc(8.33%+79.49px)] top-[252.5px] w-[384px]" data-node-id="1:3459">
+        <div className="absolute inset-[-6.61%_-8.72%]">
+          <img alt="" className="block max-w-none size-full" src={imgEllipse67} />
+        </div>
+      </div>
+      <p className="[word-break:break-word] absolute font-['Inter:Bold'] font-bold leading-[51.9px] left-[calc(29.17%+48.47px)] not-italic text-[36px] text-white top-[151.5px] tracking-[-2.16px] whitespace-nowrap" data-node-id="1:3460">
+        Select Transaction
+      </p>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+Images and SVGs will be stored as constants, e.g. const image = `${assetPathPrefix}/<asset file name>`, where assetPathPrefix is declared once at the top of the code and every asset URL interpolates it. These constants will be used in the code as the source for the image, ex: <img src={image} />. Image assets are stored on a remote server for 7 days and can be fetched using the provided URLs until they expire.

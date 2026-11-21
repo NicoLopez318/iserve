@@ -1,0 +1,10 @@
+document.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>{const form=button.closest('form'),basic=form.querySelector('[data-basic]');if(![...basic.querySelectorAll('input,select')].every(input=>input.reportValidity()))return;form.querySelector('[data-identity-summary]').textContent=[...basic.querySelectorAll('input:not([type=hidden]),select')].map(input=>input.value).join(' · ');basic.hidden=true;const details=form.querySelector('[data-details]');details.hidden=false;details.querySelectorAll('[disabled]').forEach(input=>input.disabled=false);}));
+document.querySelectorAll('[data-back]').forEach(button=>button.addEventListener('click',()=>{const form=button.closest('form');form.querySelector('[data-basic]').hidden=false;const details=form.querySelector('[data-details]');details.hidden=true;details.querySelectorAll('input,textarea').forEach(input=>input.disabled=true);}));
+document.querySelectorAll('[data-join]').forEach(button=>button.addEventListener('click',()=>{const form=document.querySelector(`[data-seminar-form="${button.dataset.join}"]`);form.hidden=false;form.scrollIntoView({behavior:'smooth'});}));
+document.querySelector('[data-slot-date]')?.addEventListener('change',event=>{const time=document.querySelector('[data-slot-time]');time.value='';[...time.options].forEach(option=>{if(option.value)option.hidden=option.dataset.date!==event.target.value;});});
+document.querySelectorAll('[data-expand]').forEach(button=>button.addEventListener('click',()=>{const text=button.previousElementSibling;text.classList.toggle('expanded');button.textContent=text.classList.contains('expanded')?'Show less':'Show more';}));
+
+document.querySelector('[data-link-result]') && setTimeout(()=>window.location.replace('/community-link'),2200);
+
+document.querySelectorAll('[data-slot-date]').forEach(input=>input.dispatchEvent(new Event('change')));
+document.querySelectorAll('form').forEach(form=>form.addEventListener('submit',()=>{form.querySelectorAll('[data-prevent-duplicate]').forEach(button=>{button.disabled=true;button.textContent='Submitting…';});}));

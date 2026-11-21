@@ -1,0 +1,720 @@
+const assetPathPrefix = "https://www.figma.com/api/mcp/asset/5a79f49a-fd11-426d-bf7c-e4575651df21";
+const imgImage4 = `${assetPathPrefix}/3b110.png`;
+const imgImage5 = `${assetPathPrefix}/f1b03.png`;
+const imgImage6 = `${assetPathPrefix}/53533.png`;
+const imgImage7 = `${assetPathPrefix}/30a4b.png`;
+const imgImage8 = `${assetPathPrefix}/418d5.png`;
+const img3Ebf22Ec558B499292811E0B37C956AbPicsartBackgroundRemover16 = `${assetPathPrefix}/ffb57.png`;
+const imgChatGptImageSep102026035557Am5 = `${assetPathPrefix}/d1cb7.png`;
+const imgRectangle = `${assetPathPrefix}/385a2.png`;
+const imgDownloadRemovebgPreview1 = `${assetPathPrefix}/6efc2.png`;
+const imgRectangle559 = `${assetPathPrefix}/1ee60.svg`;
+const imgRectangle561 = `${assetPathPrefix}/12935.svg`;
+const imgVector = `${assetPathPrefix}/ff639.svg`;
+const imgVector1 = `${assetPathPrefix}/fba46.svg`;
+const imgVector2 = `${assetPathPrefix}/6d327.svg`;
+const imgVector3 = `${assetPathPrefix}/a64cf.svg`;
+const imgVector4 = `${assetPathPrefix}/bb3ad.svg`;
+const imgGroup283 = `${assetPathPrefix}/406b7.svg`;
+const imgChatGptImageMay132026042620Pm1 = `${assetPathPrefix}/5a186.png`;
+const imgVector5 = `${assetPathPrefix}/e608a.svg`;
+const imgFrame106 = `${assetPathPrefix}/d19fa.svg`;
+const imgVector6 = `${assetPathPrefix}/3d1d6.svg`;
+const imgFrame131 = `${assetPathPrefix}/d8b75.svg`;
+const imgVector7 = `${assetPathPrefix}/0596a.svg`;
+const imgVector8 = `${assetPathPrefix}/f941e.svg`;
+const imgVector9 = `${assetPathPrefix}/19391.svg`;
+const imgVector10 = `${assetPathPrefix}/25646.svg`;
+const imgVector11 = `${assetPathPrefix}/bc21d.svg`;
+const imgVector12 = `${assetPathPrefix}/8217a.svg`;
+const imgVector13 = `${assetPathPrefix}/ff9a2.svg`;
+const imgVector14 = `${assetPathPrefix}/4e5e9.svg`;
+
+function Frame176({ className }: { className?: string }) {
+  return (
+    <div className={className || "h-[1952px] overflow-clip relative w-[1202px]"} data-node-id="1:1031">
+      <div className="absolute h-[1878px] left-0 top-[37px] w-[1176px]" data-node-id="1:1032">
+        <div className="absolute h-[1903px] left-[-0.12px] top-[-24.58px] w-[1176px]" data-node-id="1:1033">
+          <div className="absolute h-[1878px] left-[0.12px] overflow-x-auto overflow-y-clip top-[24.58px] w-[1176px]" data-node-id="1:1034">
+            <div className="absolute border border-[#02006b] border-solid h-[572px] left-[4.5px] overflow-clip rounded-[24px] top-[397px] w-[574px]" data-node-id="1:1035" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 574 572' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(28.7 0 0 28.6 287 286)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(27,26,85,1)' offset='0'/><stop stop-color='rgba(20,20,64,1)' offset='0.25'/><stop stop-color='rgba(14,13,43,1)' offset='0.5'/><stop stop-color='rgba(7,7,21,1)' offset='0.75'/><stop stop-color='rgba(3,3,11,1)' offset='0.875'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+              <div className="absolute h-[86.026px] left-[246px] top-[387.5px] w-[80.859px]" data-node-id="1:1036">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgRectangle559} />
+              </div>
+              <div className="absolute h-[97.658px] left-[83.37px] top-[473.84px] w-[80.859px]" data-node-id="1:1037">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgRectangle561} />
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[186.1px] opacity-85 text-[24px] text-white top-[28.39px] tracking-[-1px] w-[398px]" data-node-id="1:1038">
+                Upcoming Events
+              </p>
+              <div className="absolute bg-[#d9d9d9] h-[446.158px] left-[82.87px] opacity-6 top-[125.34px] w-px" data-node-id="1:1039" />
+              <div className="absolute bg-[#d9d9d9] h-[446.158px] left-[164.12px] opacity-6 top-[125.34px] w-px" data-node-id="1:1040" />
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[253.96px] opacity-50 text-[7px] text-white top-[447.53px] w-[398px]" data-node-id="1:1041">{`8:00 AM - 12:00 PM `}</p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[92.79px] opacity-50 text-[7px] text-white top-[538.59px] w-[398px]" data-node-id="1:1042">{`8:00 AM - 12:00 PM `}</p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[274px] opacity-50 text-[7px] text-white top-[437.03px] w-[398px]" data-node-id="1:1043">
+                Chapel
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[112.83px] opacity-50 text-[7px] text-white top-[528.09px] w-[398px]" data-node-id="1:1044">
+                Chapel
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[11px] left-[288.27px] text-[10px] text-center text-white top-[394.07px] w-[71.879px]" data-node-id="1:1045">
+                Leadership Seminar
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[11px] left-[127.1px] text-[10px] text-center text-white top-[485.13px] w-[71.879px]" data-node-id="1:1046">
+                Community Outreach
+              </p>
+              <div className="absolute bg-[#d9d9d9] h-[446.158px] left-[245.38px] opacity-6 top-[125.34px] w-px" data-node-id="1:1047" />
+              <div className="absolute bg-[#d9d9d9] h-[446.158px] left-[326.63px] opacity-6 top-[125.34px] w-px" data-node-id="1:1048" />
+              <div className="absolute bg-[#d9d9d9] h-[446.158px] left-[407.88px] opacity-6 top-[125.34px] w-px" data-node-id="1:1049" />
+              <div className="absolute bg-[#d9d9d9] h-[446.158px] left-[489.13px] opacity-6 top-[125.34px] w-px" data-node-id="1:1050" />
+              <div className="absolute bg-[#ab4400] h-[86.026px] left-[407.88px] opacity-28 top-[388.73px] w-[80.859px]" data-node-id="1:1051" />
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[414.71px] opacity-50 text-[7px] text-white top-[446.57px] w-[398px]" data-node-id="1:1052">{`8:00 AM - 12:00 PM `}</p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[434.75px] opacity-50 text-[7px] text-white top-[436.07px] w-[398px]" data-node-id="1:1053">
+                Chapel
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[11px] left-[448.31px] text-[10px] text-center text-white top-[397.42px] w-[61.801px]" data-node-id="1:1054">
+                Student Fair
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[449.02px] text-[#ff6500] text-[20px] text-center top-[420.84px] tracking-[var(--letter-spacing,0px)] w-[25.453px]" data-node-id="1:1055" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                22
+              </p>
+              <div className="absolute flex h-px items-center justify-center left-[-0.5px] top-[473.34px] w-[574px]" data-node-id="1:1056">
+                <div className="-rotate-90 flex-none">
+                  <div className="bg-[#d9d9d9] h-[574px] opacity-6 relative w-px" />
+                </div>
+              </div>
+              <div className="absolute flex h-px items-center justify-center left-[-0.5px] top-[386.34px] w-[574px]" data-node-id="1:1057">
+                <div className="-rotate-90 flex-none">
+                  <div className="bg-[#d9d9d9] h-[574px] opacity-6 relative w-px" />
+                </div>
+              </div>
+              <div className="absolute flex h-px items-center justify-center left-[-0.5px] top-[299.34px] w-[574px]" data-node-id="1:1058">
+                <div className="-rotate-90 flex-none">
+                  <div className="bg-[#d9d9d9] h-[574px] opacity-6 relative w-px" />
+                </div>
+              </div>
+              <div className="absolute flex h-px items-center justify-center left-[-0.5px] top-[212.34px] w-[574px]" data-node-id="1:1059">
+                <div className="-rotate-90 flex-none">
+                  <div className="bg-[#d9d9d9] h-[574px] opacity-6 relative w-px" />
+                </div>
+              </div>
+              <div className="absolute flex h-px items-center justify-center left-[-0.5px] top-[125.34px] w-[574px]" data-node-id="1:1060">
+                <div className="-rotate-90 flex-none">
+                  <div className="bg-[#d9d9d9] h-[574px] opacity-6 relative w-px" />
+                </div>
+              </div>
+              <div className="absolute inset-[calc(14.05%-0.36px)_calc(63.31%+0.13px)_calc(83.33%+0.33px)_calc(33.55%-0.16px)]" data-node-id="1:1061" data-name="Vector">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector} />
+              </div>
+              <div className="absolute flex inset-[calc(14.05%-0.36px)_calc(33.55%-0.16px)_calc(83.33%+0.33px)_calc(63.31%+0.13px)] items-center justify-center" data-node-id="1:1062" style={{ containerType: "size" }}>
+                <div className="flex-none h-[100cqh] rotate-180 w-[100cqw]">
+                  <div className="relative size-full" data-name="Vector">
+                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector1} />
+                  </div>
+                </div>
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold leading-[20px] left-[242px] text-[16px] text-white top-[79.87px] tracking-[var(--letter-spacing,0px)] whitespace-nowrap" data-node-id="1:1063" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                MAY 2026
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[449.01px] text-[#6d6d6d] text-[20px] text-center top-[168.29px] tracking-[var(--letter-spacing,0px)] w-[7.119px]" data-node-id="1:1064" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                1
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[533.75px] text-[#6d6d6d] text-[20px] text-center top-[168.29px] tracking-[var(--letter-spacing,0px)] w-[10.679px]" data-node-id="1:1065" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                2
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[39.94px] text-[#6d6d6d] text-[20px] text-center top-[249.2px] tracking-[var(--letter-spacing,0px)] w-[10.679px]" data-node-id="1:1066" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                3
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[44.64px] text-[#6d6d6d] text-[20px] text-center top-[330.37px] tracking-[var(--letter-spacing,0px)] w-[48.063px]" data-node-id="1:1067" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                10
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[44.64px] text-[#6d6d6d] text-[20px] text-center top-[421.28px] tracking-[var(--letter-spacing,0px)] w-[25.203px]" data-node-id="1:1068" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                17
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[42.78px] text-[#6d6d6d] text-[20px] text-center top-[511.9px] tracking-[var(--letter-spacing,0px)] w-[26.633px]" data-node-id="1:1069" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                24
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[124.44px] text-[#6d6d6d] text-[20px] text-center top-[249.2px] tracking-[var(--letter-spacing,0px)] w-[12.459px]" data-node-id="1:1070" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                4
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[125.31px] text-[#6d6d6d] text-[20px] text-center top-[334.28px] tracking-[var(--letter-spacing,0px)] w-[25.402px]" data-node-id="1:1071" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                11
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[124.44px] text-[#6d6d6d] text-[20px] text-center top-[421.28px] tracking-[var(--letter-spacing,0px)] w-[23.113px]" data-node-id="1:1072" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                18
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[123.68px] text-[#ff6500] text-[20px] text-center top-[511.9px] tracking-[var(--letter-spacing,0px)] w-[25.492px]" data-node-id="1:1073" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                25
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[205.17px] text-[#6d6d6d] text-[20px] text-center top-[249.73px] tracking-[var(--letter-spacing,0px)] w-[10.679px]" data-node-id="1:1074" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                5
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[207.12px] text-[#6d6d6d] text-[20px] text-center top-[334.8px] tracking-[var(--letter-spacing,0px)] w-[28.055px]" data-node-id="1:1075" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                12
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[207.12px] text-[#6d6d6d] text-[20px] text-center top-[421.8px] tracking-[var(--letter-spacing,0px)] w-[25.246px]" data-node-id="1:1076" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                19
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[205.53px] text-[#6d6d6d] text-[20px] text-center top-[511.9px] tracking-[var(--letter-spacing,0px)] w-[28.102px]" data-node-id="1:1077" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                26
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[289.16px] text-[#6d6d6d] text-[20px] text-center top-[249.73px] tracking-[var(--letter-spacing,0px)] w-[11.569px]" data-node-id="1:1078" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                6
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[287.59px] text-[#6d6d6d] text-[20px] text-center top-[334.8px] tracking-[var(--letter-spacing,0px)] w-[25.863px]" data-node-id="1:1079" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                13
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[288.27px] text-[#ff6500] text-[20px] text-center top-[421.8px] tracking-[var(--letter-spacing,0px)] w-[25.453px]" data-node-id="1:1080" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                20
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[287.59px] text-[#6d6d6d] text-[20px] text-center top-[511.9px] tracking-[var(--letter-spacing,0px)] w-[27.836px]" data-node-id="1:1081" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                27
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[371.91px] text-[#6d6d6d] text-[20px] text-center top-[249.2px] tracking-[var(--letter-spacing,0px)] w-[11.569px]" data-node-id="1:1082" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                7
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[368.82px] text-[#6d6d6d] text-[20px] text-center top-[334.28px] tracking-[var(--letter-spacing,0px)] w-[28.48px]" data-node-id="1:1083" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                14
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[371.02px] text-[#6d6d6d] text-[20px] text-center top-[421.28px] tracking-[var(--letter-spacing,0px)] w-[24.078px]" data-node-id="1:1084" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                21
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[368.36px] text-[#6d6d6d] text-[20px] text-center top-[512.42px] tracking-[var(--letter-spacing,0px)] w-[25.508px]" data-node-id="1:1085" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                28
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[447.65px] text-[#6d6d6d] text-[20px] text-center top-[249.2px] tracking-[var(--letter-spacing,0px)] w-[12.459px]" data-node-id="1:1086" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                8
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[447.65px] text-[#6d6d6d] text-[20px] text-center top-[334.28px] tracking-[var(--letter-spacing,0px)] w-[21.656px]" data-node-id="1:1087" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                15
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[446.56px] text-[#6d6d6d] text-[20px] text-center top-[511.9px] tracking-[var(--letter-spacing,0px)] w-[27.781px]" data-node-id="1:1088" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                29
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[533.3px] text-[#6d6d6d] text-[20px] text-center top-[249.2px] tracking-[var(--letter-spacing,0px)] w-[11.569px]" data-node-id="1:1089" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                9
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[533.17px] text-[#6d6d6d] text-[20px] text-center top-[334.28px] tracking-[var(--letter-spacing,0px)] w-[26.879px]" data-node-id="1:1090" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                16
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[532.41px] text-[#6d6d6d] text-[20px] text-center top-[421.28px] tracking-[var(--letter-spacing,0px)] w-[28.77px]" data-node-id="1:1091" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                24
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[20.916px] leading-[20px] left-[533.17px] text-[#6d6d6d] text-[20px] text-center top-[511.9px] tracking-[var(--letter-spacing,0px)] w-[27.816px]" data-node-id="1:1092" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                30
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[490.34px] opacity-85 text-[#ff6500] text-[15px] top-[28.39px] tracking-[-1px] w-[398px]" data-node-id="1:1093">
+                View All
+              </p>
+            </div>
+            <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[0] left-[16.08px] right-[761.92px] text-[0px] text-white top-[-10.5px] tracking-[-0.43px]" data-node-id="1:1094">
+              <span className="leading-[30px] text-[16px]">Welcome</span>
+              <span className="leading-[30px] text-[24px]">
+                <br aria-hidden />
+                Franco Fernandez!
+              </span>
+            </p>
+            <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[21px] leading-[22px] left-[849.43px] opacity-60 right-[-71.43px] text-[16px] text-white top-[34px] tracking-[-0.43px]" data-node-id="1:1095">
+              President
+            </p>
+            <div className="absolute border border-[#02006b] border-solid h-[456px] left-[592px] overflow-clip rounded-[24px] top-[513px] w-[574px]" data-node-id="1:1096" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 574 456' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(28.7 0 0 22.8 287 228)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(27,26,85,1)' offset='0'/><stop stop-color='rgba(20,20,64,1)' offset='0.25'/><stop stop-color='rgba(14,13,43,1)' offset='0.5'/><stop stop-color='rgba(7,7,21,1)' offset='0.75'/><stop stop-color='rgba(3,3,11,1)' offset='0.875'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+              <div className="absolute contents left-[-192.5px] top-[493.5px]" data-node-id="1:1097">
+                <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1098">
+                  <div className="absolute bg-white h-[66px] left-[-192px] rounded-[11px] shadow-[0px_0px_23.004px_0px_white,0px_0px_13.145px_0px_white,0px_0px_7.668px_0px_white,0px_0px_3.834px_0px_white,0px_0px_1.095px_0px_white,0px_0px_0.548px_0px_white] top-[494px] w-[158px]" data-node-id="1:1099" />
+                </div>
+              </div>
+              <div className="absolute contents left-[32.5px] top-[28.5px]" data-node-id="1:1100">
+                <div className="absolute bg-[rgba(52,0,100,0.1)] border border-[#ff6500] border-solid h-[43px] left-[33px] rounded-[13px] top-[29px] w-[47px]" data-node-id="1:1101" />
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[87.5px] opacity-85 text-[15px] text-white top-[39.5px] tracking-[-1px] w-[398px]" data-node-id="1:1102">
+                Top Organizations
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[312.35px] opacity-85 text-[#949494] text-[13px] top-[37.5px] tracking-[-1px] w-[23px]" data-node-id="1:1103">
+                All
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[353.43px] opacity-85 text-[#949494] text-[13px] top-[37.5px] tracking-[-1px] w-[123px]" data-node-id="1:1104">
+                Participation
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[445.7px] opacity-85 text-[#949494] text-[13px] top-[37.5px] tracking-[-1px] w-[123px]" data-node-id="1:1105">
+                Achievements
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[109.5px] tracking-[-1px] w-[123px]" data-node-id="1:1106">
+                Level 4
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[93.5px] tracking-[-1px] w-[123px]" data-node-id="1:1107">
+                4, 200 pts
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[150.5px] tracking-[-1px] w-[123px]" data-node-id="1:1108">
+                3, 850 pts
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[208.5px] tracking-[-1px] w-[123px]" data-node-id="1:1109">
+                3, 500 pts
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[267.5px] tracking-[-1px] w-[123px]" data-node-id="1:1110">
+                2, 870 pts
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[323.5px] tracking-[-1px] w-[123px]" data-node-id="1:1111">
+                2, 450 pts
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[166.5px] tracking-[-1px] w-[123px]" data-node-id="1:1112">
+                Level 3
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[224.5px] tracking-[-1px] w-[123px]" data-node-id="1:1113">
+                Level 3
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[281.5px] tracking-[-1px] w-[123px]" data-node-id="1:1114">
+                Level 2
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[21px] leading-[22px] left-[496.5px] opacity-85 text-[#949494] text-[13px] top-[339.5px] tracking-[-1px] w-[123px]" data-node-id="1:1115">
+                Level 2
+              </p>
+              <div className="absolute bg-[#d9d9d9] h-[2px] left-[-0.5px] opacity-5 top-[76.5px] w-[579px]" data-node-id="1:1116" />
+              <div className="absolute bg-[#ff6500] h-[2px] left-[306.35px] rounded-[5px] top-[58.5px] w-[29px]" data-node-id="1:1117" />
+              <div className="absolute inset-[calc(9.11%-0.41px)_calc(88.17%+0.38px)_calc(86.96%+0.37px)_calc(7.86%-0.42px)]" data-node-id="1:1118" data-name="Vector">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector2} />
+              </div>
+              <div className="absolute bg-white h-[11px] left-[122.5px] overflow-clip rounded-[5px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] top-[114.5px] w-[281px]" data-node-id="1:1119">
+                <div className="absolute bg-[#ff6500] h-[13px] left-[-73px] shadow-[0px_0px_20.07px_0px_#1b1a55] top-[-2px] w-[270px]" data-node-id="1:1120" />
+              </div>
+              <div className="absolute bg-white h-[11px] left-[122.5px] overflow-clip rounded-[5px] shadow-[0px_0px_20.07px_0px_#1b1a55] top-[171.5px] w-[281px]" data-node-id="1:1121">
+                <div className="absolute bg-[#ff6500] h-[13px] left-[-73px] shadow-[0px_0px_20.07px_0px_#1b1a55] top-[-2px] w-[244px]" data-node-id="1:1122" />
+              </div>
+              <div className="absolute bg-white h-[11px] left-[122.5px] overflow-clip rounded-[5px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] top-[229.5px] w-[281px]" data-node-id="1:1123">
+                <div className="absolute bg-[#ff6500] h-[13px] left-[-73px] shadow-[0px_0px_20.07px_0px_#1b1a55] top-[-2px] w-[228px]" data-node-id="1:1124" />
+              </div>
+              <div className="absolute bg-white h-[11px] left-[122.5px] overflow-clip rounded-[5px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] top-[286.5px] w-[281px]" data-node-id="1:1125">
+                <div className="absolute bg-[#ff6500] h-[13px] left-[-73px] shadow-[0px_0px_250px_0px_#1b1a55,0px_0px_250px_0px_#1b1a55,0px_0px_250px_0px_#1b1a55,0px_0px_140.49px_0px_#1b1a55,0px_0px_40.14px_0px_#1b1a55,0px_0px_20.07px_0px_#1b1a55] top-[-2px] w-[198px]" data-node-id="1:1126" />
+              </div>
+              <div className="absolute bg-white h-[11px] left-[122.5px] overflow-clip rounded-[5px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] top-[344.5px] w-[281px]" data-node-id="1:1127">
+                <div className="absolute bg-[#ff6500] h-[13px] left-[-73px] shadow-[0px_0px_20.07px_0px_#1b1a55] top-[-2px] w-[173px]" data-node-id="1:1128" />
+              </div>
+              <div className="absolute left-[65.5px] rounded-[40px] size-[39px] top-[86.5px]" data-node-id="1:1129" data-name="image 4">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[40px] size-full" src={imgImage4} />
+              </div>
+              <div className="absolute left-[65.5px] rounded-[40px] size-[39px] top-[143.5px]" data-node-id="1:1130" data-name="image 4">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[40px] size-full" src={imgImage5} />
+              </div>
+              <div className="absolute left-[65.5px] rounded-[40px] size-[39px] top-[201.5px]" data-node-id="1:1131" data-name="image 4">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[40px] size-full" src={imgImage6} />
+              </div>
+              <div className="absolute left-[65.5px] rounded-[40px] size-[39px] top-[258.5px]" data-node-id="1:1132" data-name="image 6">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[40px] size-full" src={imgImage7} />
+              </div>
+              <div className="absolute left-[65.5px] rounded-[40px] size-[39px] top-[316.5px]" data-node-id="1:1133" data-name="image 5">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[40px] size-full" src={imgImage8} />
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[30.5px] opacity-85 text-[#ff6500] text-[13px] top-[386.5px] tracking-[-1px] w-[148px]" data-node-id="1:1134">
+                View All Leaderboards
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[122.5px] opacity-85 text-[13px] text-white top-[93.5px] w-[398px]" data-node-id="1:1135">
+                Funtime Organization
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[122.5px] opacity-85 text-[13px] text-white top-[150.5px] w-[398px]" data-node-id="1:1136">
+                Community Leaders
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[122.5px] opacity-85 text-[13px] text-white top-[208.5px] w-[398px]" data-node-id="1:1137">
+                Scholar Circle
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[122.5px] opacity-85 text-[13px] text-white top-[323.5px] w-[398px]" data-node-id="1:1138">
+                BSIT Achievers
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[122.5px] opacity-85 text-[13px] text-white top-[267.5px] w-[398px]" data-node-id="1:1139">
+                Outreach Volunteers
+              </p>
+            </div>
+            <div className="absolute border border-[#02006b] border-solid h-[303px] left-[588.88px] overflow-clip rounded-[24px] top-[196.42px] w-[569px]" data-node-id="1:1140" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 569 303' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(28.45 0 0 15.15 284.5 151.5)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(27,26,85,1)' offset='0'/><stop stop-color='rgba(20,20,64,1)' offset='0.25'/><stop stop-color='rgba(14,13,43,1)' offset='0.5'/><stop stop-color='rgba(7,7,21,1)' offset='0.75'/><stop stop-color='rgba(3,3,11,1)' offset='0.875'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+              <div className="absolute contents left-[-189.38px] top-[493.75px]" data-node-id="1:1141">
+                <div className="absolute contents left-[-188.88px] top-[494.25px]" data-node-id="1:1142">
+                  <div className="absolute bg-white h-[66px] left-[-188.88px] rounded-[11px] shadow-[0px_0px_23.004px_0px_white,0px_0px_13.145px_0px_white,0px_0px_7.668px_0px_white,0px_0px_3.834px_0px_white,0px_0px_1.095px_0px_white,0px_0px_0.548px_0px_white] top-[494.25px] w-[158px]" data-node-id="1:1143" />
+                </div>
+              </div>
+              <div className="absolute contents left-[21.62px] top-[11.99px]" data-node-id="1:1144">
+                <div className="absolute bg-[rgba(52,0,100,0.1)] border border-[#ff6500] border-solid h-[43px] left-[22.12px] rounded-[13px] top-[12.49px] w-[47px]" data-node-id="1:1145" />
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[79.62px] opacity-85 text-[15px] text-white top-[22.99px] tracking-[-1px] w-[398px]" data-node-id="1:1146">{`Top Leaders `}</p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[24px] leading-[22px] left-[229.06px] opacity-85 text-[14px] text-white top-[207.25px] w-[398px]" data-node-id="1:1147">
+                Franco Fernandez
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[25px] leading-[22px] left-[133.86px] opacity-85 text-[14px] text-center text-white top-[207.25px] w-[398px]" data-node-id="1:1148">
+                Juan Dela Cruz
+              </p>
+              <p className="-translate-x-full [word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[25px] leading-[22px] left-[162.31px] text-[13px] text-right text-white top-[228.75px] w-[398px]" data-node-id="1:1149">
+                530 EXP
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[25px] leading-[22px] left-[447.86px] opacity-85 text-[14px] text-center text-white top-[207.25px] w-[398px]" data-node-id="1:1150">
+                Handy Mandy
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[259.19px] opacity-85 text-[#ff6500] text-[15px] top-[268.18px] tracking-[-1px] w-[398px]" data-node-id="1:1151">
+                View All
+              </p>
+              <div className="absolute bg-[#d9d9d9] h-[2px] left-[2.16px] opacity-5 top-[64.87px] w-[579px]" data-node-id="1:1152" />
+              <div className="absolute inset-[calc(7.12%-0.43px)_calc(89.82%+0.4px)_calc(85.32%+0.35px)_calc(5.87%-0.44px)]" data-node-id="1:1153" data-name="Vector">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector3} />
+              </div>
+              <p className="-translate-x-full [word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[24px] leading-[22px] left-[315.93px] text-[13px] text-right text-white top-[228.75px] w-[398px]" data-node-id="1:1154">
+                650 EXP
+              </p>
+              <p className="-translate-x-full [word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[25px] leading-[22px] left-[477.62px] text-[13px] text-right text-white top-[227.75px] w-[398px]" data-node-id="1:1155">
+                490 EXP
+              </p>
+              <div className="absolute left-[418.64px] rounded-[40px] size-[58.445px] top-[126.22px]" data-node-id="1:1156" data-name="image 7">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[40px] size-full" src={imgImage5} />
+              </div>
+              <div className="absolute left-[91.75px] rounded-[40px] size-[79.598px] top-[111.43px]" data-node-id="1:1157" data-name="image 7">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[40px] size-full" src={imgImage4} />
+              </div>
+              <div className="absolute left-[236.52px] rounded-[41px] size-[95px] top-[76.75px]" data-node-id="1:1158" data-name="image 7">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[41px] size-full" src={imgImage6} />
+              </div>
+              <div className="absolute h-[63px] left-[257.52px] rounded-[400px] top-[137.75px] w-[53px]" data-node-id="1:1159" data-name="3ebf22ec-558b-4992-9281-1e0b37c956ab-Picsart-BackgroundRemover 16">
+                <div aria-hidden className="absolute inset-0 pointer-events-none rounded-[400px]">
+                  <div className="absolute inset-0 overflow-hidden rounded-[400px]">
+                    <img alt="" className="absolute h-[795.72%] left-[-49.69%] max-w-none top-[-100.97%] w-[1415.47%]" src={img3Ebf22Ec558B499292811E0B37C956AbPicsartBackgroundRemover16} />
+                  </div>
+                  <div className="absolute bg-[#1b1a55] inset-0 mix-blend-color rounded-[400px]" />
+                </div>
+              </div>
+              <div className="absolute h-[48.296px] left-[109.83px] rounded-[53px] top-[158.96px] w-[43.437px]" data-node-id="1:1160" data-name="3ebf22ec-558b-4992-9281-1e0b37c956ab-Picsart-BackgroundRemover 17">
+                <div aria-hidden className="absolute inset-0 pointer-events-none rounded-[53px]">
+                  <div className="absolute inset-0 overflow-hidden rounded-[53px]">
+                    <img alt="" className="absolute h-[795.72%] left-[-168.32%] max-w-none top-[-102.86%] w-[1338.26%]" src={img3Ebf22Ec558B499292811E0B37C956AbPicsartBackgroundRemover16} />
+                  </div>
+                  <div className="absolute bg-[#1b1a55] inset-0 mix-blend-color rounded-[53px]" />
+                </div>
+              </div>
+              <div className="absolute h-[37.742px] left-[430.89px] rounded-[266px] top-[166.52px] w-[33.945px]" data-node-id="1:1161" data-name="3ebf22ec-558b-4992-9281-1e0b37c956ab-Picsart-BackgroundRemover 18">
+                <div aria-hidden className="absolute inset-0 pointer-events-none rounded-[266px]">
+                  <div className="absolute inset-0 overflow-hidden rounded-[266px]">
+                    <img alt="" className="absolute h-[795.72%] left-[-288.6%] max-w-none top-[-98.14%] w-[1338.26%]" src={img3Ebf22Ec558B499292811E0B37C956AbPicsartBackgroundRemover16} />
+                  </div>
+                  <div className="absolute bg-[#1b1a55] inset-0 mix-blend-color rounded-[266px]" />
+                </div>
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[312.15px] opacity-85 text-[#949494] text-[13px] top-[32.49px] tracking-[-1px] w-[23px]" data-node-id="1:1162">
+                All
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[353.23px] opacity-85 text-[#949494] text-[13px] top-[32.49px] tracking-[-1px] w-[123px]" data-node-id="1:1163">
+                Participation
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[445.5px] opacity-85 text-[#949494] text-[13px] top-[32.49px] tracking-[-1px] w-[123px]" data-node-id="1:1164">
+                Achievements
+              </p>
+              <div className="absolute bg-[#ff6500] h-[2px] left-[306.15px] rounded-[5px] top-[53.49px] w-[29px]" data-node-id="1:1165" />
+            </div>
+            <div className="absolute border border-[#1b1a55] border-solid h-[107px] left-[5px] overflow-clip right-[4px] rounded-[24px] top-[75px]" data-node-id="1:1166" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 1167 107' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(58.35 0 0 5.35 583.5 53.5)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(27,26,85,1)' offset='0'/><stop stop-color='rgba(20,20,64,1)' offset='0.25'/><stop stop-color='rgba(14,13,43,1)' offset='0.5'/><stop stop-color='rgba(7,7,21,1)' offset='0.75'/><stop stop-color='rgba(3,3,11,1)' offset='0.875'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[118.19px] opacity-85 text-[20px] text-white top-[30.5px] tracking-[-1px] w-[398px]" data-node-id="1:1167">
+                650
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[409.5px] opacity-85 text-[20px] text-white top-[29.5px] tracking-[-1px] w-[398px]" data-node-id="1:1168">
+                Level 3
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[682.2px] opacity-85 text-[20px] text-white top-[28px] tracking-[-1px] w-[398px]" data-node-id="1:1169">
+                2
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[948.34px] opacity-85 text-[20px] text-white top-[32.5px] tracking-[-1px] w-[398px] whitespace-pre-wrap" data-node-id="1:1170">{`4,200  points`}</p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[118.19px] opacity-58 text-[14px] text-white top-[54.5px] w-[398px]" data-node-id="1:1171">
+                Total EXP
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[409.5px] opacity-58 text-[14px] text-white top-[53.5px] w-[398px]" data-node-id="1:1172">
+                Inspiring Leader
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[682.2px] opacity-58 text-[14px] text-white top-[52px] w-[398px]" data-node-id="1:1173">
+                Badge earned
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[948.34px] opacity-58 text-[14px] text-white top-[54.5px] w-[398px]" data-node-id="1:1174">
+                Organization points
+              </p>
+              <div className="absolute bg-[#d9d9d9] h-[45px] left-[278.5px] opacity-10 top-[30.5px] w-[3px]" data-node-id="1:1175" />
+              <div className="absolute bg-[#d9d9d9] h-[45px] left-[585.5px] opacity-10 top-[30.5px] w-[3px]" data-node-id="1:1176" />
+              <div className="absolute bg-[#d9d9d9] h-[45px] left-[817.47px] opacity-10 top-[30.5px] w-[3px]" data-node-id="1:1177" />
+              <div className="absolute h-[58.071px] left-[317.19px] top-[21.46px] w-[63.184px]" data-node-id="1:1178" data-name="ChatGPT Image Sep 10, 2026, 03_55_57 AM 5">
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <img alt="" className="absolute h-[109.68%] left-[-1.94%] max-w-none top-[-1.89%] w-[302.41%]" src={imgChatGptImageSep102026035557Am5} />
+                </div>
+              </div>
+              <div className="absolute left-[1054.91px] size-[82px] top-[9.56px]" data-node-id="1:1179" data-name="Layer_1" />
+              <div className="absolute h-[57.46px] left-[608.5px] top-[25.48px] w-[53.701px]" data-node-id="1:1180" data-name="3ebf22ec-558b-4992-9281-1e0b37c956ab-Picsart-BackgroundRemover 12">
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <img alt="" className="absolute h-[1274.41%] left-[-289.95%] max-w-none top-[-1044.77%] w-[2046.8%]" src={img3Ebf22Ec558B499292811E0B37C956AbPicsartBackgroundRemover16} />
+                </div>
+              </div>
+              <div className="absolute h-[19px] left-[917.91px] top-[13.5px] w-[20px]" data-node-id="1:1181" data-name="mingcute:head-ai-fill" />
+              <div className="absolute h-[60.763px] left-[857.32px] top-[24.12px] w-[54.174px]" data-node-id="1:1182" data-name="3ebf22ec-558b-4992-9281-1e0b37c956ab-Picsart-BackgroundRemover 16">
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <img alt="" className="absolute h-[1233.73%] left-[-539.71%] max-w-none top-[-1009.97%] w-[2075.68%]" src={img3Ebf22Ec558B499292811E0B37C956AbPicsartBackgroundRemover16} />
+                </div>
+              </div>
+              <div className="absolute inset-[calc(22.93%-0.27px)_calc(92.58%+0.43px)_calc(31.34%-0.19px)_calc(3.07%-0.47px)]" data-node-id="1:1183" data-name="Vector">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector4} />
+              </div>
+            </div>
+            <div className="absolute border border-[#02006b] border-solid h-[125px] left-[-11.5px] overflow-clip right-[20.5px] rounded-[24px] top-[994.48px]" data-node-id="1:1184" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 1167 125' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(58.35 0 0 6.25 583.5 62.5)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(27,26,85,1)' offset='0'/><stop stop-color='rgba(20,20,64,1)' offset='0.25'/><stop stop-color='rgba(14,13,43,1)' offset='0.5'/><stop stop-color='rgba(7,7,21,1)' offset='0.75'/><stop stop-color='rgba(3,3,11,1)' offset='0.875'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+              <div className="absolute contents left-[-192.5px] top-[493.5px]" data-node-id="1:1185">
+                <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1186">
+                  <div className="absolute bg-white h-[66px] left-[-192px] rounded-[11px] shadow-[0px_0px_23.004px_0px_white,0px_0px_13.145px_0px_white,0px_0px_7.668px_0px_white,0px_0px_3.834px_0px_white,0px_0px_1.095px_0px_white,0px_0px_0.548px_0px_white] top-[494px] w-[158px]" data-node-id="1:1187" />
+                </div>
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[148.5px] opacity-85 text-[32px] text-white top-[43.5px] tracking-[-1px] w-[636px]" data-node-id="1:1188">
+                Keep Growing, keep leading!
+              </p>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[21px] leading-[22px] left-[148.5px] opacity-85 text-[20px] text-white top-[76.5px] tracking-[-1px] w-[830px]" data-node-id="1:1189">
+                Your Actions today, shape the leaders of tomorrow
+              </p>
+              <div className="absolute h-[153px] left-[-151.5px] top-[-0.5px] w-[454px]" data-node-id="1:1190" data-name="Rectangle">
+                <img alt="" className="absolute inset-0 max-w-none object-contain pointer-events-none size-full" src={imgRectangle} />
+              </div>
+              <div className="absolute left-[930.5px] size-[229px] top-[-52.5px]" data-node-id="1:1191" data-name="download-removebg-preview 1">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgDownloadRemovebgPreview1} />
+              </div>
+            </div>
+            <div className="absolute border border-[#1b1a55] border-solid h-[189px] left-[4.88px] overflow-clip rounded-[24px] top-[194.42px] w-[566px]" data-node-id="1:1192" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 566 189' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(28.3 0 0 9.45 283 94.5)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+              <div className="absolute contents left-[-205.29px] top-[493.08px]" data-node-id="1:1193">
+                <div className="absolute contents left-[-204.79px] top-[493.58px]" data-node-id="1:1194">
+                  <div className="absolute bg-white h-[66px] left-[-204.79px] rounded-[11px] shadow-[0px_0px_23.004px_0px_white,0px_0px_13.145px_0px_white,0px_0px_7.668px_0px_white,0px_0px_3.834px_0px_white,0px_0px_1.095px_0px_white,0px_0px_0.548px_0px_white] top-[493.58px] w-[158px]" data-node-id="1:1195" />
+                </div>
+              </div>
+              <div className="absolute contents left-[14.71px] top-[362.08px]" data-node-id="1:1196">
+                <div className="absolute content-stretch drop-shadow-[0px_3px_3px_rgba(0,0,0,0.16),0px_3px_3px_rgba(0,0,0,0.23)] flex flex-col h-[36px] items-start left-[15.21px] top-[362.58px] w-[437px]" data-node-id="1:1197" data-name="& SearchBar" />
+              </div>
+              <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[18px] leading-[22px] left-[411.71px] text-[15px] text-white top-[30.08px] tracking-[-0.43px] w-[98px]" data-node-id="1:1198">
+                This month ▼
+              </p>
+              <div className="absolute bg-[#121723] h-[90px] left-[25.71px] overflow-clip rounded-[24px] shadow-[0px_1px_5.4px_0px_rgba(0,0,0,0.35)] top-[68.08px] w-[150px]" data-node-id="1:1199">
+                <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1200">
+                  <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1201">
+                    <div className="absolute bg-white h-[66px] left-[-192px] rounded-[11px] shadow-[0px_0px_23.004px_0px_white,0px_0px_13.145px_0px_white,0px_0px_7.668px_0px_white,0px_0px_3.834px_0px_white,0px_0px_1.095px_0px_white,0px_0px_0.548px_0px_white] top-[494px] w-[158px]" data-node-id="1:1202" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute bg-[#121723] h-[90px] left-[196.71px] overflow-clip rounded-[24px] shadow-[0px_1px_5.4px_0px_rgba(0,0,0,0.35)] top-[68.08px] w-[150px]" data-node-id="1:1203">
+                <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1204">
+                  <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1205">
+                    <div className="absolute bg-white h-[66px] left-[-192px] rounded-[11px] shadow-[0px_0px_23.004px_0px_white,0px_0px_13.145px_0px_white,0px_0px_7.668px_0px_white,0px_0px_3.834px_0px_white,0px_0px_1.095px_0px_white,0px_0px_0.548px_0px_white] top-[494px] w-[158px]" data-node-id="1:1206" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute bg-[#121723] h-[90px] left-[367.71px] overflow-clip rounded-[24px] shadow-[0px_1px_5.4px_0px_rgba(0,0,0,0.35)] top-[68.08px] w-[150px]" data-node-id="1:1207">
+                <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1208">
+                  <div className="absolute contents left-[-192px] top-[494px]" data-node-id="1:1209">
+                    <div className="absolute bg-white h-[66px] left-[-192px] rounded-[11px] shadow-[0px_0px_23.004px_0px_white,0px_0px_13.145px_0px_white,0px_0px_7.668px_0px_white,0px_0px_3.834px_0px_white,0px_0px_1.095px_0px_white,0px_0px_0.548px_0px_white] top-[494px] w-[158px]" data-node-id="1:1210" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute h-[92px] left-[25.71px] top-[66.08px] w-[32px]" data-node-id="1:1211" />
+              <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[25.71px] opacity-85 text-[20px] text-white top-[30.08px] tracking-[-1px] w-[398px]" data-node-id="1:1212">
+                Org Participation
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[100.71px] opacity-85 text-[24px] text-center text-white top-[88.08px] tracking-[-1px] w-[398px]" data-node-id="1:1213">
+                12
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[271.71px] opacity-85 text-[24px] text-center text-white top-[88.08px] tracking-[-1px] w-[398px]" data-node-id="1:1214">
+                85%
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[21px] leading-[22px] left-[100.71px] opacity-85 text-[13px] text-center text-white top-[116.08px] tracking-[-1px] w-[398px]" data-node-id="1:1215">
+                Events Joined
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[21px] leading-[22px] left-[271.71px] opacity-85 text-[13px] text-center text-white top-[116.08px] tracking-[-1px] w-[398px]" data-node-id="1:1216">
+                Participation rate
+              </p>
+              <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[21px] leading-[22px] left-[442.71px] opacity-85 text-[13px] text-center text-white top-[116.08px] tracking-[-1px] w-[398px]" data-node-id="1:1217">{` EXP Earned`}</p>
+            </div>
+            <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[21px] leading-[22px] left-[767px] opacity-85 text-[24px] text-white top-px tracking-[-1px] w-[398px]" data-node-id="1:1218">
+              Funtime Organization
+            </p>
+          </div>
+          <div className="absolute inset-[0.49%_2.85%_95.71%_90.73%]" data-node-id="1:1219">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgGroup283} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <div className="bg-[#0c1220] relative size-full" data-node-id="1:1022" data-name="Dashboard">
+      <div className="absolute h-[1538px] left-[calc(8.33%+28px)] top-[104px] w-[1239px]" data-node-id="1:1024">
+        <div className="absolute content-stretch flex flex-col h-[1752px] items-start left-0 overflow-x-clip overflow-y-auto top-0 w-[1601px]" data-node-id="1:1025">
+          <div className="h-[1636px] relative shrink-0 w-full" data-node-id="1:1026">
+            <div className="absolute h-[1695px] left-[-60px] overflow-clip top-[38px] w-[1510px]" data-node-id="1:1027">
+              <div className="absolute left-[1145px] size-[24px] top-0" data-node-id="1:1028" data-name="mingcute:head-ai-fill" />
+            </div>
+            <div className="absolute contents inset-[2.76%_33.15%_97.2%_66.79%]" data-node-id="1:1029" data-name="Group">
+              <div className="absolute inset-[2.76%_33.15%_97.2%_66.79%]" data-node-id="1:1030" data-name="Vector">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector5} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Frame176 className="absolute h-[1952px] left-[calc(8.33%+60px)] overflow-x-clip overflow-y-auto top-[91px] w-[1202px]" />
+      <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[calc(41.67%+3px)] opacity-85 text-[15px] text-white top-[410px] tracking-[-1px] w-[398px]" data-node-id="1:1224">
+        650 EXP
+      </p>
+      <div className="absolute contents left-[-264px] top-[-99px]" data-node-id="1:1225">
+        <div className="absolute flex h-[183.531px] items-center justify-center left-[-264px] top-[-99px] w-[2038px]" data-node-id="1:1226">
+          <div className="-rotate-90 flex-none">
+            <div className="h-[2038px] relative w-[183.531px]" />
+          </div>
+        </div>
+        <div className="absolute h-[1139.002px] left-[-25px] top-[11.12px] w-[173px]" data-node-id="1:1227">
+          <div className="absolute h-[2038px] left-0 top-0 w-[165px]" data-node-id="1:1228" />
+          <div className="absolute h-[172px] left-[-239px] top-[-92px] w-[2038px]" data-node-id="1:1229" />
+          <div className="absolute h-[329px] left-[62px] top-[220px] w-[59px]" data-node-id="1:1230" />
+        </div>
+        <div className="absolute h-[172px] left-[-264px] top-[-52px] w-[2038px]" data-node-id="1:1231" />
+        <div className="absolute content-stretch flex gap-[8px] h-[40.043px] items-center left-[-7px] top-[20.02px]" data-node-id="1:1232" data-name="Frame">
+          <div className="content-center flex flex-wrap gap-[var(--4,8px_4px)] items-center relative rounded-[var(--8,8px)] shrink-0" data-node-id="1:1233" data-name="Group">
+            <div className="content-stretch flex gap-[var(--8,8px)] items-center justify-center min-h-[36px] min-w-[36px] p-[var(--8,8px)] relative rounded-[var(--16,16px)] shrink-0" data-node-id="I1:1233;10922:14519" data-name="Button">
+              <div className="content-stretch flex items-center justify-center relative shrink-0" data-node-id="I1:1233;10922:14519;11022:10734" data-name="Icon">
+                <div className="relative shrink-0 size-[20px]" data-node-id="I1:1233;10922:14519;11022:10734;10412:2204" data-name="Weight=Duotone" />
+              </div>
+            </div>
+          </div>
+          <div className="content-center flex flex-wrap gap-[var(--4,8px_4px)] items-center relative rounded-[var(--8,8px)] shrink-0" data-node-id="1:1234" data-name="Breadcrumb">
+            <div className="content-stretch flex gap-[var(--8,8px)] items-center justify-center min-h-[36px] min-w-[36px] px-[var(--16,16px)] py-[var(--8,8px)] relative rounded-[var(--16,16px)] shrink-0" data-node-id="I1:1234;10922:14436" data-name="Button">
+              <div className="content-stretch flex flex-col items-start justify-center relative rounded-[var(--12,12px)] shrink-0" data-node-id="I1:1234;10922:14436;16508:113314" data-name="Text">
+                <div className="[word-break:break-word] flex flex-col font-['Inter:Regular'] font-normal justify-center leading-[0] not-italic relative shrink-0 text-[14px] text-center text-white tracking-[var(--letter-spacing,0px)] w-full" data-node-id="I1:1234;10922:14436;16508:113314;10892:2493" style={{ fontFeatureSettings: '"ss01" 1, "cv01" 1' }}>
+                  <p className="leading-[20px]">​</p>
+                </div>
+              </div>
+            </div>
+            <div className="content-stretch flex flex-col items-start justify-center relative rounded-[var(--12,12px)] shrink-0 size-[24px]" data-node-id="I1:1234;10922:14437" data-name="Text" />
+          </div>
+        </div>
+      </div>
+      <div className="absolute h-[2264px] left-[6.41px] top-[11px] w-[142px]" data-node-id="1:1235" data-name="Sidebars student dashboard">
+        <div className="absolute h-[162px] left-[-265.53px] top-[-65.58px] w-[2038px]" data-node-id="1:1236">
+          <div className="absolute h-[25px] left-[1497.12px] top-[85.7px] w-[23px]" data-node-id="1:1237" />
+          <div className="absolute flex h-[148px] items-center justify-center left-[0.12px] top-[12.58px] w-[2038px]" data-node-id="1:1238">
+            <div className="-rotate-90 flex-none">
+              <div className="bg-[#080e1b] h-[2038px] relative w-[148px]" />
+            </div>
+          </div>
+          <div className="absolute flex h-[148px] items-center justify-center left-[56.53px] top-[17.58px] w-[2038px]" data-node-id="1:1239">
+            <div className="-rotate-90 flex-none">
+              <div className="bg-[#080e1b] h-[2038px] relative w-[148px]" />
+            </div>
+          </div>
+          <div className="absolute h-[43px] left-[1263.95px] top-[101.08px] w-[52px]" data-node-id="1:1240">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgFrame106} />
+          </div>
+          <div className="absolute left-[1503.12px] size-[29px] top-[106.58px]" data-node-id="1:1242" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector6} />
+          </div>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium leading-[22px] left-[1552.12px] text-[11px] text-white top-[102.58px] w-[264px]" data-node-id="1:1243">
+            May 13, 2026
+          </p>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium leading-[22px] left-[1552.12px] text-[#6b6b6b] text-[11px] top-[117.58px] w-[264px]" data-node-id="1:1244">
+            Wednesday
+          </p>
+          <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[23.358px] leading-[22px] left-[454.12px] text-[24px] text-white top-[86.58px] tracking-[-0.43px] w-[398px]" data-node-id="1:1245">
+            Dashboard
+          </p>
+          <div className="absolute bg-[#ff6500] h-[19px] left-[1414.12px] rounded-[154px] top-[93.58px] w-[21px]" data-node-id="1:1246" />
+          <div className="absolute bg-[#afafaf] h-[37.818px] left-[1458.12px] opacity-22 top-[102.58px] w-px" data-node-id="1:1247" />
+          <div className="absolute contents left-[1418.12px] top-[91.58px]" data-node-id="1:1248">
+            <div className="absolute contents left-[1418.12px] top-[91.58px]" data-node-id="1:1249">
+              <div className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[48.942px] leading-[0] left-[1418.12px] text-[12px] text-white top-[91.58px] w-[264px]" data-node-id="1:1250">
+                <p className="leading-[22px] mb-0">16</p>
+                <p className="leading-[22px]">​</p>
+              </div>
+            </div>
+          </div>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23px] leading-[22px] left-[454.12px] text-[15px] text-white top-[121.09px] tracking-[-0.43px] w-[489px]" data-node-id="1:1251">
+            Your central hub for leadership tracking, point totals, and progress.
+          </p>
+          <div className="absolute content-stretch flex items-center left-[1385.12px] top-[79.58px]" data-node-id="1:1252">
+            <div className="h-[82px] relative shrink-0 w-[25px]" data-node-id="1:1253">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgFrame131} />
+            </div>
+          </div>
+        </div>
+        <div className="absolute h-[2266.882px] left-[-26.41px] top-[-2.88px] w-[165px]" data-node-id="1:1255">
+          <div className="absolute bg-[#080e1b] h-[2425px] left-0 top-[8.9px] w-[173.289px]" data-node-id="1:1256" />
+          <div className="absolute h-[31.145px] left-[77px] top-[244.71px] w-[29px]" data-node-id="1:1257" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector7} />
+          </div>
+          <a className="absolute block cursor-pointer h-[24.471px] left-[77px] top-[331.47px] w-[29px]" data-node-id="1:1258" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector8} />
+          </a>
+          <a className="absolute block cursor-pointer h-[28.92px] left-[77px] top-[406.88px] w-[29px]" data-node-id="1:1259" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector9} />
+          </a>
+          <div className="absolute h-[26.695px] left-[78px] top-[658.92px] w-[29px]" data-node-id="1:1260" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector10} />
+          </div>
+          <a className="absolute block cursor-pointer left-[77px] size-[33px] top-[735.92px]" data-node-id="1:1261" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector11} />
+          </a>
+          <div className="absolute inset-[37.64%_31.97%_60.9%_48.03%]" data-node-id="1:1262" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector12} />
+          </div>
+          <div className="absolute bg-[#ff6500] h-[53px] left-[21px] opacity-36 rounded-[7px] top-[233.88px] w-[137px]" data-node-id="1:1263" />
+          <div className="absolute inset-[21.79%_31.51%_77.04%_46.67%]" data-node-id="1:1264" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector13} />
+          </div>
+          <div className="absolute h-[120px] left-[44px] top-[9.88px] w-[95px]" data-node-id="1:1265" data-name="ChatGPT Image May 13, 2026, 04_26_20 PM 1">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <img alt="" className="absolute h-[208.98%] left-[-20.98%] max-w-none top-[-50.61%] w-[265.28%]" src={imgChatGptImageMay132026042620Pm1} />
+            </div>
+          </div>
+          <div className="absolute contents left-[17px] top-[233.88px]" data-node-id="1:1266">
+            <div className="absolute bg-[#ff6500] h-[52.278px] left-[17px] rounded-[28px] shadow-[0px_0px_250px_0px_#ff6500,0px_0px_204.48px_0px_#ff6500,0px_0px_119.28px_0px_#ff6500,0px_0px_59.64px_0px_#ff6500,0px_0px_17.04px_0px_#ff6500,0px_0px_8.52px_0px_#ff6500] top-[233.88px] w-[9px]" data-node-id="1:1267" />
+            <div className="absolute bg-[#ff6500] h-[52.278px] left-[156px] rounded-[28px] shadow-[0px_0px_250px_0px_#ff6500,0px_0px_204.48px_0px_#ff6500,0px_0px_119.28px_0px_rgba(255,101,0,0),0px_0px_59.64px_0px_#ff6500,0px_0px_17.04px_0px_#ff6500,0px_0px_8.52px_0px_#ff6500] top-[233.88px] w-[9px]" data-node-id="1:1268" />
+          </div>
+          <div className="absolute inset-[25.52%_33.78%_73.15%_48.03%]" data-node-id="1:1269" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector14} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+Component descriptions: The following components have usage descriptions or documentation links defined in Figma. These descriptions provide important context about the intended usage, best practices, and any constraints for each component. Follow these guidelines when implementing or using these components.
+
+## Group
+**Node ID:** 1:33
+
+Group © SnowUI
+
+**Documentation:**
+- [https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-7996&mode=design](https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-7996&mode=design)
+
+## Button
+**Node ID:** 1:6
+
+Button © SnowUI
+
+**Documentation:**
+- [https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-8885&mode=design](https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-8885&mode=design)
+
+## Icon
+**Node ID:** 1:19
+
+Icon © SnowUI
+
+**Documentation:**
+- [https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-5626&mode=design](https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-5626&mode=design)
+
+## Star
+**Node ID:** 1:2
+
+rate, ratings, favorites, favorited, communication
+
+## Text
+**Node ID:** 1:24
+
+Text © SnowUI
+
+**Documentation:**
+- [https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-7066&mode=design](https://www.figma.com/file/PAA0JKidFMVK44KRRWB1zL/SnowUI?type=design&node-id=25559-7066&mode=design)
+Images and SVGs will be stored as constants, e.g. const image = `${assetPathPrefix}/<asset file name>`, where assetPathPrefix is declared once at the top of the code and every asset URL interpolates it. These constants will be used in the code as the source for the image, ex: <img src={image} />. Image assets are stored on a remote server for 7 days and can be fetched using the provided URLs until they expire.

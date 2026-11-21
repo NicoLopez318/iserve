@@ -1,0 +1,37 @@
+<?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StaffPortalController as Portal;
+Route::get('/',fn()=>redirect('/login'));
+Route::get('/register',fn()=>abort(404));Route::post('/register',fn()=>abort(404));
+Route::middleware(['auth','staff'])->group(function(){
+ Route::get('/staff',fn()=>redirect('/workspace'));
+ Route::get('/home',fn()=>redirect('/workspace'));
+ Route::get('/workspace',[Portal::class,'page']);
+ Route::get('/workspace/request/{serviceRequest}',[Portal::class,'request']);
+ Route::post('/workspace/request/{serviceRequest}/note',[Portal::class,'requestNote']);
+ Route::post('/workspace/request/{serviceRequest}/disposition',[Portal::class,'disposition']);
+ Route::get('/workspace/request/{serviceRequest}/slip',[Portal::class,'slip']);
+ Route::get('/workspace/report/{report}',[Portal::class,'report']);
+ Route::post('/workspace/reports',[Portal::class,'reportStore']);
+ Route::post('/workspace/report/{report}',[Portal::class,'reportUpdate']);
+ Route::post('/workspace/report/{report}/start',[Portal::class,'reportStart']);
+ Route::get('/workspace/report/{report}/file/{index}',[Portal::class,'reportFile'])->whereNumber('index');
+ Route::get('/workspace/report/{report}/receipt',[Portal::class,'reportReceipt']);
+ Route::post('/workspace/drafts/{kind}',[App\Http\Controllers\StaffDraftController::class,'store']);
+ Route::post('/workspace/organizations',[Portal::class,'organization']);
+ Route::post('/workspace/organization/{organization}/member',[Portal::class,'organizationMember']);
+ Route::post('/workspace/event/{event}',[Portal::class,'event']);
+ Route::delete('/workspace/event-venues',[Portal::class,'removeEventVenue'])->name('staff.event-venues.remove');
+ Route::post('/workspace/seminars',[Portal::class,'seminar']);
+ Route::post('/workspace/slots',[Portal::class,'slots']);
+ Route::post('/workspace/settings',[Portal::class,'settings']);
+ Route::get('/workspace/backup',[Portal::class,'backup']);
+ Route::post('/workspace/points-rules',[Portal::class,'rules']);
+ Route::post('/workspace/adjustments',[Portal::class,'adjustment']);
+ Route::post('/workspace/assignments',[Portal::class,'assignment']);
+ Route::post('/workspace/assignment/{assignment}',[Portal::class,'assignmentUpdate']);
+ Route::post('/workspace/content',[Portal::class,'content']);
+ Route::post('/workspace/content/{id}',[Portal::class,'content'])->whereNumber('id');
+ Route::post('/workspace/scholar',[Portal::class,'scholar']);
+ Route::get('/workspace/{page}',[Portal::class,'page']);
+});

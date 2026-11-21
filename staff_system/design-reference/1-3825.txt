@@ -1,0 +1,146 @@
+const assetPathPrefix = "https://www.figma.com/api/mcp/asset/b0520293-d1a9-48c4-b5bd-2c447232ab45";
+const imgChatGptImageMay132026042620Pm3 = `${assetPathPrefix}/5a186.png`;
+const img29911481 = `${assetPathPrefix}/68ab8.png`;
+const imgVector = `${assetPathPrefix}/2a5ad.svg`;
+const imgEllipse66 = `${assetPathPrefix}/cea8b.svg`;
+const imgEllipse67 = `${assetPathPrefix}/cad2f.svg`;
+const imgFrame171 = `${assetPathPrefix}/9148c.svg`;
+const imgBxHide = `${assetPathPrefix}/edcb5.svg`;
+
+export default function Frame557() {
+  return (
+    <div className="relative size-full" data-node-id="1:3825">
+      <div className="absolute bg-[#223e94] h-[1012px] left-0 overflow-clip rounded-[8px] shadow-[-9px_4px_76px_0px_rgba(0,0,0,0.25)] top-0 w-[1423px]" data-node-id="1:3826" data-name="Desktop - 6">
+        <div className="absolute h-[1626px] left-[-332px] top-[-318px] w-[2630.502px]" data-node-id="1:3827">
+          <div className="absolute h-[120px] left-[434px] top-[370px] w-[97px]" data-node-id="1:3828" data-name="ChatGPT Image May 13, 2026, 04_26_20 PM 3">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <img alt="" className="absolute h-[208.98%] left-[-20.38%] max-w-none top-[-50.61%] w-[257.67%]" src={imgChatGptImageMay132026042620Pm3} />
+            </div>
+          </div>
+          <div className="absolute flex h-[1626px] items-center justify-center left-[307px] top-0 w-[2323.502px]" data-node-id="1:3829">
+            <div className="flex-none rotate-[-179.69deg]">
+              <div className="h-[1613.484px] relative w-[2314.795px]" data-name="Vector">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector} />
+              </div>
+            </div>
+          </div>
+          <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Bold'] font-bold leading-[0] left-[590.5px] not-italic text-[128px] text-center text-white top-[624px] tracking-[-5.12px] w-[377px]" data-node-id="1:3830">
+            <span className="leading-[48.5px] text-[#0e1538]">i</span>
+            <span className="leading-[48.5px]">Serve</span>
+          </p>
+          <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[48.5px] left-[632px] not-italic text-[36px] text-center text-white top-[729px] tracking-[-1.44px] w-[1222px]" data-node-id="1:3831">
+            Level Up Your Campus Journey
+          </p>
+          <p className="[word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[30px] left-[402px] not-italic opacity-50 text-[24px] text-white top-[811px] tracking-[-0.96px] w-[504px]" data-node-id="1:3832">
+            Designed to simplify student participation, communication, and campus engagement.
+          </p>
+          <div className="absolute h-[507px] left-0 top-[188px] w-[383px]" data-node-id="1:3833">
+            <div className="absolute inset-[-49.31%_-65.27%]">
+              <img alt="" className="block max-w-none size-full" src={imgEllipse66} />
+            </div>
+          </div>
+          <div className="absolute h-[507px] left-[26px] top-[216px] w-[384px]" data-node-id="1:3834">
+            <div className="absolute inset-[-49.31%_-65.1%]">
+              <img alt="" className="block max-w-none size-full" src={imgEllipse67} />
+            </div>
+          </div>
+          <div className="absolute bg-[#ff6500] h-[62px] left-[425px] top-[399px] w-[2px]" data-node-id="1:3835" />
+          <div className="absolute left-[368px] size-[66px] top-[1226px]" data-node-id="1:3836">
+            <div className="absolute inset-[-0.76%]">
+              <img alt="" className="block max-w-none size-full" src={imgFrame171} />
+            </div>
+          </div>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[457px] opacity-85 text-[15px] text-white top-[1232px] tracking-[-1px] w-[398px]" data-node-id="1:3838">
+            Secure Login
+          </p>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[21px] leading-[22px] left-[457px] opacity-85 text-[15px] text-white top-[1253px] tracking-[-1px] w-[186px]" data-node-id="1:3839">
+            Your data is protected with enterprise grade security
+          </p>
+          <div className="[word-break:break-word] absolute font-['Inter:Bold'] font-bold leading-[0] left-[1291px] not-italic text-[52px] text-white top-[476px] tracking-[-3.12px] whitespace-nowrap" data-node-id="1:3840">
+            <p className="leading-[51.9px] mb-0 whitespace-pre">{`Welcome `}</p>
+            <p className="leading-[51.9px] whitespace-pre">Back</p>
+          </div>
+          <div className="absolute content-stretch flex flex-col gap-[21px] items-start left-[1291px] top-[618px]" data-node-id="1:3841" data-name="form">
+            <div className="content-stretch flex flex-col gap-[6px] items-start relative shrink-0" data-node-id="1:3842">
+              <div className="content-stretch flex items-start relative shrink-0" data-node-id="1:3843">
+                <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[19px] not-italic relative shrink-0 text-[16px] text-center text-white whitespace-nowrap" data-node-id="1:3844">
+                  Email
+                </p>
+              </div>
+              <div className="border border-solid border-white content-stretch flex items-start px-[20px] py-[14px] relative rounded-[8px] shrink-0 w-[340px]" data-node-id="1:3845">
+                <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[19px] not-italic opacity-50 relative shrink-0 text-[14px] text-center text-white whitespace-nowrap" data-node-id="1:3846">
+                  Enter your email
+                </p>
+              </div>
+            </div>
+            <div className="content-stretch flex flex-col gap-[12px] items-start relative shrink-0" data-node-id="1:3847" data-name="password">
+              <div className="content-stretch flex flex-col gap-[6px] items-start relative shrink-0" data-node-id="1:3848">
+                <div className="content-stretch flex items-start relative shrink-0" data-node-id="1:3849">
+                  <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[19px] not-italic relative shrink-0 text-[16px] text-center text-white whitespace-nowrap" data-node-id="1:3850">
+                    Password
+                  </p>
+                </div>
+                <div className="border border-solid border-white content-stretch flex gap-[143px] h-[47px] items-center px-[20px] py-[14px] relative rounded-[8px] shrink-0 w-[340px]" data-node-id="1:3851">
+                  <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[19px] not-italic opacity-50 relative shrink-0 text-[14px] text-center text-white whitespace-nowrap" data-node-id="1:3852">
+                    Enter your password
+                  </p>
+                  <div className="relative shrink-0 size-[24px]" data-node-id="1:3853" data-name="bx:hide">
+                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgBxHide} />
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex gap-[141px] items-start relative shrink-0" data-node-id="1:3855">
+                <div className="content-stretch flex gap-[6px] items-center relative shrink-0" data-node-id="1:3856">
+                  <div className="border border-solid border-white relative rounded-[4px] shrink-0 size-[14px]" data-node-id="1:3857" />
+                  <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[20px] not-italic relative shrink-0 text-[12px] text-center text-white whitespace-nowrap" data-node-id="1:3858">
+                    Remember me
+                  </p>
+                </div>
+                <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[20px] not-italic relative shrink-0 text-[12px] text-center text-white tracking-[-0.12px] whitespace-nowrap" data-node-id="1:3859">
+                  Forgot Password
+                </p>
+              </div>
+            </div>
+          </div>
+          <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[0] left-[1404px] not-italic opacity-39 text-[12px] text-center text-white top-[1042px] whitespace-nowrap" data-node-id="1:3860">
+            <span className="font-['Inter:Regular'] font-normal leading-[20px]">Don’t have an Account?</span>
+            <span className="leading-[20px]">{` `}</span>
+          </p>
+          <a className="-translate-x-1/2 [word-break:break-word] absolute block cursor-pointer font-['Inter:Medium'] font-medium leading-[0] left-[1523px] not-italic text-[#ff6500] text-[12px] text-center top-[1042px] whitespace-nowrap" data-node-id="1:3861">
+            <p className="leading-[20px]">Create Account</p>
+          </a>
+          <div className="absolute content-stretch flex flex-col gap-[8px] items-center justify-center left-[1291px] top-[875px]" data-node-id="1:3862" data-name="sign in an sign up">
+            <a className="bg-[#ff6500] border border-[rgba(91,91,91,0.5)] border-solid content-stretch cursor-pointer flex items-center justify-center px-[20px] py-[14px] relative rounded-[8px] shrink-0 w-[340px]" data-node-id="1:3863" data-name="button sign in">
+              <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[#fcfcfc] text-[14px] text-center whitespace-nowrap" data-node-id="1:3864">
+                Log in
+              </p>
+            </a>
+            <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[14px] text-center text-white whitespace-nowrap" data-node-id="1:3865">
+              Or
+            </p>
+            <a className="border border-solid border-white content-stretch cursor-pointer flex gap-[20px] h-[47px] items-center justify-center px-[20px] py-[14px] relative rounded-[8px] shrink-0 w-[340px]" data-node-id="1:3866" data-name="button sign in">
+              <div className="relative shrink-0 size-[18px]" data-node-id="1:3867" data-name="2991148 1">
+                <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={img29911481} />
+              </div>
+              <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[19px] not-italic relative shrink-0 text-[14px] text-center text-white whitespace-nowrap" data-node-id="1:3868">
+                Sign in with Google
+              </p>
+            </a>
+          </div>
+        </div>
+        <div className="absolute bg-white h-[4px] left-[calc(95.83%-25.71px)] rounded-[49px] top-[30px] w-[36px]" data-node-id="1:3869" />
+        <div className="absolute bg-white h-[4px] left-[calc(95.83%-11.71px)] rounded-[49px] top-[37px] w-[22px]" data-node-id="1:3870" />
+        <div className="absolute bg-white h-[4px] left-[calc(95.83%-30.71px)] rounded-[49px] top-[44px] w-[41px]" data-node-id="1:3871" />
+      </div>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+Images and SVGs will be stored as constants, e.g. const image = `${assetPathPrefix}/<asset file name>`, where assetPathPrefix is declared once at the top of the code and every asset URL interpolates it. These constants will be used in the code as the source for the image, ex: <img src={image} />. Image assets are stored on a remote server for 7 days and can be fetched using the provided URLs until they expire.

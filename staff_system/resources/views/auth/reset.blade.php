@@ -1,0 +1,3 @@
+@extends('layouts.blue')
+@section('content')<div class="center-page"><h1>New Password</h1><section class="blue-card">@include('components.flash')<form method="post" action="/reset-password">@csrf<input type="hidden" name="token" value="{{ $token }}"><label>Email<input type="email" name="email" value="{{ old('email',$email) }}" required></label><label>New password<input type="password" name="password" minlength="10" required></label><label>Confirm password<input type="password" name="password_confirmation" required></label><button class="btn orange full">Reset password</button></form></section></div>@endsection
+

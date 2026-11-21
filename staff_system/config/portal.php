@@ -1,0 +1,30 @@
+<?php
+return [
+ 'fields'=>[
+ 'scholarship'=>['student_type'=>'select:Undergraduate,Graduate','semester'=>'select:1st Semester,2nd Semester,Summer','academic_year'=>'text','reason'=>'textarea'],
+ 'leadership'=>['organization_id'=>'organization','position'=>'text','reason'=>'textarea'],
+ 'complaint'=>['complaint_type'=>'select:Harassment,Bullying,Discrimination,Verbal Misconduct,Physical Misconduct,Threats,Abuse of Authority,Policy Violation,Theft,Safety Concern,Academic Grievance,Unprofessional Conduct,Other','incident_date'=>'date','location'=>'text','description'=>'textarea'],
+ 'lost'=>['item_name'=>'text','incident_date'=>'date','location'=>'text','description'=>'textarea','contact'=>'text'],
+ 'found'=>['item_name'=>'text','incident_date'=>'date','location'=>'text','description'=>'textarea','contact'=>'text'],
+ 'readmission'=>['subject'=>'text','instructor'=>'text','schedule'=>'text','semester'=>'select:1st Semester,2nd Semester,Summer','academic_year'=>'text','description'=>'textarea'],
+ 'id-replacement'=>['replacement_reason'=>'select:Lost,Stolen,Damaged','incident_date'=>'date','description'=>'textarea'],
+ 'clearance'=>['appointment_date'=>'date','schedule'=>'select:09:00,10:00,11:00,13:00,14:00,15:00','purpose'=>'text'],
+ 'seminar'=>['event_id'=>'seminar'],
+ 'activity'=>['title'=>'text','description'=>'textarea','venue'=>'text','starts_at'=>'datetime-local','ends_at'=>'datetime-local','capacity'=>'number','points'=>'number'],
+ 'achievement'=>['title'=>'text','description'=>'textarea','venue'=>'text','award'=>'text','achievement_date'=>'date'],
+ ],
+ 'documents'=>[
+ 'scholarship'=>['application'=>'Tuition discount application','photo'=>'1×1 photo','registration'=>'Registration form'],
+ 'leadership'=>['endorsement'=>'Endorsement letter','candidacy'=>'Certificate of candidacy','student_card'=>'Student ID','registration'=>'Enrollment form'],
+ 'complaint'=>['evidence'=>'Supporting evidence (optional)'],
+ 'lost'=>['item_photo'=>'Item photo (optional)'],'found'=>['item_photo'=>'Item photo'],
+ 'readmission'=>['evidence'=>'Supporting document'],
+ 'id-replacement'=>['evidence'=>'Affidavit / damaged ID'],
+ 'achievement'=>['evidence'=>'Achievement evidence'],
+ 'activity'=>['pre_intent'=>'Letter of Intent','pre_matrix'=>'Program Matrix','pre_evaluation'=>'Evaluation Form','pre_resolution'=>'Resolution','pre_budget'=>'Budget Proposal','pre_consent'=>'Consent Form / Waiver','pre_cmo'=>'CMO No. 63','post_documentation'=>'Activity Documentation','post_narrative'=>'Narrative Report','post_evaluation'=>'Evaluation Report','post_financial'=>'Financial Report','post_attendance'=>'Attendance Sheet','post_consent'=>'Consent Form / Waiver','post_cmo'=>'CMO No. 63'],
+ ],
+ 'optional_documents'=>['complaint.evidence','lost.item_photo','readmission.evidence','id-replacement.evidence','activity.pre_intent','activity.pre_matrix','activity.pre_evaluation','activity.pre_resolution','activity.pre_budget','activity.pre_consent','activity.pre_cmo','activity.post_documentation','activity.post_narrative','activity.post_evaluation','activity.post_financial','activity.post_attendance','activity.post_consent','activity.post_cmo'],
+ 'optional_fields'=>['complaint'=>['incident_time'=>'time','respondent'=>'text','relationship'=>'text','witness'=>'text','other_complaint'=>'text'],'readmission'=>['subject_code'=>'text'],'id-replacement'=>['last_seen_location'=>'text']],
+ 'journals'=>[1=>'Pre-program Expectations',2=>'Service Experience & Learning',3=>'Community Impact',4=>'Final Reflection'],
+ 'office'=>['sfu_head'=>['scholarship'],'slu_head'=>['leadership','activity','achievement'],'cvu_head'=>['complaint','lost','found','readmission','id-replacement','clearance','seminar']],
+];

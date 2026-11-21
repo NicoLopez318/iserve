@@ -1,0 +1,350 @@
+const assetPathPrefix = "https://www.figma.com/api/mcp/asset/0f0faae1-d5cd-448f-921d-9a1a690cc272";
+const imgHdAndroidWallpaper1 = `${assetPathPrefix}/ff1a9.png`;
+const imgImagesRemovebgPreview1 = `${assetPathPrefix}/7992e.png`;
+const imgChatGptImageAug302026060830Pm1 = `${assetPathPrefix}/f900a.png`;
+const imgChatGptImageMay132026042620Pm1 = `${assetPathPrefix}/5a186.png`;
+const imgEllipse133 = `${assetPathPrefix}/48b7b.svg`;
+const imgVector = `${assetPathPrefix}/4ab7b.svg`;
+const imgVector1 = `${assetPathPrefix}/5b3c5.svg`;
+const imgVector2 = `${assetPathPrefix}/a067a.svg`;
+const imgVector3 = `${assetPathPrefix}/d09ec.svg`;
+const imgVector4 = `${assetPathPrefix}/6098c.svg`;
+const imgVector5 = `${assetPathPrefix}/90903.svg`;
+const imgVector6 = `${assetPathPrefix}/fc75e.svg`;
+const imgEllipse134 = `${assetPathPrefix}/c9b6a.svg`;
+const imgEllipse135 = `${assetPathPrefix}/15bb8.svg`;
+const imgVector7 = `${assetPathPrefix}/8d66b.svg`;
+const imgVector8 = `${assetPathPrefix}/f24dc.svg`;
+const imgVector9 = `${assetPathPrefix}/ad266.svg`;
+const imgVector10 = `${assetPathPrefix}/e0749.svg`;
+const imgVector11 = `${assetPathPrefix}/3d1d6.svg`;
+const imgFrame131 = `${assetPathPrefix}/d8b75.svg`;
+const imgVector12 = `${assetPathPrefix}/c1105.svg`;
+const imgVector13 = `${assetPathPrefix}/7ffe5.svg`;
+const imgVector14 = `${assetPathPrefix}/0596a.svg`;
+const imgVector15 = `${assetPathPrefix}/19391.svg`;
+const imgVector16 = `${assetPathPrefix}/25646.svg`;
+const imgVector17 = `${assetPathPrefix}/bc21d.svg`;
+const imgVector18 = `${assetPathPrefix}/ad309.svg`;
+
+export default function StudentDashboard() {
+  return (
+    <div className="bg-[#0c1220] relative size-full" data-node-id="1:249" data-name="Student Dashboard">
+      <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[calc(25%+17.6px)] right-[calc(41.67%+64.4px)] text-[24px] text-white top-[133.22px] tracking-[-0.43px]" data-node-id="1:251">
+        Good morning, Franco!
+      </p>
+      <div className="absolute bg-[rgba(255,255,255,0.1)] h-[204px] left-[calc(25%-6.28px)] overflow-clip rounded-[17px] top-[202.41px] w-[1035px]" data-node-id="1:252">
+        <div className="absolute h-[1731.327px] left-[-748.41px] top-[-1104.94px] w-[2164.159px]" data-node-id="1:253" data-name="HD Android Wallpaper 1">
+          <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgHdAndroidWallpaper1} />
+        </div>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[65.979px] leading-[22px] left-[49.13px] opacity-85 text-[14px] text-white top-[83.17px] tracking-[-0.43px] w-[254px]" data-node-id="1:254">
+          Are you a android user? try our mobile application now !
+        </p>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[34px] leading-[22px] left-[299.71px] text-[48px] text-center text-white top-[34.84px] tracking-[-0.43px] w-[628.438px]" data-node-id="1:255">
+          iServe: ComServ App
+        </p>
+        <div className="absolute bg-[#025bfe] border border-[#025bfe] border-solid h-[47px] left-[49.13px] overflow-clip rounded-[16px] shadow-[0px_5px_15px_0px_rgba(0,0,0,0.35)] top-[142px] w-[134px]" data-node-id="1:256">
+          <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Bold'] font-bold leading-[22px] left-[66px] text-[15px] text-center text-white top-[11.5px] tracking-[-0.43px] w-[219px]" data-node-id="1:257">{`Download `}</p>
+        </div>
+      </div>
+      <div className="absolute border-3 border-[#02007a] border-solid h-[278px] left-[calc(25%-6.28px)] overflow-clip rounded-[24px] top-[424.41px] w-[1033px]" data-node-id="1:258" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 1033 278' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(51.65 0 0 13.9 516.5 139)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Bold'] font-bold h-[21px] leading-[22px] left-[51.62px] right-[580.38px] text-[32px] text-white top-[44.35px]" data-node-id="1:259">
+          Franco Fernandez
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Light'] font-light h-[21px] leading-[22px] left-[51.62px] right-[580.38px] text-[20px] text-white top-[89.75px]" data-node-id="1:260">
+          BSIT - 3rd Year
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Light'] font-light h-[21px] leading-[22px] left-[51.62px] right-[580.38px] text-[20px] text-white top-[124.09px]" data-node-id="1:261">
+          Student ID: 2023-2636
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Light'] font-light h-[21px] leading-[22px] left-[311.64px] right-[320.36px] text-[13px] text-white top-[209.31px]" data-node-id="1:262">
+          AY 2026-2027
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Light'] font-light h-[21px] leading-[22px] left-[510.64px] right-[121.36px] text-[13px] text-white top-[210.24px]" data-node-id="1:263">
+          1st Semester
+        </p>
+        <div className="absolute bg-[#0017c8] border border-[#001eff] border-solid h-[33.987px] left-[54.28px] rounded-[10px] top-[202.82px] w-[151.202px]" data-node-id="1:264" />
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[18.108px] leading-[22px] left-[129.88px] text-[13px] text-center text-white top-[208.52px] w-[250.556px]" data-node-id="1:265">
+          VIEW PROFILE
+        </p>
+        <div className="absolute bg-[#d9d9d9] h-[33.987px] left-[249.63px] top-[202.82px] w-[0.991px]" data-node-id="1:266" />
+        <div className="absolute bg-[#d9d9d9] h-[33.987px] left-[436.88px] top-[202.82px] w-[0.991px]" data-node-id="1:267" />
+        <div className="absolute left-[736.04px] size-[209.849px] top-[40.16px]" data-node-id="1:268">
+          <div className="absolute inset-[-14.11%]">
+            <img alt="" className="block max-w-none size-full" src={imgEllipse133} />
+          </div>
+        </div>
+        <div className="absolute bg-[#2e2d3c] left-[739.5px] overflow-clip rounded-[112px] size-[202.919px] top-[43.63px]" data-node-id="1:269">
+          <div className="absolute border-0 border-[#0076f4] border-solid left-0 size-[202.919px] top-0" data-node-id="1:270" data-name="images-removebg-preview 1">
+            <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgImagesRemovebgPreview1} />
+          </div>
+        </div>
+        <div className="absolute inset-[calc(76.16%+0.78px)_calc(52.58%+0.08px)_calc(16%-1.02px)_calc(44.96%-0.15px)]" data-node-id="1:271" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector} />
+        </div>
+        <div className="absolute inset-[calc(75.3%+0.76px)_calc(71.02%+0.63px)_calc(16.08%-1.02px)_calc(26.84%-0.69px)]" data-node-id="1:272" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector1} />
+        </div>
+      </div>
+      <div className="absolute border-3 border-[#040250] border-solid h-[170px] left-[calc(25%-6.28px)] overflow-clip rounded-[17px] top-[720.41px] w-[236px]" data-node-id="1:273" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 236 170' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(11.8 0 0 8.5 118 85)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[54px] leading-[26px] left-[95.8px] text-[#cb872a] text-[24px] top-[51.26px] w-[189.99px]" data-node-id="1:274">
+          Action Required
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[54px] leading-[26px] left-[95.8px] opacity-52 text-[#fffefc] text-[12px] top-[105.26px] w-[189.99px]" data-node-id="1:275">
+          Current standing
+        </p>
+        <div className="absolute inset-[calc(31.03%-0.57px)_calc(65%+0.45px)_calc(32.85%-0.51px)_calc(10.02%-1.2px)]" data-node-id="1:276" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector2} />
+        </div>
+      </div>
+      <div className="absolute border-3 border-[#040250] border-solid h-[260px] left-[calc(25%-6.28px)] overflow-clip rounded-[17px] top-[908.41px] w-[718px]" data-node-id="1:277" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 718 260' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(35.9 0 0 13 359 130)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[23.358px] leading-[22px] left-[40.13px] text-[20px] text-white top-[23.38px] w-[398px]" data-node-id="1:278">{`Daily `}</p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal leading-[22px] left-[40.13px] opacity-50 text-[20px] text-white top-[46.74px] w-[398px]" data-node-id="1:279">
+          Hours completed
+        </p>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[23.358px] leading-[22px] left-[357.5px] text-[14px] text-center text-white top-[65.34px] w-[398px]" data-node-id="1:280">
+          6 / 8 HOURS
+        </p>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[23.358px] leading-[22px] left-[593.56px] text-[#025bfe] text-[24px] text-center top-[65.34px] w-[398px]" data-node-id="1:281">
+          70% COMPLETE
+        </p>
+        <div className="absolute bg-[#025bfe] h-[37.895px] left-[30.61px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:282" />
+        <div className="absolute bg-[#025bfe] h-[37.895px] left-[97.67px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:283" />
+        <div className="absolute bg-[#025bfe] h-[37.895px] left-[164.72px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:284" />
+        <div className="absolute bg-[#025bfe] h-[37.895px] left-[231.77px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:285" />
+        <div className="absolute bg-[#025bfe] h-[37.895px] left-[298.82px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:286" />
+        <div className="absolute bg-[#025bfe] h-[37.895px] left-[365.88px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:287" />
+        <div className="absolute bg-[#025bfe] h-[37.895px] left-[432.93px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:288" />
+        <div className="absolute bg-[#7e7e7e] h-[37.895px] left-[499.98px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:289" />
+        <div className="absolute bg-[#7e7e7e] h-[37.895px] left-[567.03px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:290" />
+        <div className="absolute bg-[#7e7e7e] h-[37.895px] left-[634.09px] rounded-[6px] top-[109.55px] w-[53.052px]" data-node-id="1:291" />
+        <div className="absolute flex h-[0.982px] items-center justify-center left-[18.77px] top-[221.96px] w-[672.405px]" data-node-id="1:292">
+          <div className="-scale-y-100 flex-none">
+            <div className="bg-[#d9d9d9] h-[0.982px] opacity-35 relative w-[672.405px]" />
+          </div>
+        </div>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[23.358px] leading-[22px] left-[178.05px] text-[10px] text-center text-white top-[229.22px] w-[359.106px]" data-node-id="1:293">
+          2 hours remaining
+        </p>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[23.358px] leading-[22px] left-[538.3px] text-[10px] text-center text-white top-[229.22px] w-[359.106px]" data-node-id="1:294">
+          Next Schedule Aug 30
+        </p>
+        <div className="absolute bg-[#050d1d] border border-[#040250] border-solid h-[45.977px] left-[270.1px] rounded-[10px] shadow-[0px_0px_11.488px_0px_#044dd4,0px_0px_6.565px_0px_#044dd4,0px_0px_3.829px_0px_#044dd4,0px_0px_1.915px_0px_#044dd4,0px_0px_0.547px_0px_#044dd4,0px_0px_0.274px_0px_#044dd4] top-[161.72px] w-[81.408px]" data-node-id="1:295" />
+        <div className="absolute inset-[calc(64.12%+0.42px)_calc(55.15%+0.15px)_calc(28.38%-0.65px)_calc(42.14%-0.24px)]" data-node-id="1:296" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector3} />
+        </div>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[23.358px] leading-[22px] left-[310.8px] text-[10px] text-center text-white top-[182.5px] w-[398px]" data-node-id="1:297">
+          Daily
+        </p>
+        <div className="absolute bg-[#050d1d] border border-[#040250] border-solid h-[45.977px] left-[363.5px] rounded-[10px] top-[161.72px] w-[81.408px]" data-node-id="1:298" />
+        <div className="absolute inset-[calc(64.12%+0.42px)_calc(42.14%-0.24px)_calc(28.38%-0.65px)_calc(55.15%+0.15px)]" data-node-id="1:299" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector4} />
+        </div>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[23.358px] leading-[22px] left-[404.2px] text-[10px] text-center text-white top-[182.5px] w-[398px]" data-node-id="1:300">
+          Overall
+        </p>
+        <div className="absolute flex h-[23.697px] items-center justify-center left-[356.88px] top-[228.88px] w-[1.244px]" data-node-id="1:301">
+          <div className="-rotate-90 flex-none">
+            <div className="bg-[#d9d9d9] h-[1.244px] opacity-35 relative w-[23.697px]" />
+          </div>
+        </div>
+      </div>
+      <div className="absolute border-3 border-[#040250] border-solid h-[170px] left-[calc(41.67%+20.02px)] overflow-clip rounded-[17px] top-[720.41px] w-[236px]" data-node-id="1:302" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 236 170' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(11.8 0 0 8.5 118 85)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+        <div className="absolute inset-[calc(37.85%-0.36px)_calc(81.48%+0.94px)_calc(42.5%-0.23px)_calc(15.3%-1.04px)]" data-node-id="1:303" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector5} />
+        </div>
+        <div className="absolute inset-[calc(36.95%-0.39px)_calc(69.89%+0.6px)_calc(41.6%-0.25px)_calc(14.66%-1.06px)]" data-node-id="1:304" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector6} />
+        </div>
+        <div className="absolute inset-[calc(26.52%-0.7px)_calc(62.04%+0.36px)_calc(31.17%-0.56px)_calc(6.8%-1.3px)]" data-node-id="1:305">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse134} />
+        </div>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold inset-[calc(25.74%-0.73px)_calc(-25.13%-2.25px)_calc(42.5%-0.23px)_calc(44.63%-0.16px)] leading-[26px] text-[#cb872a] text-[24px]" data-node-id="1:306">
+          1 ACTIVE
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal inset-[calc(41.62%-0.25px)_calc(-25.13%-2.25px)_calc(26.61%-0.7px)_calc(44.63%-0.16px)] leading-[26px] opacity-52 text-[#fffefc] text-[12px]" data-node-id="1:307">
+          Violation
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal inset-[calc(57.5%+0.23px)_calc(-25.13%-2.25px)_calc(10.73%-1.18px)_calc(44.63%-0.16px)] leading-[26px] opacity-52 text-[#fffefc] text-[12px]" data-node-id="1:308">
+          CV-2026-00012
+        </p>
+      </div>
+      <div className="absolute border-3 border-[#040250] border-solid h-[170px] left-[calc(58.33%+46.32px)] overflow-clip rounded-[17px] top-[720.41px] w-[236px]" data-node-id="1:309" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 236 170' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(11.8 0 0 8.5 118 85)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+        <div className="absolute left-[10.96px] size-[119.132px] top-[23.93px]" data-node-id="1:310" data-name="ChatGPT Image Aug 30, 2026, 06_08_30 PM 1">
+          <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgChatGptImageAug302026060830Pm1} />
+        </div>
+        <div className="absolute h-[77.522px] left-[32.67px] top-[44.71px] w-[75.677px]" data-node-id="1:311">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse135} />
+        </div>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold inset-[calc(41.02%-0.27px)_calc(54.53%+0.14px)_calc(27.22%-0.68px)_calc(20.32%-0.89px)] leading-[26px] text-[24px] text-white" data-node-id="1:312">
+          70%
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold inset-[calc(25.14%-0.75px)_calc(19.09%-0.93px)_calc(43.1%-0.21px)_calc(55.76%+0.17px)] leading-[26px] text-[#025cfe] text-[16px]" data-node-id="1:313">
+          70%
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium inset-[calc(41.02%-0.27px)_calc(7.94%-1.26px)_calc(27.22%-0.68px)_calc(55.76%+0.17px)] leading-[13px] opacity-52 text-[#fffefc] text-[12px]" data-node-id="1:314">
+          Community Service
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal inset-[calc(56.9%+0.21px)_calc(-36.26%-2.59px)_calc(11.34%-1.16px)_calc(55.76%+0.17px)] leading-[0] opacity-52 text-[#fffefc] text-[10px]" data-node-id="1:315">
+          <span className="font-['Montserrat:Black'] font-black leading-[26px] text-[#015bfe]">14</span>
+          <span className="leading-[26px]">{` of 20 hours`}</span>
+        </p>
+      </div>
+      <div className="absolute border-3 border-[#040250] border-solid h-[170px] left-[calc(75%+72.63px)] overflow-clip rounded-[17px] top-[720.41px] w-[236px]" data-node-id="1:316" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 236 170' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(11.8 0 0 8.5 118 85)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+        <div className="absolute inset-[calc(23.5%-0.79px)_calc(53.74%+0.11px)_calc(23.5%-0.79px)_calc(9.02%-1.23px)]" data-node-id="1:317" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector7} />
+        </div>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold inset-[calc(28.58%-0.64px)_calc(6%-1.32px)_calc(39.66%-0.31px)_calc(55.63%+0.17px)] leading-[26px] text-[#18b300] text-[24px]" data-node-id="1:318">
+          3 OF 12
+        </p>
+        <p className="[word-break:break-word] absolute bottom-[calc(18.24%-0.95px)] font-['Montserrat:Medium'] font-medium leading-[13px] left-[calc(54.26%+0.13px)] opacity-52 right-[calc(6%-1.32px)] text-[#fffefc] text-[12px] top-1/2" data-node-id="1:319">
+          Complete Days
+        </p>
+      </div>
+      <div className="absolute border-3 border-[#040250] border-solid h-[260px] left-[calc(75%+2.72px)] overflow-clip rounded-[17px] top-[908.41px] w-[306px]" data-node-id="1:320" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 306 260' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><g transform='matrix(15.3 0 0 13 153 130)' opacity='0.1899999976158142'><rect height='190' width='190' fill='url(%23grad)' id='quad' shape-rendering='crispEdges'/><use href='%23quad' transform='scale(1 -1)'/><use href='%23quad' transform='scale(-1 1)'/><use href='%23quad' transform='scale(-1 -1)'/></g><defs><linearGradient id='grad' gradientUnits='userSpaceOnUse' x2='5' y2='5'><stop stop-color='rgba(180,33,158,1)' offset='0'/><stop stop-color='rgba(135,25,119,1)' offset='0.25'/><stop stop-color='rgba(90,17,79,1)' offset='0.5'/><stop stop-color='rgba(68,12,59,1)' offset='0.625'/><stop stop-color='rgba(45,8,40,1)' offset='0.75'/><stop stop-color='rgba(23,4,20,1)' offset='0.875'/><stop stop-color='rgba(11,2,10,1)' offset='0.9375'/><stop stop-color='rgba(0,0,0,1)' offset='1'/></linearGradient></defs></svg>\"), linear-gradient(90deg, rgb(7, 17, 36) 0%, rgb(7, 17, 36) 100%)" }}>
+        <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[23.358px] leading-[22px] left-[21.36px] text-[14px] text-white top-[22.77px] w-[398px]" data-node-id="1:321">{`RECORD & NEXT STEP`}</p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[55px] leading-[22px] left-[65.66px] opacity-85 text-[12px] text-white top-[64.27px] tracking-[-0.43px] w-[323px]" data-node-id="1:322">
+          Recorded Offense
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[55px] leading-[22px] left-[65.66px] opacity-50 text-[12px] text-white top-[84.27px] tracking-[-0.43px] w-[323px]" data-node-id="1:323">
+          CV-2026-00021
+        </p>
+        <div className="absolute bg-[#3b3434] h-[2px] left-[51.66px] opacity-20 top-[105.27px] w-[457px]" data-node-id="1:324" />
+        <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[55px] leading-[22px] left-[65.66px] opacity-85 text-[12px] text-white top-[114.27px] tracking-[-0.43px] w-[323px]" data-node-id="1:325">
+          Community Service
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[55px] leading-[22px] left-[65.66px] opacity-50 text-[12px] text-white top-[134.27px] tracking-[-0.43px] w-[323px]" data-node-id="1:326">
+          2 hours left • Next: Aug 30
+        </p>
+        <div className="absolute bg-[#3b3434] h-[2px] left-[51.66px] opacity-20 top-[156.27px] w-[457px]" data-node-id="1:327" />
+        <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[55px] leading-[22px] left-[65.66px] opacity-85 text-[12px] text-white top-[164.27px] tracking-[-0.43px] w-[323px]" data-node-id="1:328">
+          Final Verification
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[55px] leading-[22px] left-[65.66px] opacity-50 text-[12px] text-white top-[184.27px] tracking-[-0.43px] w-[323px]" data-node-id="1:329">
+          After required actions are completed
+        </p>
+        <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Montserrat:Medium'] font-medium h-[55px] leading-[22px] left-[151.5px] opacity-40 text-[10px] text-center text-white top-[226.63px] w-[247.043px]" data-node-id="1:330">
+          Resolution requires authorized verification.
+        </p>
+        <div className="absolute inset-[calc(28.41%-0.65px)_calc(83.43%+1px)_calc(63.64%+0.41px)_calc(9.81%-1.21px)]" data-node-id="1:331" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector8} />
+        </div>
+        <div className="absolute inset-[calc(46.45%-0.11px)_calc(83.13%+0.99px)_calc(44.16%-0.18px)_calc(9.51%-1.21px)]" data-node-id="1:332" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector9} />
+        </div>
+        <div className="absolute inset-[calc(65.68%+0.47px)_calc(82.63%+0.98px)_calc(24.06%-0.78px)_calc(9.01%-1.23px)]" data-node-id="1:333" data-name="Vector">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector10} />
+        </div>
+        <div className="absolute bg-[#d9d9d9] h-[0.359px] left-[24.97px] opacity-77 top-[219.27px] w-[255.185px]" data-node-id="1:334" />
+      </div>
+      <div className="absolute h-[2066px] left-[1.6px] top-[0.56px] w-[286px]" data-node-id="1:335" data-name="Sidebars student dashboard">
+        <div className="absolute h-[117px] left-0 top-0 w-[1436px]" data-node-id="1:336">
+          <div className="absolute h-[25px] left-[1236px] top-[30.72px] w-[23px]" data-node-id="1:337" />
+          <div className="absolute flex h-[148px] items-center justify-center left-[-261px] top-[-42.39px] w-[2038px]" data-node-id="1:338">
+            <div className="-rotate-90 flex-none">
+              <div className="bg-[#080e1b] h-[2038px] relative w-[148px]" />
+            </div>
+          </div>
+          <div className="absolute left-[1242px] size-[29px] top-[51.61px]" data-node-id="1:339" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector11} />
+          </div>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium leading-[22px] left-[1291px] text-[11px] text-white top-[47.61px] w-[264px]" data-node-id="1:340">
+            May 13, 2026
+          </p>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Medium'] font-medium leading-[22px] left-[1291px] text-[#6b6b6b] text-[11px] top-[62.61px] w-[264px]" data-node-id="1:341">
+            Wednesday
+          </p>
+          <p className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[23.358px] leading-[22px] left-[339.41px] text-[24px] text-white top-[35.14px] tracking-[-0.43px] w-[398px]" data-node-id="1:342">
+            Dashboard
+          </p>
+          <div className="absolute bg-[#ff6500] h-[19px] left-[1153px] rounded-[154px] top-[38.61px] w-[21px]" data-node-id="1:343" />
+          <div className="absolute bg-[#afafaf] h-[37.818px] left-[1197px] opacity-22 top-[47.61px] w-px" data-node-id="1:344" />
+          <div className="absolute contents left-[1157px] top-[36.61px]" data-node-id="1:345">
+            <div className="absolute contents left-[1157px] top-[36.61px]" data-node-id="1:346">
+              <div className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[48.942px] leading-[0] left-[1157px] text-[12px] text-white top-[36.61px] w-[264px]" data-node-id="1:347">
+                <p className="leading-[22px] mb-0">16</p>
+                <p className="leading-[22px]">​</p>
+              </div>
+            </div>
+          </div>
+          <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23px] leading-[22px] left-[339.41px] text-[15px] text-white top-[69.61px] tracking-[-0.43px] w-[489px]" data-node-id="1:348">
+            Your conduct values, and assigned and responsibilities at a glance
+          </p>
+          <div className="absolute content-stretch flex items-center left-[1124px] top-[24.61px]" data-node-id="1:349">
+            <div className="h-[82px] relative shrink-0 w-[25px]" data-node-id="1:350">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgFrame131} />
+            </div>
+          </div>
+        </div>
+        <div className="absolute h-[2266.882px] left-[-22px] top-[7.72px] w-[165px]" data-node-id="1:352">
+          <div className="absolute bg-[#080e1b] h-[2069.009px] left-[21.92px] top-[-10.51px] w-[325.515px]" data-node-id="1:353" />
+          <div className="absolute inset-[20.81%_48.22%_77.89%_36.71%]" data-node-id="1:354" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector12} />
+          </div>
+          <div className="absolute inset-[13.93%_46.06%_84.81%_34.54%]" data-node-id="1:355" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector13} />
+          </div>
+          <div className="[word-break:break-word] absolute font-['Montserrat:SemiBold'] font-semibold h-[79.613px] leading-[0] left-[175.12px] text-[20px] text-white top-[27.51px] w-[398px] whitespace-pre-wrap" data-node-id="1:356">
+            <p className="leading-[30px] mb-0">{`STUDENT `}</p>
+            <p className="leading-[30px] mb-0">VALUES</p>
+            <p className="leading-[30px]">PORTAL</p>
+          </div>
+          <div className="absolute h-[31.145px] left-[58.5px] top-[233.16px] w-[29px]" data-node-id="1:357" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector14} />
+          </div>
+          <a className="absolute block cursor-pointer h-[28.92px] left-[58.5px] top-[395.34px] w-[29px]" data-node-id="1:358" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector15} />
+          </a>
+          <div className="absolute h-[26.695px] left-[58.5px] top-[553.98px] w-[29px]" data-node-id="1:359" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector16} />
+          </div>
+          <a className="absolute block cursor-pointer left-[54.5px] size-[33px] top-[631.62px]" data-node-id="1:360" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector17} />
+          </a>
+          <div className="absolute inset-[31.58%_48.09%_67.13%_34.15%]" data-node-id="1:361" data-name="Vector">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector18} />
+          </div>
+        </div>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23.358px] leading-[22px] left-[87.95px] text-[20px] text-white top-[244.78px] w-[398px]" data-node-id="1:362">
+          DASHBOARD
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23.358px] leading-[22px] left-[87.95px] text-[20px] text-white top-[328.76px] w-[398px]" data-node-id="1:363">
+          VIOLATIONS
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23.358px] leading-[22px] left-[87.95px] text-[20px] text-white top-[405.84px] w-[398px]" data-node-id="1:364">
+          COMMUNITY SERVICE
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23.358px] leading-[22px] left-[87.95px] text-[20px] text-white top-[485.73px] w-[398px]" data-node-id="1:365">
+          DUTY JOURNAL
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23.358px] leading-[22px] left-[89.65px] text-[20px] text-white top-[563.37px] w-[398px]" data-node-id="1:366">
+          PROFILE
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23.358px] leading-[0] left-[89.65px] text-[20px] text-white top-[648.98px] tracking-[-0.43px] w-[398px]" data-node-id="1:367">
+          <span className="leading-[22px]">SETTING</span>
+          <span className="leading-[22px]">S</span>
+        </p>
+        <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23.358px] leading-[22px] left-[89.65px] text-[20px] text-white top-[726.62px] tracking-[-0.43px] w-[398px]" data-node-id="1:368">
+          Return to ISERVE
+        </p>
+        <div className="absolute h-[120px] left-[40.45px] top-[9.61px] w-[95px]" data-node-id="1:369" data-name="ChatGPT Image May 13, 2026, 04_26_20 PM 1">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <img alt="" className="absolute h-[208.98%] left-[-20.98%] max-w-none top-[-50.61%] w-[265.28%]" src={imgChatGptImageMay132026042620Pm1} />
+          </div>
+        </div>
+      </div>
+      <p className="[word-break:break-word] absolute font-['Montserrat:Regular'] font-normal h-[23px] leading-[22px] left-[calc(25%+19.21px)] text-[15px] text-white top-[165.7px] tracking-[-0.43px] w-[489px]" data-node-id="1:370">
+        Here’s your values and conduct overview.
+      </p>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+Images and SVGs will be stored as constants, e.g. const image = `${assetPathPrefix}/<asset file name>`, where assetPathPrefix is declared once at the top of the code and every asset URL interpolates it. These constants will be used in the code as the source for the image, ex: <img src={image} />. Image assets are stored on a remote server for 7 days and can be fetched using the provided URLs until they expire.

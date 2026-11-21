@@ -1,0 +1,1 @@
+document.querySelectorAll('.scholar-upload-control input').forEach(input=>{input.addEventListener('change',()=>{const filename=document.getElementById(input.getAttribute('aria-describedby'));if(filename)filename.textContent=input.files[0]?.name??'';input.setCustomValidity(input.files[0]?.size>5*1024*1024?'Please choose a file no larger than 5 MB.':'');});});
