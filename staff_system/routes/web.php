@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function(){
  Route::get('/requests/{serviceRequest}/files/{key}',[RequestController::class,'download']);
  Route::get('/requests/{serviceRequest}/files/{key}/preview',[RequestController::class,'imagePreview'])
   ->middleware('staff')->name('staff.requests.image-preview');
+ Route::get('/requests/{serviceRequest}/files/{key}/view',[RequestController::class,'viewAttachment'])
+  ->middleware('staff')->name('staff.requests.attachment-view');
  Route::get('/portal/{portal}/{page?}',[PortalController::class,'page']);
  Route::post('/community/clock',[PortalController::class,'clock'])->middleware('verified');
  Route::post('/community/journal',[PortalController::class,'journal'])->middleware('verified');

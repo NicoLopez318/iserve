@@ -4,8 +4,46 @@ document.addEventListener('DOMContentLoaded',()=>{
  const select=document.getElementById('account-type');if(select){const update=()=>document.querySelectorAll('[data-account]').forEach(el=>{el.hidden=el.dataset.account!==select.value;el.querySelectorAll('input,select').forEach(i=>{i.disabled=el.hidden;});});select.addEventListener('change',update);update();}
  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('[data-tab-panel]').forEach(x=>x.hidden=x.dataset.tabPanel!==b.dataset.tab);}));
  document.querySelectorAll('form[data-confirm]').forEach(f=>f.addEventListener('submit',e=>{if(!confirm(f.dataset.confirm))e.preventDefault();}));
- document.querySelectorAll('form').forEach(f=>f.addEventListener('submit',e=>{if(!e.defaultPrevented&&f.checkValidity()){const b=e.submitter;if(b){setTimeout(()=>{b.disabled=true;b.dataset.original=b.textContent;b.textContent='Please wait…';},0);}}}));
+ document.querySelectorAll('form').forEach(form => form.addEventListener('submit', event => {
+  const button = event.submitter;
+  if (!button) return;
+  setTimeout(() => {
+   if (event.defaultPrevented || !form.checkValidity()) return;
+   button.dataset.original = button.textContent;
+   button.disabled = true;
+   button.textContent = 'Please wait…';
+  });
+ }));
  document.querySelectorAll('input[type=file]').forEach(i=>i.addEventListener('change',()=>{i.setCustomValidity([...i.files].some(f=>f.size>Number(i.dataset.maxMb||5)*1024*1024)?`Each file must be under ${i.dataset.maxMb||5} MB.`:'');i.reportValidity();}));
+});
+
+window.addEventListener('pageshow', () => {
+ document.querySelectorAll('button[data-original]').forEach(button => {
+  button.textContent = button.dataset.original;
+  delete button.dataset.original;
+  button.disabled = false;
+ });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+ document.querySelectorAll('form[data-attendance-window]').forEach(form => {
+  const button = form.querySelector('button[type="submit"]');
+  const before = form.querySelector('[data-before-window]');
+  const after = form.querySelector('[data-after-window]');
+  const loadedAt = performance.now();
+  const start = Number(form.dataset.start);
+  const end = Number(form.dataset.end);
+
+  function update() {
+   const now = Number(form.dataset.serverTime) + (performance.now() - loadedAt) / 1000;
+   before.hidden = now >= start;
+   after.hidden = now <= end;
+   button.disabled = !before.hidden || !after.hidden || 'original' in button.dataset;
+   if (now <= end) setTimeout(update, 1000);
+  }
+
+  update();
+ });
 });
 
 document.addEventListener('DOMContentLoaded',()=>{

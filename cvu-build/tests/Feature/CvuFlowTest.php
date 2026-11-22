@@ -2,13 +2,60 @@
 namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\{Mail,Hash};
-use App\Models\{User,Assignment,ServiceRequest,Event,Attendance};
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\{Mail,Hash,Storage};
+use App\Models\{User,Assignment,ServiceRequest,Event,Attendance,Organization};
 class CvuFlowTest extends TestCase {
  use RefreshDatabase;
  private function person($role='student',$data=[]){return User::create([...['name'=>'Example Student','username'=>uniqid('u'),'email'=>uniqid().'@example.test','password'=>'TestPassword!123','role'=>$role,'account_type'=>'student','student_id'=>uniqid('S'),'course'=>'BSIT','year_level'=>'3rd Year','phone'=>'09123456789','profile_complete'=>true,'email_verified_at'=>now()],...$data]);}
  private function record($u){return Assignment::create(['user_id'=>$u->id,'record_number'=>uniqid('CV-'),'offense'=>'Conduct','severity'=>'Minor','department'=>'IT','supervisor'=>'Head','required_minutes'=>120]);}
  private function identity($u){return ['name'=>$u->name,'student_id'=>$u->student_id,'course'=>$u->course,'year_level'=>$u->year_level,'contact'=>$u->phone,'confirmations'=>[1,1,1]];}
+ public function test_completed_community_attendance_notifies_only_the_enabled_unit_head():void {
+  $disk=Storage::fake('notification-attendance');
+  Storage::set('local',$disk);
+  $student=$this->person(data:['values_verified_at'=>now()]);
+  $this->record($student);
+  $head=$this->person('cvu_head',['account_type'=>'employee']);
+  $muted=$this->person('cvu_head',['account_type'=>'employee','preferences'=>['alerts'=>['submissions'=>false]]]);
+  $photo=base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a17kAAAAASUVORK5CYII=');
+
+  $this->travelTo(now()->setTime(23,55));
+  $page='/portal/values/community-service';
+  $this->actingAs($student)->get($page)->assertOk()->assertSee('Record Time In first.');
+  $this->post('/community/clock',['action'=>'in','photo'=>UploadedFile::fake()->createWithContent('in.png',$photo)])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame(0,$head->notifications()->count());
+  $this->travel(10)->minutes();
+  $this->get($page)->assertOk()->assertSee('Time In is already recorded. Use Time Out to close the session.')
+   ->assertSee('name="action" value="out"',false);
+  $this->post('/community/clock',['action'=>'out','photo'=>UploadedFile::fake()->createWithContent('out.png',$photo)])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame(10,Attendance::sole()->minutes);
+  $notification=$head->notifications()->sole();
+  $this->assertStringEndsWith('/workspace/community#attendance-verification',$notification->data['url']);
+  $this->assertSame(0,$muted->notifications()->count());
+  $disk->delete($disk->allFiles());
+ }
+ public function test_event_clock_explains_its_window_and_shows_saved_times():void {
+  $organization=Organization::create(['name'=>'Outreach Club']);
+  $student=$this->person(data:['organization_id'=>$organization->id]);
+  $event=Event::create(['title'=>'Outreach Test','description'=>'Community outreach','venue'=>'Campus',
+   'starts_at'=>now()->addMinutes(15),'ends_at'=>now()->addHour(),'status'=>'published','type'=>'leadership']);
+  $page='/portal/leadership/events';
+  $action='/events/'.$event->id;
+
+  $this->actingAs($student)->post($action,['action'=>'join'])->assertRedirect()->assertSessionHasNoErrors();
+  $this->get($page)->assertOk()->assertSee('Time In opens');
+  $this->travelTo($event->starts_at->copy()->addMinute());
+  $this->get($page)->assertOk()->assertSee('name="action" value="in"',false);
+  $this->post($action,['action'=>'in'])->assertRedirect()->assertSessionHasNoErrors();
+  $this->get($page)->assertOk()->assertSee('name="action" value="out"',false);
+  $this->travel(5)->minutes();
+  $this->post($action,['action'=>'out'])->assertRedirect()->assertSessionHasNoErrors();
+  $record=Attendance::sole();
+  $this->get($page)->assertOk()->assertSee($record->time_in->toAtomString())->assertSee($record->time_out->toAtomString());
+  $this->assertSame(5,$record->minutes);
+ }
  public function test_values_portal_requires_own_id_confirmation_and_active_record_without_extra_approval(){
   $u=$this->person();$a=$this->record($u);$this->actingAs($u)->get('/portal/values')->assertRedirect('/community-link');
   $this->postJson('/community/journal',['module'=>1,'answer'=>str_repeat('Reflection ',8)])->assertStatus(422);

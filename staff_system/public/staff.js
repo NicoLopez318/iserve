@@ -1,8 +1,28 @@
 document.addEventListener('click',event=>{const opener=event.target.closest('[data-dialog]');if(opener){const dialog=document.getElementById(opener.dataset.dialog);if(dialog){const form=dialog.querySelector('form');if(opener.dataset.draft&&form){const draft=JSON.parse(opener.dataset.draft);form.reset();for(const [name,value] of Object.entries({...draft.fields,draft_id:draft.id})){const field=form.elements.namedItem(name);if(field&&field.type!=='file')field.value=value??'';}}else if(form?.elements.namedItem('draft_id')){form.reset();form.elements.namedItem('draft_id').value='';}dialog.showModal();dialog.querySelector('input,textarea,select,button')?.focus();}}if(event.target.closest('[data-close]'))event.target.closest('dialog')?.close();if(event.target.closest('[data-print]'))window.print();});
-document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}}));
+document.querySelectorAll('dialog').forEach(dialog => {
+    const closeLink = dialog.querySelector('a.close-dialog');
+    function dismiss() {
+        if (closeLink) window.location.assign(closeLink.href);
+        else dialog.close();
+    }
+    dialog.addEventListener('click', event => {
+        if (event.target !== dialog) return;
+        const bounds = dialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right ||
+            event.clientY < bounds.top || event.clientY > bounds.bottom) dismiss();
+    });
+    if (closeLink) dialog.addEventListener('cancel', event => {
+        event.preventDefault();
+        dismiss();
+    });
+});
 document.querySelectorAll('[data-verify]').forEach(button=>button.addEventListener('click',()=>{const select=document.getElementById(button.dataset.verify);const output=document.getElementById(button.dataset.result);output.textContent=select?.selectedOptions[0]?.dataset.info||'Select a verified student record first.';}));
 
-document.querySelectorAll('dialog[data-auto-open]').forEach(dialog=>dialog.showModal());
+document.querySelectorAll('dialog[data-auto-open]').forEach(dialog => {
+    if (typeof dialog.showModal !== 'function') return;
+    dialog.removeAttribute('open');
+    dialog.showModal();
+});
 document.querySelectorAll('dialog form').forEach(form=>{const field=document.createElement('input');field.type='hidden';field.name='_dialog';field.value=form.closest('dialog').id;form.append(field);});
 const restore=document.getElementById('form-restore');if(restore){const state=JSON.parse(restore.textContent);const dialog=document.getElementById(state.dialog);if(dialog){for(const form of dialog.querySelectorAll('form'))for(const [name,value]of Object.entries(state.fields)){const field=form.elements.namedItem(name);if(field&&field.type!=='file'&&field.type!=='password'){if(field.type==='checkbox')field.checked=Boolean(value);else field.value=value??'';}}if(!dialog.open)dialog.showModal();}}
 document.querySelectorAll('form').forEach(form=>form.addEventListener('submit',event=>{if(form.dataset.submitting==='true'){event.preventDefault();return;}form.dataset.submitting='true';setTimeout(()=>{form.setAttribute('aria-busy','true');form.querySelectorAll('button[type="submit"],button:not([type])').forEach(button=>{button.disabled=true;});},0);}));

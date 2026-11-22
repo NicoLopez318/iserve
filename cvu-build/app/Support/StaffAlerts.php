@@ -1,9 +1,39 @@
 <?php
+
 namespace App\Support;
+
 use App\Models\User;
 use Illuminate\Support\Str;
-class StaffAlerts {
- public static function role(string $role,string $title,string $url,string $category='submissions'):void{
-  foreach(User::where('role',$role)->get() as $u){$preferences=$u->preferences??[];if(($preferences['in_app']??true)&&($preferences['alerts'][$category]??true))$u->notifications()->create(['id'=>Str::uuid(),'type'=>'staff-workflow','data'=>json_encode(['title'=>$title,'url'=>rtrim(env('STAFF_PORTAL_URL','http://127.0.0.1:8002'),'/').$url,'message'=>$title])]);}
- }
+
+final class StaffAlerts
+{
+    public static function role(string $role, string $title, string $path, string $category = 'submissions', ?int $except = null): void
+    {
+        User::where('role', $role)->when($except !== null, fn ($query) => $query->whereKeyNot($except))
+            ->each(fn (User $user) => self::account($user, $title, $path, $category));
+    }
+
+    public static function account(User $user, string $title, string $path, string $category = 'feedback', string $message = ''): void
+    {
+        $preferences = $user->preferences ?? [];
+        if (!($preferences['alerts'][$category] ?? true)) {
+            return;
+        }
+
+        $staff = $user->isStaff();
+        $url = $staff ? config('portal.staff_url') : config('portal.student_url');
+        $url = rtrim($url, '/').$path;
+
+        if ($preferences['in_app'] ?? true) {
+            $user->notifications()->create([
+                'id' => (string) Str::uuid(),
+                'type' => $staff ? 'staff-workflow' : 'workflow',
+                'data' => ['title' => $title, 'url' => $url, 'message' => $message],
+            ]);
+        }
+
+        if ($preferences['email'] ?? false) {
+            TransactionEmail::sendAfterCommit($user, $title, trim($message."\n\n".$url), ['category' => $category]);
+        }
+    }
 }

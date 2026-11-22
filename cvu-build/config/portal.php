@@ -1,5 +1,7 @@
 <?php
 return [
+ 'staff_url'=>env('STAFF_PORTAL_URL','https://goldenrod-turkey-247730.hostingersite.com'),
+ 'student_url'=>env('USER_PORTAL_URL',env('APP_URL','http://127.0.0.1:8001')),
  'fields'=>[
  'scholarship'=>['student_type'=>'select:Undergraduate,Graduate','semester'=>'select:1st Semester,2nd Semester,Summer','academic_year'=>'text','reason'=>'textarea'],
  'leadership'=>['organization_id'=>'organization','position'=>'text','reason'=>'textarea'],

@@ -15,6 +15,12 @@
                         $itemTitle = $data['title'] ?? 'Update';
                         $message = $data['message'] ?? '';
                         $destination = $data['url'] ?? null;
+                        $path = is_string($destination) ? parse_url($destination, PHP_URL_PATH) : null;
+                        if (is_string($path) && preg_match('~^/workspace(?:/|$)~', $path)) {
+                            $query = parse_url($destination, PHP_URL_QUERY);
+                            $fragment = parse_url($destination, PHP_URL_FRAGMENT);
+                            $destination = $path.($query === null ? '' : '?'.$query).($fragment === null ? '' : '#'.$fragment);
+                        }
                     @endphp
                     <li @class(['notification-entry', 'notification-entry-new' => $item->unread()])>
                         @if($destination)

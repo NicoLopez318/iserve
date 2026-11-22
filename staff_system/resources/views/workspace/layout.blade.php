@@ -1,5 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ $design['title'] ?? $title ?? 'iServe CSLD' }}</title><link rel="stylesheet" href="/staff.css?v=20261120.7"><script src="/staff.js?v=20261120.3" defer></script><link rel="stylesheet" href="{{ asset('responsive.css') }}?v=20261112"></head>
-<body data-page="{{$page??'review'}}" class="{{ auth()->user()->preferences['theme']??'Light' }}"><div class="workspace">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ $design['title'] ?? $title ?? 'iServe CSLD' }}</title><link rel="stylesheet" href="/staff.css?v=20261122.3"><script src="/staff.js?v=20261122.1" defer></script><link rel="stylesheet" href="{{ asset('responsive.css') }}?v=20261112"></head>
+<body data-page="{{$page??'review'}}" data-role="{{auth()->user()->role}}" class="{{ auth()->user()->preferences['theme']??'Light' }}"><div class="workspace">
 <aside class="sidebar"><a class="brand" href="/workspace"><img src="/staff-assets/afaaeb1608414bb233036355bd45d485ad6921e0.png" alt="University crest"><span>iServe</span></a><nav aria-label="Staff navigation">
 @foreach($menus as $key=>$label)
  @if(in_array(auth()->user()->role,['admin','assistant'])&&$key==='leadership')<div class="nav-caption">CSLD UNITS</div>@endif
@@ -10,7 +10,7 @@
 <header>
     <div><h1>{{ $design['title']??$title??'Review' }}</h1><p>{{ $design['description']??$description??'' }}</p></div>
     @php($staffUser = auth()->user())
-    @if($staffUser->role !== 'assistant')
+    @if($staffUser->isStaff())
         @php($unreadCount = $staffUser->unreadNotifications()->count())
         <div class="header-account">
             <a class="notification-link" href="/notifications" aria-label="Notifications ({{ $unreadCount }} unread)" @if(($page ?? '') === 'notifications') aria-current="page" @endif>

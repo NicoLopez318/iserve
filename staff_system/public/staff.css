@@ -90,3 +90,7 @@ a.notification-entry-content:focus-visible { outline: 2px solid currentColor; ou
     margin-top: 8px;
     border-radius: 6px;
 }
+dialog[data-auto-open][open]:not(:modal){position:fixed;inset:0;z-index:10}
+[data-role="admin"] .table-action-cell{text-align:center}
+.attendance-photo{display:block;width:fit-content;margin-top:6px}
+.attendance-photo img{display:block;object-fit:contain;border-radius:6px}

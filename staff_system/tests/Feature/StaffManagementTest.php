@@ -4,11 +4,41 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\{Storage,DB};
-use App\Models\{User,Organization,Event,ServiceRequest,Assignment,Point,Report};
+use App\Models\{User,Organization,Event,ServiceRequest,Assignment,Attendance,Point,Report};
 use App\Http\Controllers\StaffPortalController;
 class StaffManagementTest extends TestCase {
  use RefreshDatabase;
  private function actor(string $role):User{return User::create(['name'=>'Test '.$role,'email'=>uniqid().'@example.test','username'=>uniqid('staff'),'password'=>'TestingPassword123!','role'=>$role,'account_type'=>$role==='student'?'student':'employee','student_id'=>$role==='student'?uniqid('ST-'):null,'course'=>$role==='student'?'BSIT':null,'year_level'=>'2','profile_complete'=>true,'email_verified_at'=>now(),'preferences'=>['email'=>false,'in_app'=>true]]);}
+ public function test_attendance_photos_appear_under_their_respective_times():void {
+  Storage::set('local',Storage::fake('staff-attendance-evidence'));
+  $photo=base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a17kAAAAASUVORK5CYII=');
+  Storage::put('time-in.png',$photo);
+  Storage::put('time-out.png',$photo);
+  $student=$this->actor('student');
+  $cvu=$this->actor('cvu_head');
+  $slu=$this->actor('slu_head');
+  $assignment=Assignment::create(['user_id'=>$student->id,'record_number'=>'ATTENDANCE-1','offense'=>'Case',
+   'severity'=>'Minor','department'=>'Library','supervisor'=>'Unit Supervisor','required_minutes'=>120]);
+  $event=Event::create(['title'=>'Leadership workshop','description'=>'Workshop for student leaders.',
+   'venue'=>'Training Annex','starts_at'=>now()->subHours(2),'ends_at'=>now()]);
+
+  foreach([
+   ['/workspace/community',$cvu,$slu,['assignment_id'=>$assignment->id]],
+   ['/workspace/events',$slu,$cvu,['event_id'=>$event->id]],
+  ] as [$page,$head,$otherHead,$context]){
+   $record=Attendance::create([...$context,'user_id'=>$student->id,'status'=>'pending',
+    'time_in'=>now()->setTime(8,0),'time_out'=>now()->setTime(9,0),'photo_in'=>'time-in.png','photo_out'=>'time-out.png']);
+   $evidence='/staff/attendance/'.$record->id.'/evidence/';
+   $this->actingAs($head)->get($page)->assertOk()->assertDontSee('<th>Evidence</th>',false)
+    ->assertDontSee('<th>Documentation</th>',false)
+    ->assertSeeInOrder(['<th>Time In</th>','<th>Time Out</th>','8:00 AM</time>',$evidence.'in?preview=1',
+     '9:00 AM</time>',$evidence.'out?preview=1'],false);
+   $this->get($evidence.'in?preview=1')->assertOk()->assertHeader('Content-Type','image/png');
+   $this->get($evidence.'out')->assertOk()->assertDownload('time-out.png');
+   $this->actingAs($otherHead)->get($evidence.'in?preview=1')->assertForbidden();
+  }
+  Storage::delete(['time-in.png','time-out.png']);
+ }
  public function test_new_event_venues_remain_available_after_an_event_moves():void {
   $head=$this->actor('slu_head');
   $fields=[

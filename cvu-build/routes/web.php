@@ -65,7 +65,13 @@ Route::middleware('auth')->group(function(){
  Route::post('/posts',[PortalController::class,'post'])->middleware(['verified','throttle:10,1']);
  Route::post('/organization/moderators',[PortalController::class,'moderators'])->middleware('verified');
  Route::post('/posts/{post}/comments',[PortalController::class,'comment'])->middleware(['verified','throttle:20,1']);
- Route::get('/notifications',function(Request $r){$items=$r->user()->notifications()->latest()->get();$r->user()->unreadNotifications->markAsRead();return view('portal.notifications',compact('items'));});
+ Route::get('/notifications',function(Request $r){
+  $user=$r->user();
+  $items=$user->notifications()->latest()->get();
+  $unreadIds=$items->whereNull('read_at')->modelKeys();
+  if($unreadIds)$user->unreadNotifications()->whereKey($unreadIds)->update(['read_at'=>now()]);
+  return view('portal.notifications',compact('items'));
+ });
  Route::middleware('staff')->prefix('staff')->group(function(){
   Route::post('/announcements',[App\Http\Controllers\PublicController::class,'announcement']);
   Route::get('/reports',[App\Http\Controllers\ReportController::class,'index']);

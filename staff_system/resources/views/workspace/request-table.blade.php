@@ -15,7 +15,7 @@
 @endphp
 <div class="panel"><h2>@include('workspace.icon',['name'=>'inbox']) {{ $heading??'Transactions' }}</h2>
 <form class="toolbar" method="get"><div class="filters"><input name="search" aria-label="Search transactions" placeholder="Search reference no, name, or type...." value="{{request('search')}}"><select name="status" aria-label="Transaction status"><option value="">All Status</option>@foreach(['pending'=>'For Review','in_review'=>'Under Unit Review','needs_revision'=>'For Compliance','unit_approved'=>'Unit Approved','awaiting_admin'=>'Under Admin Review','approved'=>'Approved','rejected'=>'Declined','cancelled'=>'Cancelled'] as $value=>$label)<option value="{{$value}}" @selected(request('status')===$value)>{{$label}}</option>@endforeach</select><button class="quiet">Search</button></div><a class="button outline" href="/staff/export?{{http_build_query(request()->only('search','status'))}}">Export</a></form>
-<div class="table-wrap"><table><thead><tr>@foreach($columns as $label)<th>{{$label}}</th>@endforeach<th>Action</th></tr></thead><tbody>
+<div class="table-wrap"><table><thead><tr>@foreach($columns as $label)<th>{{$label}}</th>@endforeach<th scope="col" class="table-action-cell">Action</th></tr></thead><tbody>
 @forelse($requests as $q)<tr>@foreach($columns as $key=>$label)<td>
  @switch($key)
  @case('ticket')<strong>{{$q->ticket}}</strong>@break
@@ -30,5 +30,5 @@
  @case('status')<span class="status {{$q->status}}">{{ucwords(str_replace('_',' ',$q->status))}}</span>@break
  @default {{$q->details[$key]??'—'}}
  @endswitch
- </td>@endforeach<td><a class="button table-action {{count($q->reviewActions(auth()->user()))?'':'outline'}}" href="{{request()->fullUrlWithQuery(['review'=>$q->id])}}">{{count($q->reviewActions(auth()->user()))?'Review':'View'}}</a></td></tr>@empty<tr><td colspan="{{count($columns)+1}}" class="empty">No transactions found.</td></tr>@endforelse
+ </td>@endforeach<td class="table-action-cell"><a class="button table-action {{count($q->reviewActions(auth()->user()))?'':'outline'}}" href="{{request()->fullUrlWithQuery(['review'=>$q->id,'report'=>null])}}">{{count($q->reviewActions(auth()->user()))?'Review':'View'}}</a></td></tr>@empty<tr><td colspan="{{count($columns)+1}}" class="empty">No transactions found.</td></tr>@endforelse
 </tbody></table></div><div class="pagination"><span>{{$requests->total()}} transactions</span>{{$requests->links()}}@if(auth()->user()->role==='cvu_head')<a class="button quiet table-action" href="?archive={{request()->boolean('archive')?'0':'1'}}">{{request()->boolean('archive')?'Back to Active':'Find Archived'}}</a>@endif</div></div>

@@ -36,6 +36,7 @@
         </nav>
         <div class="account-actions">
             @auth
+                <a class="portal-button" href="{{ url('/notifications') }}">Notifications</a>
                 <a class="portal-button" href="{{ route('account.profile') }}">
                     <span class="account-icon" aria-hidden="true"></span>Profile
                 </a>

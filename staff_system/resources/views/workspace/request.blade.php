@@ -17,8 +17,8 @@
 @include('workspace.membership-attachments')
 @else
 @forelse($item->files??[] as $key=>$file)
-@php($filename=is_array($file)?($file['name']??$key):basename($file))
-<a class="file" href="/requests/{{$item->id}}/files/{{$key}}"><span>▧ {{$filename}}</span><small>View / Download</small></a>
+@php($filename=is_array($file)?($file['name']??$key):basename($file??''))
+<a class="file" href="{{route('staff.requests.attachment-view',['serviceRequest'=>$item,'key'=>$key])}}" target="_blank" rel="noopener"><span>▧ {{$filename?:$key}}</span><small>View / Download</small></a>
 @empty
 <p class="muted">No supporting files attached.</p>
 @endforelse

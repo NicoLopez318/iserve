@@ -56,7 +56,7 @@ class ScholarOnboardingController extends Controller {
      'files'=>$files,
     ]);
     if($owner->preferences['in_app']??true)$owner->notifications()->create(['id'=>(string)Str::uuid(),'type'=>'request','data'=>json_encode(['title'=>'Scholarship application received: '.$application->ticket,'message'=>'Your documents have been submitted to the Scholarship and Financial Unit for review.','url'=>'/scholar/submitted/'.$application->id])]);
-    \App\Support\StaffAlerts::role('sfu_head','New scholarship application: '.$application->ticket,'/workspace/applications');
+    \App\Support\StaffAlerts::role('sfu_head','New scholarship application: '.$application->ticket,'/workspace/applications?review='.$application->id);
     return $application;
    });
   }catch(\Throwable $error){foreach($files as $file)Storage::delete($file['path']);throw $error;}

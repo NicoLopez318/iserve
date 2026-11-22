@@ -91,6 +91,24 @@ class RequestController extends Controller {
   abort_unless($serviceRequest->kind==='leadership',404);
   $mime=Storage::mimeType($file['path']);
   abort_unless(in_array($mime,['image/jpeg','image/png'],true),404);
+  return $this->inlineAttachment($file,$mime);
+ }
+ public function viewAttachment(Request $r,ServiceRequest $serviceRequest,string $key){
+  $file=$this->attachment($r,$serviceRequest,$key);
+  $stream=Storage::readStream($file['path']);
+  abort_unless(is_resource($stream),404);
+  try {
+   $sample=fread($stream,8192);
+  } finally {
+   fclose($stream);
+  }
+  $mime=(new \finfo(FILEINFO_MIME_TYPE))->buffer($sample ?: '');
+  if(!in_array($mime,['application/pdf','image/jpeg','image/png'],true)){
+   return Storage::download($file['path'],$file['name']);
+  }
+  return $this->inlineAttachment($file,$mime);
+ }
+ private function inlineAttachment(array $file,string $mime){
   return Storage::response($file['path'],$file['name'],[
    'Content-Type'=>$mime,
    'Cache-Control'=>'private, no-store',

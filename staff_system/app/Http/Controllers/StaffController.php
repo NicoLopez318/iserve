@@ -54,7 +54,7 @@ class StaffController extends Controller {
    $this->audit($r,'request.'.$v['status'],$q->ticket,$v['review_note']);
    if($v['status']==='unit_approved')\App\Support\StaffAlerts::role('assistant','Unit approved: '.$q->ticket,'/workspace/request/'.$q->id);
    if($v['status']==='awaiting_admin')\App\Support\StaffAlerts::role('admin','Forwarded transaction: '.$q->ticket,'/workspace/request/'.$q->id);
-   if(in_array($v['status'],['approved','needs_revision','rejected']))\App\Support\StaffAlerts::role($q->office(),'Review update: '.$q->ticket,'/workspace/request/'.$q->id,'feedback');
+   if(in_array($v['status'],['approved','needs_revision','rejected']))\App\Support\StaffAlerts::role($q->office(),'Review update: '.$q->ticket,'/workspace/request/'.$q->id,'feedback',$r->user()->id);
    $studentUrl=rtrim(config('app.student_portal_url','http://127.0.0.1:8001'),'/').(in_array($q->kind,['readmission','clearance','seminar'])&&$q->status!=='needs_revision'?'/cvu/submitted/':'/requests/').$q->id;
    if($q->user->preferences['in_app']??true)$q->user->notifications()->create(['id'=>Str::uuid(),'type'=>'request','data'=>['title'=>$q->ticket.' '.$v['status'],'url'=>$studentUrl,'message'=>$v['review_note']]]);
    \App\Support\TransactionEmail::sendAfterCommit(
@@ -85,11 +85,15 @@ class StaffController extends Controller {
    $a->update($r->only('status','review_note'));
    if($a->event_id&&$a->event->type!=='seminar'&&$r->status==='approved')Point::firstOrCreate(['source'=>'attendance:'.$a->id],['user_id'=>$a->user_id,'amount'=>$a->event->points,'reason'=>$a->event->title]);
    $this->audit($r,'attendance.'.$r->status,(string)$a->id,$r->review_note);
+   if($a->assignment_id||$a->event?->type==='leadership'){
+    $path=$a->assignment_id?'/portal/values/community-service':'/portal/leadership/events#event-'.$a->event_id;
+    \App\Support\StaffAlerts::account($a->user,'Attendance '.$a->status,$path,message:$r->review_note);
+   }
   });return back()->with('success','Attendance reviewed.');
  }
  public function journal(Request $r,Journal $journal){
   $this->office($r,'cvu_head');$r->validate(['status'=>'required|in:approved,rejected']);
-  $this->requireCondition($journal->status==='pending',422);$journal->update(['status'=>$r->status]);$this->audit($r,'journal.'.$r->status,(string)$journal->id);return back()->with('success','Journal reviewed.');
+  $this->requireCondition($journal->status==='pending',422);$journal->update(['status'=>$r->status]);$this->audit($r,'journal.'.$r->status,(string)$journal->id);\App\Support\StaffAlerts::account($journal->assignment->user,'Duty journal '.$journal->status,'/portal/values/journal');return back()->with('success','Journal reviewed.');
  }
  public function complete(Request $r,Assignment $assignment){
   $this->office($r,'cvu_head');
@@ -117,7 +121,19 @@ class StaffController extends Controller {
   User::create([...$v,'account_type'=>'employee','profile_complete'=>true]);$this->audit($r,'staff.create',$v['email']);return back()->with('success','Staff account created.');
  }
  public function evidence(Request $r,Attendance $attendance,string $side){
-  $this->office($r,$attendance->assignment_id||$attendance->event?->type==='seminar'?'cvu_head':'slu_head');$this->requireCondition(in_array($side,['in','out']),404);$p=$attendance->{'photo_'.$side};$this->requireCondition($p&&Storage::exists($p),404);return Storage::download($p);
+  $this->office($r,$attendance->assignment_id||$attendance->event?->type==='seminar'?'cvu_head':'slu_head');
+  $this->requireCondition(in_array($side,['in','out'],true),404);
+  $path=$attendance->{'photo_'.$side};
+  $this->requireCondition($path&&Storage::exists($path),404);
+  if(!$r->boolean('preview'))return Storage::download($path);
+
+  $mime=Storage::mimeType($path);
+  $this->requireCondition(in_array($mime,['image/jpeg','image/png','image/webp','image/gif','image/bmp','image/x-ms-bmp'],true),404);
+  return Storage::response($path,null,[
+   'Content-Type'=>$mime,
+   'Cache-Control'=>'private, no-store',
+   'X-Content-Type-Options'=>'nosniff',
+  ]);
  }
  public function export(Request $r){
   $rows=$this->query($r)->latest()->get();$this->audit($r,'requests.export','CSV');

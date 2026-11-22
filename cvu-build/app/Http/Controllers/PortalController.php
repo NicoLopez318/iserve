@@ -55,7 +55,12 @@ class PortalController extends Controller {
   $required=[1=>0,2=>(int)ceil($a->required_minutes/3),3=>(int)ceil($a->required_minutes*2/3),4=>$a->required_minutes];
   $this->requireCondition($a->approvedMinutes()>=$required[$r->integer('module')],422,'This module is still locked.');
   $j=Journal::firstOrNew(['assignment_id'=>$a->id,'module'=>$r->integer('module')]);$this->rejectIf($j->exists&&$j->status==='approved',422,'An approved journal cannot be changed.');
-  $j->fill(['answer'=>$r->answer,'status'=>'pending'])->save();return back()->with('success','Journal sent for review.');
+  $resubmitted=$j->exists&&$j->status==='rejected';
+  $j->fill(['answer'=>$r->answer,'status'=>'pending'])->save();
+  if($j->wasRecentlyCreated||$resubmitted){
+   \App\Support\StaffAlerts::role('cvu_head','Duty journal ready to review','/workspace/community#duty-journal',$resubmitted?'resubmitted':'submissions');
+  }
+  return back()->with('success','Journal sent for review.');
  }
  public function clock(Request $r){
   $r->validate(['action'=>'required|in:in,out','photo'=>'required|image|max:5120']);
@@ -65,11 +70,16 @@ class PortalController extends Controller {
    if($r->action==='in'){
     $this->rejectIf($open,422,'You already have an active session.');
     $this->rejectIf(Attendance::where('assignment_id',$a->id)->whereDate('time_in',today())->exists(),422,'Only one duty session is allowed each day.');
-    Attendance::create(['assignment_id'=>$a->id,'user_id'=>$r->user()->id,'time_in'=>now(),'photo_in'=>$r->file('photo')->store('attendance'),'status'=>'in_progress']);
+    $photo=$r->file('photo')->store('attendance');
+    $this->requireCondition($photo,422,'The Time In photo could not be saved. Please try again.');
+    Attendance::create(['assignment_id'=>$a->id,'user_id'=>$r->user()->id,'time_in'=>now(),'photo_in'=>$photo,'status'=>'in_progress']);
    } else {
     $this->requireCondition($open,422,'Time in before timing out.');
     $mins=min(480,max(0,(int)$open->time_in->diffInMinutes(now())));
-    $open->update(['time_out'=>now(),'minutes'=>$mins,'photo_out'=>$r->file('photo')->store('attendance'),'status'=>'pending']);
+    $photo=$r->file('photo')->store('attendance');
+    $this->requireCondition($photo,422,'The Time Out photo could not be saved. Please try again.');
+    $open->update(['time_out'=>now(),'minutes'=>$mins,'photo_out'=>$photo,'status'=>'pending']);
+    \App\Support\StaffAlerts::role('cvu_head','Community service attendance ready to verify','/workspace/community#attendance-verification');
    }
   });return back()->with('success',$r->action==='in'?'Time in recorded.':'Time out recorded. Hours are awaiting staff verification.');
  }
@@ -93,7 +103,10 @@ class PortalController extends Controller {
     $a->update(['time_out'=>now(),'minutes'=>max(0,(int)$a->time_in->diffInMinutes(now())),'status'=>'awaiting_reflection']);
    }else {
     $this->requireCondition($a->time_out&&in_array($a->status,['awaiting_reflection','rejected']),422,'Complete attendance first.');
+    $resubmitted=$a->status==='rejected';
     $a->update(['reflection'=>$r->reflection,'status'=>'pending']);
+    \App\Support\StaffAlerts::role('slu_head','Event attendance ready to verify: '.$event->title,'/workspace/events#event-'.$event->id.'-attendance',
+     $resubmitted?'resubmitted':'submissions');
    }
   });return back()->with('success','Event participation updated.');
  }
@@ -102,7 +115,9 @@ class PortalController extends Controller {
   $this->requireCondition($assignment&&$assignment->status==='active'&&$r->user()->values_verified_at,403,'A confirmed Student ID and active service record are required.');
   $this->requireCondition($attendance->user_id===$r->user()->id&&$attendance->assignment_id,403);
   $r->validate(['photo'=>'required|image|max:5120','explanation'=>'required|string|min:10|max:3000']);
-  DB::transaction(function()use($r,$attendance){$a=Attendance::lockForUpdate()->findOrFail($attendance->id);$this->requireCondition($a->status==='rejected',422,'Only rejected duty sessions may be resubmitted.');$a->update(['photo_out'=>$r->file('photo')->store('attendance'),'reflection'=>$r->explanation,'status'=>'pending']);});return back()->with('success','Evidence resubmitted for verification.');
+  DB::transaction(function()use($r,$attendance){$a=Attendance::lockForUpdate()->findOrFail($attendance->id);$this->requireCondition($a->status==='rejected',422,'Only rejected duty sessions may be resubmitted.');$a->update(['photo_out'=>$r->file('photo')->store('attendance'),'reflection'=>$r->explanation,'status'=>'pending']);
+   \App\Support\StaffAlerts::role('cvu_head','Community service evidence resubmitted','/workspace/community#attendance-verification','resubmitted');
+  });return back()->with('success','Evidence resubmitted for verification.');
  }
 }
 

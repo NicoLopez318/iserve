@@ -60,7 +60,7 @@ class LeadershipOnboardingController extends Controller
             foreach ($files as $file) Storage::delete($file['path']);
             throw $error;
         }
-        \App\Support\StaffAlerts::role('slu_head', 'New leadership application: '.$application->ticket, '/workspace/organizations');
+        \App\Support\StaffAlerts::role('slu_head', 'New leadership application: '.$application->ticket, '/workspace/organizations?review='.$application->id);
         if ($user->preferences['in_app'] ?? true) {
             $user->notifications()->create([
                 'id' => (string) Str::uuid(),

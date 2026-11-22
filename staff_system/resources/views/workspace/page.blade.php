@@ -42,8 +42,13 @@
 @endsection
 @push('dialogs')@include('workspace.dialogs')
 @if($selectedRequest&&!(auth()->user()->role==='sfu_head'&&in_array($page,['dashboard','applications'])))
-@php($centerReview = ($role === 'admin' && $page === 'scholarship' && $selectedRequest->kind === 'scholarship') || (in_array($role, ['admin', 'slu_head'], true) && ($page === 'proposals' || in_array($selectedRequest->kind, ['activity', 'leadership'], true))))
-<dialog id="transaction-review" @unless($centerReview) class="drawer review-drawer" @endunless data-auto-open><a class="close-dialog" href="{{request()->fullUrlWithoutQuery(['review'])}}" aria-label="Close">×</a>@include('workspace.review-panel',['item'=>$selectedRequest,'history'=>$selectedHistory])</dialog>
+@php($adminView = $role === 'admin' && !$selectedRequest->reviewActions(auth()->user()))
+@php($scholarshipReview = $role === 'admin' && $page === 'scholarship' && $selectedRequest->kind === 'scholarship')
+@php($leadershipReview = in_array($role, ['admin', 'slu_head'], true) && ($page === 'proposals' || in_array($selectedRequest->kind, ['activity', 'leadership'], true)))
+@php($centerReview = $adminView || $scholarshipReview || $leadershipReview)
+<dialog id="transaction-review" @unless($centerReview) class="drawer review-drawer" @endunless open data-auto-open aria-label="Transaction details"><a class="close-dialog" href="{{request()->fullUrlWithoutQuery(['review','report'])}}" aria-label="Close">×</a>@include('workspace.review-panel',['item'=>$selectedRequest,'history'=>$selectedHistory])</dialog>
 @endif
-@if($selectedReport)<dialog id="report-review" class="drawer review-drawer" data-auto-open><a class="close-dialog" href="{{request()->fullUrlWithoutQuery(['report'])}}" aria-label="Close">×</a>@include('workspace.report-review-panel',['item'=>$selectedReport,'history'=>$reportHistory])</dialog>@endif
+@if($selectedReport)
+<dialog id="report-review" @unless($role === 'admin' && $selectedReport->status === 'approved') class="drawer review-drawer" @endunless open data-auto-open aria-label="Report details"><a class="close-dialog" href="{{request()->fullUrlWithoutQuery(['review','report'])}}" aria-label="Close">×</a>@include('workspace.report-review-panel',['item'=>$selectedReport,'history'=>$reportHistory])</dialog>
+@endif
 @endpush

@@ -76,7 +76,7 @@ class StaffPortalController extends Controller
   $unreadIds=$items->whereNull('read_at')->modelKeys();
   if($unreadIds)$user->unreadNotifications()->whereKey($unreadIds)->update(['read_at'=>now()]);
 
-  if(in_array($user->role,['admin','slu_head'],true)){
+  if($user->isStaff()){
    return view('workspace.notifications',['items'=>$items,'menus'=>self::menus($user->role),'page'=>'notifications','title'=>'Notifications']);
   }
   return view('portal.notifications',compact('items'));
@@ -106,7 +106,7 @@ class StaffPortalController extends Controller
   $announcements=DB::table('announcements')->where('unit','leadership')->latest('id')->get();$slots=array_map(fn($slot)=>[...$slot,'end'=>$slot['end']??'—'],$this->metadata('clearance-slots'));$rules=$this->metadata('points-rules');
   $designs=json_decode(file_get_contents(base_path('design-pages.json')),true);$design=$designs[$r->user()->role][$page]??['title'=>$menus[$page],'description'=>''];foreach($design['cards']??[] as $i=>$card)$design['cards'][$i]['value']=$this->cardValue($r,$card['label'],$page);
   $selectedRequest=null;$selectedHistory=collect();
-  if($r->filled('review')){$r->validate(['review'=>'integer|min:1']);$selectedRequest=$this->scope($r)->findOrFail($r->integer('review'));}
+  if(!$r->filled('report')&&$r->filled('review')){$r->validate(['review'=>'integer|min:1']);$selectedRequest=$this->scope($r)->findOrFail($r->integer('review'));}
   elseif($r->user()->role==='sfu_head'&&in_array($page,['dashboard','applications']))$selectedRequest=$requests->first();
   if($selectedRequest){$selectedRequest->load(['user','reviewer']);$selectedHistory=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject',$selectedRequest->ticket)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();}
   $selectedReport=null;$reportHistory=collect();if($r->filled('report')){$r->validate(['report'=>'integer|min:1']);$selectedReport=$this->reports($r)->findOrFail($r->integer('report'));$reportHistory=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject','report:'.$selectedReport->id)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();}
@@ -156,7 +156,7 @@ class StaffPortalController extends Controller
  }
  public function reportUpdate(Request $r,Report $report){
   $v=$r->validate(['summary'=>'nullable|string|min:30|max:5000','review_note'=>'nullable|string|min:5|max:3000','status'=>'required|in:pending,draft,awaiting_admin,needs_revision,assistant_revision,approved,rejected','check_content'=>'sometimes|accepted','check_files'=>'sometimes|accepted','check_source'=>'sometimes|accepted','attachments'=>'nullable|array|max:5','attachments.*'=>'file|max:10240|mimes:pdf,png,jpg,jpeg,xlsx,csv,docx']);
-  DB::transaction(function()use($r,$report,$v){$q=Report::lockForUpdate()->findOrFail($report->id);$role=$r->user()->role;
+  DB::transaction(function()use($r,$report,$v){$q=Report::lockForUpdate()->findOrFail($report->id);$role=$r->user()->role;$previousStatus=$q->status;
    if($q->user_id===$r->user()->id){abort_unless(in_array($q->status,['draft','needs_revision'])&&in_array($v['status'],['draft','pending'])&&isset($v['summary']),422);$snapshot=$q->snapshot;if(!isset($snapshot['records']))$snapshot=['records'=>$snapshot,'version'=>1,'versions'=>[]];$snapshot['versions'][]=['version'=>$snapshot['version']??1,'summary'=>$q->summary,'status'=>$q->status,'files'=>$snapshot['files']??[],'records'=>$snapshot['records'],'saved_at'=>now()->toIso8601String()];if(isset($snapshot['date_from'],$snapshot['date_to']))$snapshot=[...$snapshot,...$this->snapshot($r,$snapshot['date_from'],$snapshot['date_to'])];if($r->hasFile('attachments')){$files=[];foreach($r->file('attachments') as $f)$files[]=['path'=>$f->store('staff-reports'),'name'=>$f->getClientOriginalName(),'size'=>$f->getSize()];$snapshot['files']=$files;}$snapshot['version']=($snapshot['version']??1)+1;unset($snapshot['admin_review_started_at']);$q->update(['summary'=>$v['summary'],'snapshot'=>$snapshot,'status'=>$v['status']]);
    }else{
     $allowed=$role==='assistant'&&in_array($q->status,['pending','assistant_revision'])?['awaiting_admin','needs_revision']:($role==='admin'&&$q->status==='awaiting_admin'?['approved','rejected','assistant_revision']:[]);
@@ -164,7 +164,16 @@ class StaffPortalController extends Controller
     if(in_array($v['status'],['awaiting_admin','approved']))$r->validate(['check_content'=>'required|accepted','check_files'=>'required|accepted','check_source'=>'required|accepted']);
     $q->update(['status'=>$v['status'],'review_note'=>$v['review_note'],'reviewed_by'=>$r->user()->id]);
    }
-   $this->audit($r,'report.'.$v['status'],'report:'.$q->id,$v['review_note']??$v['summary']??'');$recipient=match($v['status']){'pending','assistant_revision'=>'assistant','awaiting_admin'=>'admin',default=>$q->user->role};if($v['status']!=='draft')\App\Support\StaffAlerts::role($recipient,'Report update: '.$q->title,'/workspace/report/'.$q->id,'feedback');
+   $this->audit($r,'report.'.$v['status'],'report:'.$q->id,$v['review_note']??$v['summary']??'');
+   $path='/workspace/report/'.$q->id;
+   $title='Report update: '.$q->title.' ('.str_replace('_',' ',$v['status']).')';
+   match($v['status']){
+    'draft'=>null,
+    'pending'=>\App\Support\StaffAlerts::role('assistant',$title,$path,$previousStatus==='draft'?'submissions':'resubmitted'),
+    'awaiting_admin'=>\App\Support\StaffAlerts::role('admin',$title,$path,$previousStatus==='assistant_revision'?'resubmitted':'submissions'),
+    'assistant_revision'=>\App\Support\StaffAlerts::role('assistant',$title,$path,'feedback'),
+    default=>\App\Support\StaffAlerts::account($q->user,$title,$path,message:$v['review_note']??''),
+   };
   });return back()->with('success','Report saved.');
  }
  public function reportFile(Request $r,Report $report,int $index){abort_unless(in_array($r->user()->role,['admin','assistant'])||$report->user_id===$r->user()->id,403);$snapshot=$report->snapshot;if($r->filled('version')){$version=collect($snapshot['versions']??[])->firstWhere('version',(int)$r->query('version'));abort_unless($version,404);$snapshot=$version;}$f=$snapshot['files'][$index]??null;abort_unless($f&&Storage::exists($f['path']),404);return Storage::download($f['path'],$f['name']);}
@@ -186,6 +195,12 @@ class StaffPortalController extends Controller
    }
    $previousVenue=$current->venue;
    $current->update($v);
+   if($current->wasChanged(['title','venue','starts_at','ends_at','status'])){
+    $title=$current->title.($current->status==='cancelled'?' has been cancelled.':' has been updated.');
+    $current->attendances()->where('status','<>','cancelled')->with('user')->each(
+     fn(Attendance $entry)=>\App\Support\StaffAlerts::account($entry->user,$title,'/portal/leadership/events#event-'.$current->id)
+    );
+   }
    if($current->type==='leadership'){
     Event::rememberVenues($previousVenue,$current->venue);
     if($r->boolean('custom_venue')&&$previousVenue!==$current->venue)Event::setVenueAvailability($current->venue,true);
@@ -215,7 +230,11 @@ class StaffPortalController extends Controller
     $e->attendances()->where('status','pending')->update(['status'=>'cancelled']);
     ServiceRequest::where('kind','seminar')->where('details->event_id',$e->id)->whereNotIn('status',['approved','rejected','cancelled'])->update(['status'=>'cancelled','review_note'=>'The seminar was cancelled by the unit.','reviewed_by'=>$r->user()->id,'reviewed_at'=>now()]);
    }
-   if($changed)foreach($participants as $a)if($a->user->preferences['in_app']??true)$a->user->notifications()->create(['id'=>Str::uuid(),'type'=>'seminar','data'=>json_encode(['title'=>$e->title.($v['status']==='cancelled'?' has been cancelled.':' has been updated.'),'url'=>rtrim(env('USER_PORTAL_URL','http://127.0.0.1:8001'),'/').'/apply/seminar'])]);
+   if($changed){
+    $title=$e->title.($e->status==='cancelled'?' has been cancelled.':' has been updated.');
+    $path=$e->status==='published'?'/apply/seminar?event='.$e->id:'/apply/seminar';
+    foreach($participants as $a)\App\Support\StaffAlerts::account($a->user,$title,$path);
+   }
    $this->audit($r,'event.update',(string)$e->id);
   });return back()->with('success','Seminar saved.');
  }

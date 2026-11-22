@@ -8,6 +8,50 @@ use App\Http\Controllers\StaffPortalController;
 class StaffPortalTest extends TestCase {
  use RefreshDatabase;
  private function actor(string $role):User{return User::create(['name'=>$role,'email'=>uniqid().'@example.test','username'=>uniqid('staff'),'password'=>'TestingPassword123!','role'=>$role,'account_type'=>$role==='student'?'student':'employee','profile_complete'=>true,'email_verified_at'=>now(),'preferences'=>['email'=>false,'in_app'=>true]]);}
+ public function test_admin_view_links_open_one_record_and_keep_the_list_filters():void {
+  $admin=$this->actor('admin');
+  $student=$this->actor('student');
+  foreach(['leadership'=>['slu_head','achievement'],'scholarship'=>['sfu_head','scholarship'],'values'=>['cvu_head','complaint']] as $unit=>[$role,$kind]){
+   $report=Report::create(['user_id'=>$this->actor($role)->id,'title'=>'Acknowledged '.$unit,
+    'academic_year'=>'2026-2027','semester'=>'1st Semester','summary'=>'A saved report summary for '.$unit,
+    'snapshot'=>['records'=>[]],'status'=>'approved']);
+   $item=ServiceRequest::create(['user_id'=>$student->id,'ticket'=>'VIEW-'.$unit,'kind'=>$kind,
+    'details'=>['description'=>'A saved transaction for '.$unit],'status'=>'approved']);
+   $this->actingAs($admin);
+
+   foreach(['/workspace/inbox','/workspace/'.$unit] as $page){
+    $list=$page.'?status=approved&reports=1&transactions=1';
+    $reportUrl=$list.'&report='.$report->id;
+    $itemUrl=$list.'&review='.$item->id;
+    $this->get($list)->assertOk()->assertSee('data-role="admin"',false)
+     ->assertSee('<td class="table-action-cell">',false)->assertSee(url($reportUrl))->assertSee(url($itemUrl));
+    $this->get($reportUrl)->assertOk()->assertSee('id="report-review"',false)->assertDontSee('class="drawer review-drawer"',false)
+     ->assertSee($report->summary)->assertSee(url($itemUrl))->assertDontSee('id="transaction-review"',false);
+    $this->get($itemUrl)->assertOk()->assertSee('id="transaction-review"',false)->assertDontSee('class="drawer review-drawer"',false)
+     ->assertSee($item->details['description'])->assertSee(url($reportUrl))->assertDontSee('id="report-review"',false);
+   }
+   $this->get('/workspace/dashboard?report='.$report->id)->assertOk()->assertSee($report->summary);
+  }
+ }
+
+ public function test_staff_attachment_view_opens_documents_inline_and_downloads_other_files():void {
+  Storage::fake('local');
+  Storage::put('requests/evidence.pdf',"%PDF-1.4\n");
+  Storage::put('requests/legacy.pdf','<html><body>Attachment content</body></html>');
+  $student=$this->actor('student');
+  $item=ServiceRequest::create(['user_id'=>$student->id,'ticket'=>'VIEW-FILES','kind'=>'complaint',
+   'details'=>[],'files'=>['evidence'=>['path'=>'requests/evidence.pdf','name'=>'evidence.pdf'],'legacy'=>'requests/legacy.pdf']]);
+  $files='/requests/'.$item->id.'/files/';
+  $this->actingAs($this->actor('admin'))->get('/workspace/values?review='.$item->id)
+   ->assertOk()->assertSee($files.'evidence/view')->assertSee('legacy.pdf');
+  $this->get($files.'evidence/view')->assertOk()->assertHeader('Content-Type','application/pdf')
+   ->assertHeader('Content-Disposition','inline; filename=evidence.pdf');
+  $this->get($files.'legacy/view')->assertOk()->assertDownload('legacy.pdf');
+  $this->get($files.'missing/view')->assertNotFound();
+  $this->actingAs($this->actor('sfu_head'))->get($files.'evidence/view')->assertForbidden();
+  $this->actingAs($student)->get($files.'evidence/view')->assertForbidden();
+ }
+
  public function test_admin_and_slu_head_notifications_use_the_workspace_and_preserve_existing_alerts():void {
   $admin=$this->actor('admin');
   $head=$this->actor('slu_head');
@@ -32,6 +76,33 @@ class StaffPortalTest extends TestCase {
   $this->assertSame(0,$head->unreadNotifications()->count());
   $emptyAdmin=$this->actor('admin');
   $this->actingAs($emptyAdmin)->get('/notifications')->assertOk()->assertSee('No notifications yet');
+ }
+ public function test_staff_inbox_uses_local_links_and_clears_legacy_unread_alerts():void {
+  foreach(['assistant','sfu_head','cvu_head'] as $role){
+   $recipient=$this->actor($role);
+   $recipient->notifications()->create(['id'=>\Illuminate\Support\Str::uuid(),'type'=>'staff-workflow',
+    'data'=>json_encode(['title'=>'Verification ready','url'=>'http://127.0.0.1:8002/workspace/community#attendance-verification'])]);
+   $this->actingAs($recipient)->get('/workspace')->assertOk()->assertSee('Notifications (1 unread)');
+   $this->get('/notifications')->assertOk()->assertSee('Verification ready')
+    ->assertSee('href="/workspace/community#attendance-verification"',false);
+   $this->assertSame(0,$recipient->unreadNotifications()->count());
+  }
+ }
+ public function test_overdue_review_alerts_follow_preferences_and_are_sent_once():void {
+  $assistant=$this->actor('assistant');
+  $muted=$this->actor('assistant');
+  $muted->update(['preferences'=>['alerts'=>['overdue'=>false]]]);
+  $admin=$this->actor('admin');
+  $owner=$this->actor('cvu_head');
+  foreach(['pending'=>'Assistant review','awaiting_admin'=>'Admin review'] as $status=>$title){
+   Report::create(['user_id'=>$owner->id,'title'=>$title,'academic_year'=>'2026-2027','semester'=>'1st Semester',
+    'summary'=>'A report that is waiting for review.', 'snapshot'=>['records'=>[]],'status'=>$status,'created_at'=>now()->subDays(2)]);
+  }
+  $this->artisan('notifications:overdue-reports')->assertExitCode(0);
+  $this->artisan('notifications:overdue-reports')->assertExitCode(0);
+  $this->assertSame('Overdue report: Assistant review',$assistant->notifications()->sole()->data['title']);
+  $this->assertSame('Overdue report: Admin review',$admin->notifications()->sole()->data['title']);
+  $this->assertSame(0,$muted->notifications()->count());
  }
  public function test_membership_images_can_be_reviewed_inline_by_authorized_staff():void {
   Storage::fake('local');
