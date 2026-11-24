@@ -2,6 +2,25 @@
 @section('content')
 @php($role=auth()->user()->role)
 @php($monitor=in_array($role,['admin','assistant']))
+@if($role === 'sfu_head' && $page === 'dashboard')
+ @include('workspace.sfu-dashboard')
+@elseif($role === 'sfu_head' && $page === 'applications')
+ @include('workspace.unit-stat-cards')
+ @include('workspace.sfu-application-queue', ['fullQueue' => true])
+ @include('workspace.drafts',['draftKind'=>'scholar'])
+ @if($selectedRequest)
+ <dialog id="transaction-review" class="sfu-review-dialog" open data-auto-open aria-labelledby="sfu-review-title">
+     <a class="close-dialog" href="{{ request()->fullUrlWithoutQuery(['review','report']) }}" aria-label="Close application review">×</a>
+     @include('workspace.sfu-review-panel')
+ </dialog>
+ @endif
+@elseif($role === 'sfu_head' && $page === 'reports')
+ @include('workspace.sfu-reports')
+@elseif($role === 'sfu_head' && $page === 'settings')
+ @include('workspace.sfu-settings')
+@elseif($role === 'slu_head' && $page === 'dashboard')
+ @include('workspace.slu-dashboard')
+@else
 @if(count($design['cards']??[]))
  <section class="cards" aria-label="Summary" style="grid-template-columns:repeat({{count($design['cards'])}},minmax(0,1fr))">@foreach($design['cards'] as $card)<div class="card">@if($card['icon']&&is_file(public_path('staff-assets/'.$card['icon'])))<img src="/staff-assets/{{$card['icon']}}" alt="">@endif<div><strong>{{$card['value']}}</strong><span>{{$card['label']}}</span></div></div>@endforeach</section>
 @endif
@@ -12,8 +31,7 @@
  @include('workspace.requests',['heading'=>$role==='sfu_head'?'Applications':($role==='slu_head'?'Proposal Queue':'Recent Transactions')])
  <div class="columns"><div class="panel"><h2>{{$role==='sfu_head'?'Semester Summary':'Today’s Summary'}}</h2>@foreach($role==='sfu_head'?['scholarship'=>'Tuition Fee Discount']:config('portal.office.'.$role,[]) as $key=>$value)@php($kind=is_string($key)?$key:$value)<div class="summary-line"><span>{{App\Models\ServiceRequest::kinds()[$kind]??$kind}}</span><strong class="summary-number">{{App\Models\ServiceRequest::where('kind',$kind)->whereDate('created_at',today())->count()}}</strong></div>@endforeach</div><div class="panel"><h2>{{$role==='cvu_head'?'Community Service Overview':($role==='sfu_head'?'Semester Report':'Events & Activities')}}</h2>@if($role==='cvu_head')<div class="summary-line">Active Students <strong>{{$assignments->where('status','active')->count()}}</strong></div><div class="summary-line">For Verification <strong>{{$attendance->whereNotNull('assignment_id')->count()}}</strong></div><a class="button outline" href="/workspace/community">View Community Service</a>@elseif($role==='sfu_head')<div class="summary-line">Under Assistant Review <strong>{{$reportCounts['pending']??0}}</strong></div><a class="button outline" href="/workspace/reports">Prepare Semester Report</a>@else @forelse($events->take(4) as $event)<div class="summary-line"><span>{{$event->title}}</span><small>{{$event->starts_at->format('M j')}}</small></div>@empty<p class="empty">No events found.</p>@endforelse<a class="button outline" href="/workspace/events">View Events</a>@endif</div></div>
  @endif
-@elseif(in_array($page,['complaints','lost-found','readmission','id-replacement','applications','proposals','achievements']))
- @if($page==='applications')<div class="actions" style="margin:0 0 18px"><button data-dialog="add-scholar">Add Scholar</button></div>@endif
+@elseif(in_array($page,['complaints','lost-found','readmission','id-replacement','proposals','achievements']))
  @include('workspace.requests',['heading'=>$menus[$page]])
 @elseif(in_array($page,['inbox','leadership','scholarship','values']))
  @include('workspace.report-list')@include('workspace.requests',['heading'=>'User Transactions'])
@@ -31,7 +49,6 @@
  <div class="panel"><div class="toolbar"><h2>Availability & Slots</h2><button data-dialog="availability">Add Available Date</button></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Time</th><th>Capacity</th><th>Booked</th><th>Status</th></tr></thead><tbody>@forelse($slots as $slot)<tr><td>{{$slot['date']}}</td><td>{{$slot['start']}} – {{$slot['end']}}</td><td>{{$slot['capacity']}}</td><td>{{App\Models\ServiceRequest::where('kind','clearance')->where('details->appointment_date',$slot['date'])->where('details->schedule',$slot['start'])->whereNotIn('status',['cancelled','rejected'])->count()}}</td><td>{{$slot['open']??false?'Open for booking':'Closed'}}</td></tr>@empty<tr><td colspan="5" class="empty">No office availability configured.</td></tr>@endforelse</tbody></table></div></div>
 @elseif($page==='organizations')
  @include('workspace.organizations')
- @include('workspace.requests',['heading'=>'Membership Applications'])
 @elseif($page==='points')
  @include('workspace.points')
 @elseif($page==='content')
@@ -39,14 +56,16 @@
 @elseif($page==='settings')
  @include('workspace.settings')
 @endif
+@endif
 @endsection
 @push('dialogs')@include('workspace.dialogs')
-@if($selectedRequest&&!(auth()->user()->role==='sfu_head'&&in_array($page,['dashboard','applications'])))
+@if($selectedRequest&&!($role==='sfu_head'&&in_array($page,['dashboard','applications'])))
 @php($adminView = $role === 'admin' && !$selectedRequest->reviewActions(auth()->user()))
 @php($scholarshipReview = $role === 'admin' && $page === 'scholarship' && $selectedRequest->kind === 'scholarship')
 @php($leadershipReview = in_array($role, ['admin', 'slu_head'], true) && ($page === 'proposals' || in_array($selectedRequest->kind, ['activity', 'leadership'], true)))
 @php($centerReview = $adminView || $scholarshipReview || $leadershipReview)
-<dialog id="transaction-review" @unless($centerReview) class="drawer review-drawer" @endunless open data-auto-open aria-label="Transaction details"><a class="close-dialog" href="{{request()->fullUrlWithoutQuery(['review','report'])}}" aria-label="Close">×</a>@include('workspace.review-panel',['item'=>$selectedRequest,'history'=>$selectedHistory])</dialog>
+@php($closeReviewUrl=$role==='slu_head'&&$page==='organizations'?request()->fullUrlWithQuery(['tab'=>'membership','review'=>null,'report'=>null]):request()->fullUrlWithoutQuery(['review','report']))
+<dialog id="transaction-review" @unless($centerReview) class="drawer review-drawer" @endunless open data-auto-open aria-label="Transaction details"><a class="close-dialog" href="{{ $closeReviewUrl }}" aria-label="Close">×</a>@include('workspace.review-panel',['item'=>$selectedRequest,'history'=>$selectedHistory])</dialog>
 @endif
 @if($selectedReport)
 <dialog id="report-review" @unless($role === 'admin' && $selectedReport->status === 'approved') class="drawer review-drawer" @endunless open data-auto-open aria-label="Report details"><a class="close-dialog" href="{{request()->fullUrlWithoutQuery(['review','report'])}}" aria-label="Close">×</a>@include('workspace.report-review-panel',['item'=>$selectedReport,'history'=>$reportHistory])</dialog>

@@ -1,5 +1,7 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ $design['title'] ?? $title ?? 'iServe CSLD' }}</title><link rel="stylesheet" href="/staff.css?v=20261122.3"><script src="/staff.js?v=20261122.1" defer></script><link rel="stylesheet" href="{{ asset('responsive.css') }}?v=20261112"></head>
-<body data-page="{{$page??'review'}}" data-role="{{auth()->user()->role}}" class="{{ auth()->user()->preferences['theme']??'Light' }}"><div class="workspace">
+@php($isSfuWorkspace = in_array($page ?? '', ['dashboard', 'applications', 'reports', 'settings']) && auth()->user()->role === 'sfu_head')
+@php($usesUnitLayout = $isSfuWorkspace || (in_array($page ?? '', ['dashboard', 'organizations']) && auth()->user()->role === 'slu_head'))
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ $design['title'] ?? $title ?? 'iServe CSLD' }}</title><link rel="stylesheet" href="/staff.css?v=20261122.3"><script src="/staff.js?v=20261122.1" defer></script><link rel="stylesheet" href="{{ asset('responsive.css') }}?v=20261112">@if($usesUnitLayout)<link rel="stylesheet" href="/sfu-dashboard.css?v=17"><script src="/sfu-dashboard.js?v=4" defer></script>@endif</head>
+<body data-page="{{$page??'review'}}" data-role="{{auth()->user()->role}}" class="{{ auth()->user()->preferences['theme']??'Light' }}{{ $usesUnitLayout ? ' unit-workspace' : '' }}"><div class="workspace">
 <aside class="sidebar"><a class="brand" href="/workspace"><img src="/staff-assets/afaaeb1608414bb233036355bd45d485ad6921e0.png" alt="University crest"><span>iServe</span></a><nav aria-label="Staff navigation">
 @foreach($menus as $key=>$label)
  @if(in_array(auth()->user()->role,['admin','assistant'])&&$key==='leadership')<div class="nav-caption">CSLD UNITS</div>@endif
@@ -17,7 +19,9 @@
                 <span class="notification-bell" aria-hidden="true"></span>
                 <span aria-hidden="true">{{ $unreadCount }}</span>
             </a>
-            @if($staffUser->role !== 'admin')
+            @if($usesUnitLayout)
+                <time class="sfu-date" datetime="{{ today()->toDateString() }}"><span aria-hidden="true">🗓️</span>{{ today()->format('M j, Y') }}</time>
+            @elseif($staffUser->role !== 'admin')
                 <span>{{ now()->format('F j, Y') }}</span>
                 <a class="avatar" href="/workspace/settings" title="{{ $staffUser->name }}">{{ substr($staffUser->name, 0, 1) }}</a>
             @endif

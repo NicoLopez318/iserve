@@ -5,6 +5,9 @@ use App\Models\{User,ServiceRequest,Report,Organization,Event,Assignment,Attenda
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB,Storage,Hash};
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+use App\Support\StaffDrafts;
+use Illuminate\Validation\ValidationException;
 
 class StaffPortalController extends Controller
 {
@@ -84,15 +87,30 @@ class StaffPortalController extends Controller
 
  public function page(Request $r,string $page='dashboard'){
   $menus=self::menus($r->user()->role);abort_unless(isset($menus[$page]),404);
+  $sfuDashboard=$page==='dashboard'&&$r->user()->role==='sfu_head';
+  $sluDashboard=$page==='dashboard'&&$r->user()->role==='slu_head';
+  $sluOrganizations=$page==='organizations'&&$r->user()->role==='slu_head';
+  $membershipTab=$sluOrganizations&&($r->query('tab')==='membership'||($r->filled('review')&&$r->query('tab')!=='directory'));
+  $fullSluQueue=$sluDashboard&&$r->query('queue')==='all';
+  $sfuQueue=$sfuDashboard||($page==='applications'&&$r->user()->role==='sfu_head');
+  $sfuReports=$page==='reports'&&$r->user()->role==='sfu_head';
   $scope=$this->scope($r);$kinds=['complaints'=>['complaint'],'lost-found'=>['lost','found'],'readmission'=>['readmission'],'id-replacement'=>['id-replacement'],'applications'=>['scholarship'],'organizations'=>['leadership'],'proposals'=>['activity','leadership'],'achievements'=>['achievement'],'clearance'=>['clearance'],'seminars'=>['seminar']];
   if(isset($kinds[$page]))$scope->whereIn('kind',$kinds[$page]);
   if($unit=$this->unitRole($page))$scope->whereIn('kind',config('portal.office.'.$unit));
   $scope->when($r->filled('search'),fn($q)=>$q->where(fn($x)=>$x->where('ticket','like','%'.$r->search.'%')->orWhereHas('user',fn($u)=>$u->where('name','like','%'.$r->search.'%')->orWhere('student_id','like','%'.$r->search.'%'))));
-  $scope->when($r->filled('status'),fn($q)=>$q->where('status',$r->status));
+  $scope->when($r->filled('status'),fn($q)=>$sfuQueue&&$r->status==='pending'
+   ?$q->whereIn('status',['pending','in_review']):$q->where('status',$r->status));
+  $scope->when($sfuQueue&&$r->filled('program'),fn($q)=>$q->whereHas('user',fn($user)=>$user->where('course',$r->string('program')->toString())));
   if($page==='points')$scope->where('details->adjustment',true)->whereIn('status',['unit_approved','awaiting_admin']);
   $scope->when($r->boolean('archive'),fn($q)=>$q->where('details->archived',true),fn($q)=>$q->where(fn($x)=>$x->whereNull('details->archived')->orWhere('details->archived',false)));
-  $requests=$scope->latest()->paginate(5,['*'],'transactions')->withQueryString();
-  $reports=$this->reports($r)->when($unit,fn($q)=>$q->whereHas('user',fn($u)=>$u->where('role',$unit)))->when($r->filled('search'),fn($q)=>$q->where('title','like','%'.$r->search.'%'))->when($r->filled('status'),fn($q)=>$q->where('status',$r->status))->latest()->paginate(in_array($r->user()->role,['admin','assistant'])?4:5,['*'],'reports')->withQueryString();
+  if($sluDashboard&&!$fullSluQueue&&!$r->filled('status'))$scope->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin']);
+  $queueSize=$fullSluQueue?15:(($sfuDashboard||$sluDashboard)?4:5);
+  $requests=$scope->latest()->paginate($queueSize,['*'],'transactions')->withQueryString();
+  if($sfuQueue&&!$sfuDashboard)$requests->appends(['review'=>null,'report'=>null]);
+  $reports=$this->reports($r)->when($unit,fn($q)=>$q->whereHas('user',fn($u)=>$u->where('role',$unit)))->when($r->filled('search'),fn($q)=>$q->where('title','like','%'.$r->search.'%'))->when($r->filled('status'),fn($q)=>$q->where('status',$r->status))
+   ->when($sfuReports&&$r->filled('semester'),fn($q)=>$q->where('semester',$r->string('semester')->toString()))
+   ->latest()->paginate(in_array($r->user()->role,['admin','assistant'])?4:5,['*'],'reports');
+  $reports->appends($sfuReports?$r->except(['report','review']):$r->query());
   $counts=$this->scope($r)->selectRaw('status,count(*) as total')->groupBy('status')->pluck('total','status');
   $reportCounts=$this->reports($r)->selectRaw('status,count(*) as total')->groupBy('status')->pluck('total','status');
   $organizations=Organization::withCount('members')->get();$events=Event::withCount(['attendances'=>fn($q)=>$q->when($page==='seminars',fn($x)=>$x->where('status','<>','cancelled'))])->latest()->get();
@@ -101,16 +119,154 @@ class StaffPortalController extends Controller
    :collect();
   $assignments=Assignment::with(['user','attendances','journals'])->latest()->get();$students=User::where('account_type','student')->get();
   $attendance=Attendance::with(['user','event','assignment'])->where('status','pending')->get();$journals=Journal::with('assignment.user')->where('status','pending')->get();
-  $points=Point::with('user')->latest()->get();$rankings=$organizations->map(fn($o)=>['organization'=>$o,'total'=>Point::whereIn('user_id',$o->members()->pluck('id'))->sum('amount')])->sortByDesc('total')->values();
-  $audit=DB::table('audit_logs')->when(!in_array($r->user()->role,['admin','assistant']),fn($q)=>$q->where('user_id',$r->user()->id))->latest('id')->limit(80)->get();
+  $points=Point::with('user')->latest()->get();
+  $organizationPoints=($page==='points'||($sluOrganizations&&!$membershipTab))?Point::join('users','points.user_id','=','users.id')
+   ->whereNotNull('users.organization_id')->selectRaw('users.organization_id, SUM(points.amount) AS total')
+   ->groupBy('users.organization_id')->pluck('total','users.organization_id'):collect();
+  $rankings=$page==='points'?$organizations->map(fn($o)=>['organization'=>$o,'total'=>$organizationPoints[$o->id]??0])->sortByDesc('total')->values():collect();
+  $sfuSettings=$page==='settings'&&$r->user()->role==='sfu_head';
+  $audit=DB::table('audit_logs')->when(!in_array($r->user()->role,['admin','assistant']),fn($q)=>$q->where('user_id',$r->user()->id))
+   ->when($sfuSettings,fn($q)=>$q->where('action','account.login'))->latest('id')->limit($sfuSettings?20:80)->get();
   $announcements=DB::table('announcements')->where('unit','leadership')->latest('id')->get();$slots=array_map(fn($slot)=>[...$slot,'end'=>$slot['end']??'—'],$this->metadata('clearance-slots'));$rules=$this->metadata('points-rules');
   $designs=json_decode(file_get_contents(base_path('design-pages.json')),true);$design=$designs[$r->user()->role][$page]??['title'=>$menus[$page],'description'=>''];foreach($design['cards']??[] as $i=>$card)$design['cards'][$i]['value']=$this->cardValue($r,$card['label'],$page);
   $selectedRequest=null;$selectedHistory=collect();
   if(!$r->filled('report')&&$r->filled('review')){$r->validate(['review'=>'integer|min:1']);$selectedRequest=$this->scope($r)->findOrFail($r->integer('review'));}
-  elseif($r->user()->role==='sfu_head'&&in_array($page,['dashboard','applications']))$selectedRequest=$requests->first();
+  elseif($sfuDashboard)$selectedRequest=$requests->first();
   if($selectedRequest){$selectedRequest->load(['user','reviewer']);$selectedHistory=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject',$selectedRequest->ticket)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();}
   $selectedReport=null;$reportHistory=collect();if($r->filled('report')){$r->validate(['report'=>'integer|min:1']);$selectedReport=$this->reports($r)->findOrFail($r->integer('report'));$reportHistory=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject','report:'.$selectedReport->id)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();}
-  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','counts','reportCounts','organizations','events','eventVenues','assignments','students','attendance','journals','points','rankings','audit','announcements','slots','rules'));
+  $sfuPrograms=$sfuQueue?User::whereIn('id',$this->scope($r)->select('user_id'))
+   ->whereNotNull('course')->where('course','<>','')->distinct()->orderBy('course')->pluck('course'):collect();
+  $sfuSummary=$sfuDashboard?$this->sfuSemesterSummary($r):null;
+  $sluDeadlines=$sluDashboard?$this->sluDeadlines($events):collect();
+  $sluActivity=$sluDashboard?$this->sluActivity($r):collect();
+  $orgDirectory=$sluOrganizations&&!$membershipTab?$this->organizationDirectory($r,$organizations,$organizationPoints):null;
+  $orgForm=$sluOrganizations?$this->organizationFormOptions():null;
+  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','counts','reportCounts','organizations','events','eventVenues','assignments','students','attendance','journals','points','rankings','audit','announcements','slots','rules','sfuPrograms','sfuSummary','fullSluQueue','sluDeadlines','sluActivity','membershipTab','orgDirectory','orgForm'));
+ }
+ private function organizationFormOptions():array
+ {
+  $metadata=DB::table('settings')->where('key','like','staff.organization.%')->pluck('value')->map(fn($value)=>json_decode($value,true)??[]);
+  $year=now()->year;
+  $academicYear=DB::table('settings')->where('key','academic_year')->value('value')??$year.'-'.($year+1);
+  $academicYears=collect([$academicYear])->merge($metadata->pluck('academic_year'))
+   ->merge(array_map(fn($start)=>$start.'-'.($start+1),range($year-1,$year+2)))->filter()->unique();
+  $departments=$metadata->pluck('college')->filter()->unique()->sort(SORT_NATURAL|SORT_FLAG_CASE);
+  $advisers=User::where('account_type','employee')->pluck('name')->merge($metadata->pluck('adviser'))->filter()->unique()->sort(SORT_NATURAL|SORT_FLAG_CASE);
+  return compact('academicYear','academicYears','departments','advisers');
+ }
+ private function organizationDirectory(Request $request,Collection $organizations,Collection $points):array
+ {
+  $metadata=DB::table('settings')->whereIn('key',$organizations->map(fn($organization)=>'staff.organization.'.$organization->id)->all())->pluck('value','key');
+  $statuses=['active'=>'Active','for_renewal'=>'For Renewal','needs_attention'=>'Needs Attention'];
+  $rows=$organizations->sortBy('name',SORT_NATURAL|SORT_FLAG_CASE)->map(function($organization)use($metadata,$points,$statuses){
+   $details=json_decode($metadata['staff.organization.'.$organization->id]??'[]',true)??[];
+   $status=Str::of($details['status']??'active')->lower()->replace([' ','-'],'_')->toString();
+   return [
+    'organization'=>$organization,'college'=>$details['college']??'','adviser'=>$details['adviser']??'',
+    'acronym'=>$details['acronym']??'','status'=>isset($statuses[$status])?$status:'active',
+    'points'=>(int)($points[$organization->id]??0),
+   ];
+  });
+  $departments=$rows->pluck('college')->filter()->unique()->sort(SORT_NATURAL|SORT_FLAG_CASE);
+  $search=$request->string('organization_search')->trim()->toString();
+  $department=$request->string('department')->toString();
+  $status=$request->string('organization_status')->toString();
+  $rows=$rows->filter(fn($row)=>
+   (!$search||Str::contains(implode(' ',[$row['organization']->name,$row['acronym'],$row['college'],$row['adviser']]),$search,true))
+   && (!$department||$row['college']===$department)
+   && (!$status||$row['status']===$status)
+  );
+  $organizationIds=$rows->pluck('organization.id');
+  $organizations->whereIn('id',$organizationIds)->load('members');
+  $achievements=ServiceRequest::with('user')->where('kind','achievement')->where('status','approved')
+   ->where(fn($query)=>$query->whereNull('details->adjustment')->orWhere('details->adjustment',false))
+   ->whereHas('user',fn($query)=>$query->whereIn('organization_id',$organizationIds))
+   ->latest()->get()->groupBy(fn($achievement)=>$achievement->user->organization_id);
+  return compact('rows','departments','statuses','achievements');
+ }
+ private function sluDeadlines(Collection $events):Collection
+ {
+  $published=$events->where('type','leadership')->where('status','published');
+  $sources=DB::table('settings')->whereIn('key',$published->map(fn($event)=>'staff.event-source.'.$event->id)->all())->pluck('value','key');
+  $reported=ServiceRequest::where('kind','activity')->where('details->completion_report',true)
+   ->whereNotIn('status',['cancelled','rejected'])->pluck('details')->map(fn($details)=>$details['event_id']??null)->filter()->flip();
+  $deadlines=$published->flatMap(function($event)use($sources,$reported){
+   $source=json_decode($sources['staff.event-source.'.$event->id]??'[]',true)??[];
+   $entries=[];
+   if($event->starts_at->isFuture())$entries[]=['date'=>$event->starts_at,'label'=>'Event starts'];
+   if(!$reported->has($event->id)&&isset($source['report_due_at'])) {
+    $due=\Carbon\Carbon::parse($source['report_due_at']);
+    if($due->isFuture())$entries[]=['date'=>$due,'label'=>'Completion report due'];
+   }
+   return array_map(fn($entry)=>[...$entry,'title'=>$event->title,'url'=>'/workspace/events#event-'.$event->id.'-entry'],$entries);
+  });
+  return $deadlines->sortBy('date')->take(3);
+ }
+ private function sluActivity(Request $request):Collection
+ {
+  $transactions=$this->scope($request);
+  $audit=DB::table('audit_logs as audit')->leftJoin('users','users.id','=','audit.user_id')
+   ->where(function($query)use($request,$transactions){
+    $query->where(fn($own)=>$own->where('audit.user_id',$request->user()->id)->whereIn('audit.action',[
+     'organization.create','organization.member','event.create','event.update','event.cancel','report.draft','report.pending',
+    ]))->orWhere(fn($related)=>$related->where('audit.action','like','request.%')->whereIn('audit.subject',(clone $transactions)->select('ticket')));
+   })->latest('audit.id')->limit(4)->get(['audit.action','audit.subject','audit.created_at','users.name']);
+
+  $entries=$audit->map(function($entry){
+   $action=match($entry->action){
+    'request.needs_revision'=>'returned a submission for revision',
+    'request.resubmitted'=>'resubmitted a request',
+    'request.unit_approved'=>'endorsed a submission',
+    'request.awaiting_admin'=>'forwarded a submission',
+    'request.approved'=>'approved a submission',
+    'organization.member'=>'updated an organization roster',
+    'organization.create'=>'created an organization',
+    'event.create'=>'created an event',
+    'event.update'=>'updated an event',
+    'event.cancel'=>'cancelled an event',
+    'report.draft'=>'saved a report draft',
+    'report.pending'=>'submitted a report',
+    default=>'updated a submission',
+   };
+   return ['title'=>($entry->name??'Staff').' '.$action,'subject'=>$entry->subject,'date'=>\Carbon\Carbon::parse($entry->created_at)];
+  });
+  return $entries->concat($transactions->latest()->limit(3)->get()->map(fn($item)=>[
+   'title'=>$item->user->name.' submitted '.match($item->kind){
+    'achievement'=>'achievement evidence','leadership'=>'a membership application',default=>($item->details['completion_report']??false)?'an event report':'an activity proposal',
+   },
+   'subject'=>$item->details['title']??$item->ticket,'date'=>$item->created_at,
+  ]))->sortByDesc('date')->take(3);
+ }
+ private function sfuSemesterSummary(Request $request):array
+ {
+  $applications=$this->scope($request);
+  $settings=DB::table('settings')->whereIn('key',['academic_year','semester'])->pluck('value','key');
+  $latestTerm=(clone $applications)->whereNotNull('details->academic_year')->latest()->value('details') ?? [];
+  $year=$settings['academic_year']??$latestTerm['academic_year']??null;
+  $semester=$settings['semester']??$latestTerm['semester']??null;
+
+  if ($year) {
+   $years=[$year];
+   if (preg_match('/^(\d{4})\s*[-–—]\s*(\d{4})$/u',trim($year),$parts)) {
+    foreach (['-',' - ','–',' – ','—',' — '] as $separator) $years[]=$parts[1].$separator.$parts[2];
+   }
+   $applications->whereIn('details->academic_year',array_unique($years));
+  }
+  if ($semester) $applications->where('details->semester',$semester);
+
+  $counts=(clone $applications)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total','status');
+  $processingDays=$applications->where('status','approved')->whereNotNull('reviewed_at')
+   ->get(['created_at','reviewed_at'])->avg(fn($application)=>$application->created_at->diffInDays($application->reviewed_at,true));
+
+  return [
+   'year'=>$year,
+   'semester'=>$semester,
+   'received'=>$counts->sum(),
+   'processed'=>$counts['approved']??0,
+   'incomplete'=>$counts['needs_revision']??0,
+   'in_progress'=>$counts->only(['pending','in_review','unit_approved','awaiting_admin'])->sum(),
+   'processing_days'=>$processingDays===null?null:(int) round($processingDays),
+  ];
  }
  public function request(Request $r,ServiceRequest $serviceRequest){
   abort_unless(in_array($r->user()->role,['admin','assistant'])||$serviceRequest->office()===$r->user()->role,403);
@@ -172,13 +328,41 @@ class StaffPortalController extends Controller
     'pending'=>\App\Support\StaffAlerts::role('assistant',$title,$path,$previousStatus==='draft'?'submissions':'resubmitted'),
     'awaiting_admin'=>\App\Support\StaffAlerts::role('admin',$title,$path,$previousStatus==='assistant_revision'?'resubmitted':'submissions'),
     'assistant_revision'=>\App\Support\StaffAlerts::role('assistant',$title,$path,'feedback'),
-    default=>\App\Support\StaffAlerts::account($q->user,$title,$path,message:$v['review_note']??''),
+    default=>\App\Support\StaffAlerts::account($q->user,$title,$path,match($v['status']){
+     'needs_revision'=>$role==='assistant'?'report_returned':'feedback',
+     'approved'=>'report_acknowledged',
+     default=>'feedback',
+    },$v['review_note']??''),
    };
   });return back()->with('success','Report saved.');
  }
  public function reportFile(Request $r,Report $report,int $index){abort_unless(in_array($r->user()->role,['admin','assistant'])||$report->user_id===$r->user()->id,403);$snapshot=$report->snapshot;if($r->filled('version')){$version=collect($snapshot['versions']??[])->firstWhere('version',(int)$r->query('version'));abort_unless($version,404);$snapshot=$version;}$f=$snapshot['files'][$index]??null;abort_unless($f&&Storage::exists($f['path']),404);return Storage::download($f['path'],$f['name']);}
  public function reportReceipt(Request $r,Report $report){abort_unless(in_array($r->user()->role,['admin','assistant'])||$report->user_id===$r->user()->id,403);return view('workspace.receipt',['item'=>$report,'history'=>DB::table('audit_logs')->where('subject','report:'.$report->id)->orderBy('id')->get()]);}
- public function organization(Request $r){$this->only($r,'slu_head');\App\Support\StaffDrafts::assertOwned($r->user(),'organization',$r->input('draft_id'));$v=$r->validate(['name'=>'required|string|max:150|unique:organizations','description'=>'required|string|max:3000','president_id'=>'required|exists:users,id','acronym'=>'required|regex:/^[A-Z0-9]{2,10}$/','college'=>'required|string|max:100','type'=>'required|string|max:60','adviser'=>'required|string|max:120']);$student=User::findOrFail($v['president_id']);abort_unless($student->account_type==='student'&&$student->hasVerifiedEmail()&&!$student->organization_id,422);DB::transaction(function()use($r,$v,$student){$o=Organization::create(['name'=>$v['name'],'description'=>$v['description']]);$student->update(['organization_id'=>$o->id,'position'=>'President']);$this->saveMetadata('organization.'.$o->id,array_intersect_key($v,array_flip(['acronym','college','type','adviser'])));$this->audit($r,'organization.create',(string)$o->id);\App\Support\StaffDrafts::consume($r->user(),'organization',$r->input('draft_id'));});return back()->with('success','Organization created.');}
+ public function organization(Request $r)
+ {
+  $this->only($r,'slu_head');
+  $draftId=$r->validate(['draft_id'=>'nullable|uuid'])['draft_id']??null;
+  StaffDrafts::assertOwned($r->user(),'organization',$draftId);
+  $values=$r->validate([
+   'name'=>'required|string|max:150|unique:organizations','description'=>'nullable|string|max:3000',
+   'president_id'=>'required|integer|exists:users,id','acronym'=>'required|regex:/^[A-Z0-9]{2,10}$/',
+   'college'=>'required|string|max:100','type'=>'required|string|max:60','adviser'=>'required|string|max:120',
+   'academic_year'=>'nullable|string|max:30',
+  ],['president_id.required'=>'Verify an eligible student before creating the organization.']);
+
+  DB::transaction(function()use($r,$values,$draftId){
+   $student=User::whereKey($values['president_id'])->lockForUpdate()->firstOrFail();
+   if ($student->account_type!=='student'||!$student->hasVerifiedEmail()||$student->organization_id) {
+    throw ValidationException::withMessages(['president_id'=>'Select a verified student who is available to lead this organization.']);
+   }
+   $organization=Organization::create(['name'=>$values['name'],'description'=>$values['description']??null]);
+   $student->update(['organization_id'=>$organization->id,'position'=>'President']);
+   $this->saveMetadata('organization.'.$organization->id,\Illuminate\Support\Arr::only($values,['acronym','college','type','adviser','academic_year']));
+   $this->audit($r,'organization.create',(string)$organization->id);
+   StaffDrafts::consume($r->user(),'organization',$draftId);
+  },3);
+  return back()->with('success','Organization created.');
+ }
  public function organizationMember(Request $r,Organization $organization){$this->only($r,'slu_head');$v=$r->validate(['user_id'=>'required|exists:users,id','position'=>'required|in:Member,President,Vice President,Secretary,Treasurer,Auditor,Moderator']);$u=User::findOrFail($v['user_id']);abort_unless($u->account_type==='student'&&(!$u->organization_id||$u->organization_id===$organization->id),422);$u->update(['organization_id'=>$organization->id,'position'=>$v['position']]);$this->audit($r,'organization.member',$organization->name,$u->name.' '.$v['position']);return back()->with('success','Officer/member saved.');}
  public function event(Request $r,Event $event){
   if($event->type==='seminar')return $this->updateSeminar($r,$event);
@@ -240,7 +424,35 @@ class StaffPortalController extends Controller
  }
  public function seminar(Request $r){$this->only($r,'cvu_head');$v=$r->validate(['title'=>'required|string|max:150','description'=>'required|string|max:3000','venue'=>'required|string|max:120','starts_at'=>'required|date|after:now','ends_at'=>'required|date|after:starts_at','capacity'=>'required|integer|between:1,5000']);$e=Event::create([...$v,'type'=>'seminar','points'=>0]);$this->audit($r,'seminar.create',(string)$e->id);return back()->with('success','Seminar created.');}
  public function slots(Request $r){$this->only($r,'cvu_head');$v=$r->validate(['date'=>'required|date|after_or_equal:today','start'=>'required|date_format:H:i','end'=>'required|date_format:H:i|after:start','capacity'=>'required|integer|between:1,100','open'=>'nullable|boolean','note'=>'nullable|string|max:300']);$v['open']=$r->boolean('open');DB::transaction(function()use($r,$v){DB::table('settings')->insertOrIgnore(['key'=>'staff.clearance-slots','value'=>'[]']);$row=DB::table('settings')->where('key','staff.clearance-slots')->lockForUpdate()->first();$slots=json_decode($row->value,true)??[];$booked=ServiceRequest::where('kind','clearance')->whereIn('status',['pending','in_review','unit_approved','awaiting_admin','approved'])->where('details->appointment_date',$v['date'])->where('details->schedule',$v['start'])->lockForUpdate()->get()->count();abort_if($booked>$v['capacity'],422,'Capacity cannot be lower than existing bookings.');$slots[$v['date'].' '.$v['start']]=$v;$this->saveMetadata('clearance-slots',$slots);$this->audit($r,'clearance.slot',$v['date'].' '.$v['start']);});return back()->with('success','Availability saved.');}
- public function settings(Request $r){$v=$r->validate(['theme'=>'required|in:Light,Dark','date_format'=>'required|in:mm/dd/yyyy,dd/mm/yyyy','time_format'=>'required|in:12,24','email'=>'nullable|boolean','in_app'=>'nullable|boolean','two_factor'=>'nullable|boolean','alerts'=>'nullable|array','alerts.*'=>'boolean','current_password'=>'nullable|required_with:password|current_password','password'=>'nullable|confirmed|min:12']);abort_if($r->boolean('two_factor')&&!$r->user()->hasVerifiedEmail(),422);$u=$r->user();$u->preferences=[...($u->preferences??[]),...array_intersect_key($v,array_flip(['theme','date_format','time_format'])),'email'=>$r->boolean('email'),'in_app'=>$r->boolean('in_app'),'alerts'=>$v['alerts']??[]];$u->two_factor=$r->boolean('two_factor');if($r->filled('password'))$u->password=$v['password'];$u->save();$this->audit($r,'account.settings',$u->email);return back()->with('success','Settings saved.');}
+ public function settings(Request $r)
+ {
+  $user=$r->user();
+  $action=$user->role==='sfu_head'?$r->input('save'):null;
+  $defaults=['theme'=>'required|in:Light,Dark','date_format'=>'required|in:mm/dd/yyyy,dd/mm/yyyy','time_format'=>'required|in:12,24'];
+  $password=['current_password'=>'nullable|required_with:password|current_password','password'=>'nullable|confirmed|min:12'];
+
+  if ($action==='password') {
+   $values=$r->validate(['current_password'=>'required|current_password','password'=>'required|string|confirmed|min:12']);
+   $user->password=$values['password'];
+  } elseif ($action==='defaults') {
+   $user->preferences=[...($user->preferences??[]),...$r->validate($defaults)];
+  } else {
+   $values=$r->validate([...$defaults,...$password,'email'=>'nullable|boolean','in_app'=>'nullable|boolean','two_factor'=>'nullable|boolean','alerts'=>'nullable|array','alerts.*'=>'boolean']);
+   if ($r->boolean('two_factor')&&!$user->hasVerifiedEmail()) {
+    abort_unless($user->role==='sfu_head',422);
+    throw ValidationException::withMessages(['two_factor'=>'Verify your email before enabling two-step verification.']);
+   }
+   $user->preferences=[...($user->preferences??[]),...array_intersect_key($values,$defaults),
+    'email'=>$r->boolean('email'),'in_app'=>$r->boolean('in_app'),'alerts'=>$values['alerts']??[],
+   ];
+   $user->two_factor=$r->boolean('two_factor');
+   if ($r->filled('password')) $user->password=$values['password'];
+  }
+
+  $user->save();
+  $this->audit($r,'account.settings',$user->email);
+  return back()->with('success',match($action){'password'=>'Password changed.','defaults'=>'Unit defaults saved.',default=>'Settings saved.'});
+ }
  public function backup(Request $r){$role=$r->user()->role;$data=['created_at'=>now()->toIso8601String(),'unit'=>$role,'requests'=>$this->scope($r)->get()->map(fn($q)=>$q->only(['ticket','kind','status','details','created_at'])),'reports'=>$this->reports($r)->get()->map(fn($q)=>$q->only(['id','title','summary','snapshot','status','created_at']))];$this->audit($r,'backup.export',$role);return response()->streamDownload(fn()=>print(json_encode($data,JSON_PRETTY_PRINT)),'iServe-'.$role.'-'.now()->format('Ymd-His').'.json',['Content-Type'=>'application/json']);}
  public function rules(Request $r){$this->only($r,'slu_head');$v=$r->validate(['event'=>'required|integer|between:0,1000','achievement'=>'required|integer|between:0,1000','report'=>'required|integer|between:0,1000','participant'=>'required|integer|between:0,1000','penalty'=>'nullable|integer|between:0,1000']);$v['penalty']=$v['penalty']??0;$this->saveMetadata('points-rules',$v);$this->audit($r,'points.rules','SLU',json_encode($v));return back()->with('success','Scoring rules saved.');}
  public function assignment(Request $r){$this->only($r,'cvu_head');\App\Support\StaffDrafts::assertOwned($r->user(),'assignment',$r->input('draft_id'));$schedule=$r->validate(['start_date'=>'required|date','target_date'=>'required|date|after_or_equal:start_date','duty_start'=>'required|date_format:H:i','duty_end'=>'required|date_format:H:i|after:duty_start']);$r->merge(['note'=>trim(($r->note??'')."\nStart: ".$schedule['start_date']."; Target: ".$schedule['target_date']."; Duty: ".$schedule['duty_start'].' - '.$schedule['duty_end'])]);$response=app(StaffController::class)->assignment($r);\App\Support\StaffDrafts::consume($r->user(),'assignment',$r->input('draft_id'));return $response;}
@@ -254,7 +466,81 @@ class StaffPortalController extends Controller
   if($r->hasFile('image')){$file=$r->file('image');$meta['image']=['path'=>$file->store('content'),'name'=>$file->getClientOriginalName()];}
   $this->saveMetadata('content.'.$id,$meta);$this->audit($r,'content.saved',(string)$id);return back()->with('success','Portal content saved.');
  }
- public function scholar(Request $r){$this->only($r,'sfu_head');$v=$r->validate(['user_id'=>'required|exists:users,id','academic_year'=>'required|string|max:30','semester'=>'required|in:1st Semester,2nd Semester,Summer','application'=>'required|file|max:5120|mimes:pdf,png,jpg,jpeg','photo'=>'required|image|max:5120','registration'=>'required|file|max:5120|mimes:pdf,png,jpg,jpeg']);$u=User::findOrFail($v['user_id']);abort_unless($u->account_type==='student',422);DB::transaction(function()use($r,$v,$u){User::where('id',$u->id)->lockForUpdate()->first();abort_if(ServiceRequest::where('user_id',$u->id)->where('kind','scholarship')->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin'])->exists(),422,'Student already has an open application.');$files=[];foreach(['application','photo','registration'] as $key){$f=$r->file($key);$files[$key]=['path'=>$f->store('requests'),'name'=>$f->getClientOriginalName(),'size'=>$f->getSize()];}$q=ServiceRequest::create(['user_id'=>$u->id,'ticket'=>'TFD-'.now()->format('Y').'-'.strtoupper(Str::random(8)),'kind'=>'scholarship','details'=>['academic_year'=>$v['academic_year'],'semester'=>$v['semester'],'reason'=>'Application recorded by SFU Head on behalf of student.'],'files'=>$files]);$this->audit($r,'scholar.recorded',$q->ticket);});return back()->with('success','Application recorded for unit review.');}
+ public function scholar(Request $r)
+ {
+  $this->only($r,'sfu_head');
+  $savingDraft=$r->input('intent')==='draft';
+  $studentIdRule=$savingDraft?'nullable':'required_without:user_id';
+  $values=$r->validate([
+   'draft_id'=>'nullable|uuid','user_id'=>'nullable|integer|exists:users,id',
+   'student_id'=>$studentIdRule.'|string|max:40','full_name'=>'nullable|string|max:120',
+   'course'=>'nullable|string|max:100','year_level'=>'nullable|string|max:30',
+   'academic_year'=>'nullable|string|max:30','semester'=>'nullable|in:1st Semester,2nd Semester,Summer',
+   'application'=>'nullable|file|max:5120|mimes:pdf,png,jpg,jpeg',
+   'photo'=>'nullable|image|max:5120|mimes:png,jpg,jpeg',
+   'registration'=>'nullable|file|max:5120|mimes:pdf,png,jpg,jpeg',
+  ]);
+  $draftId=$values['draft_id']??null;
+  $draftKey=StaffDrafts::prefix($r->user(),'scholar').($draftId??(string) Str::uuid());
+  $fields=\Illuminate\Support\Arr::only($values,['full_name','student_id','course','year_level','academic_year','semester']);
+  $documents=config('portal.documents.scholarship');
+  $uploads=[];
+
+  try {
+   foreach ($r->only(array_keys($documents)) as $key=>$file) {
+    if (!$r->hasFile($key)) continue;
+    $path=$file->store('requests');
+    if (!$path) throw ValidationException::withMessages([$key=>'The file could not be saved. Try uploading it again.']);
+    $uploads[$key]=['path'=>$path,'name'=>$file->getClientOriginalName(),'size'=>$file->getSize()];
+   }
+
+   $replaced=DB::transaction(function()use($r,$values,$savingDraft,$draftId,$draftKey,$fields,$documents,$uploads){
+    $stored=$draftId?DB::table('settings')->where('key',$draftKey)->lockForUpdate()->first():null;
+    abort_if($draftId&&!$stored,404);
+    $priorFiles=$stored?(json_decode($stored->value,true)['files']??[]):[];
+    $files=array_replace($priorFiles,$uploads);
+
+    if ($savingDraft) {
+     if (!array_filter($fields)&&!$files) throw ValidationException::withMessages(['student_id'=>'Enter some details or attach a document before saving a draft.']);
+     DB::table('settings')->updateOrInsert(['key'=>$draftKey],['value'=>json_encode([
+      'id'=>substr($draftKey,-36),'fields'=>$fields,'files'=>$files,'saved_at'=>now()->toIso8601String(),
+     ],JSON_THROW_ON_ERROR)]);
+    } else {
+     $student=User::where('account_type','student')
+      ->when(isset($values['user_id']),fn($query)=>$query->whereKey($values['user_id']))
+      ->when(isset($values['student_id']),fn($query)=>$query->where('student_id',$values['student_id']))
+      ->lockForUpdate()->first();
+     if (!$student) throw ValidationException::withMessages(['student_id'=>'Enter the ID of an existing student account.']);
+     $missing=array_diff_key($documents,$files);
+     if ($missing) throw ValidationException::withMessages(array_map(fn($label)=>'Upload '.$label.'.',$missing));
+     if ($student->requests()->where('kind','scholarship')->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin'])->exists()) {
+      throw ValidationException::withMessages(['student_id'=>'This student already has an open application.']);
+     }
+     $term=DB::table('settings')->whereIn('key',['academic_year','semester'])->pluck('value','key');
+     $application=$student->requests()->create([
+      'ticket'=>'TFD-'.now()->format('Y').'-'.strtoupper(Str::random(8)),'kind'=>'scholarship','files'=>$files,
+      'details'=>[
+       'full_name'=>$fields['full_name']??$student->name,'student_id'=>$student->student_id,
+       'course'=>$fields['course']??$student->course,'year_level'=>$fields['year_level']??$student->year_level,
+       'academic_year'=>$fields['academic_year']??$term['academic_year']??now()->year.'–'.(now()->year+1),
+       'semester'=>$fields['semester']??$term['semester']??'1st Semester',
+       'reason'=>'Application recorded by SFU Head on behalf of student.',
+      ],
+     ]);
+     $this->audit($r,'scholar.recorded',$application->ticket);
+     StaffDrafts::consume($r->user(),'scholar',$draftId);
+    }
+
+    return array_column(array_intersect_key($priorFiles,$uploads),'path');
+   },3);
+  } catch (\Throwable $error) {
+   Storage::delete(array_column($uploads,'path'));
+   throw $error;
+  }
+
+  Storage::delete($replaced);
+  return back()->with('success',$savingDraft?'Scholar application draft saved.':'Application recorded for unit review.');
+ }
  public function adjustment(Request $r){$this->only($r,'slu_head');$v=$r->validate(['user_id'=>'required|exists:users,id','amount'=>'required|integer|between:-1000,1000|not_in:0','reason'=>'required|string|min:10|max:3000']);$u=User::findOrFail($v['user_id']);abort_unless($u->account_type==='student'&&$u->organization_id,422);$q=ServiceRequest::create(['user_id'=>$u->id,'ticket'=>'ADJ-'.now()->format('Y').'-'.strtoupper(Str::random(8)),'kind'=>'achievement','status'=>'unit_approved','details'=>['title'=>'Point Adjustment','description'=>$v['reason'],'awarded_points'=>$v['amount'],'adjustment'=>true],'review_note'=>$v['reason'],'reviewed_by'=>$r->user()->id,'reviewed_at'=>now()]);$this->audit($r,'request.unit_approved',$q->ticket,$v['reason']);return back()->with('success','Point adjustment sent to Assistant for forwarding. Points apply after final Admin approval.');}
  public function disposition(Request $r,ServiceRequest $serviceRequest){abort_unless($r->user()->role===$serviceRequest->office(),403);$v=$r->validate(['action'=>'required|in:archive,restore,release','review_note'=>'required|string|min:5|max:3000']);DB::transaction(function()use($r,$serviceRequest,$v){$q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);abort_unless(in_array($q->status,['approved','rejected','cancelled']),422);$details=$q->details;if($v['action']==='release'){abort_unless($q->status==='approved'&&in_array($q->kind,['lost','found','id-replacement']),422);$details['released']=true;$details['released_at']=now()->toIso8601String();}else $details['archived']=$v['action']==='archive';$q->update(['details'=>$details]);$this->audit($r,'request.'.$v['action'],$q->ticket,$v['review_note']);});return back()->with('success','Record updated.');}
 }

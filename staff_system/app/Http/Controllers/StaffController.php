@@ -18,14 +18,16 @@ class StaffController extends Controller {
  public function review(Request $r,ServiceRequest $serviceRequest){
   $this->requireCondition(in_array($r->user()->role,['admin','assistant'])||$serviceRequest->office()===$r->user()->role,403);
   $isMembershipRejection=$r->user()->role==='admin'&&$serviceRequest->kind==='leadership'&&$r->input('status')==='rejected';
+  $remarksOptional=$r->user()->role==='sfu_head'&&$serviceRequest->kind==='scholarship'&&in_array($r->input('status'),['unit_approved','approved'],true);
   $v=$r->validate(
-   ['status'=>'required|in:in_review,needs_revision,unit_approved,awaiting_admin,approved,rejected','review_note'=>'required|string|min:5|max:3000','discount_rate'=>'nullable|integer|between:0,100','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean','awarded_points'=>'nullable|integer|between:-1000,1000'],
+   ['status'=>'required|in:in_review,needs_revision,unit_approved,awaiting_admin,approved,rejected','review_note'=>($remarksOptional?'nullable':'required').'|string|min:5|max:3000','discount_rate'=>'nullable|integer|between:0,100','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean','awarded_points'=>'nullable|integer|between:-1000,1000'],
    [],
    $isMembershipRejection?['review_note'=>'reason for rejection']:[]
   );
+  $note=$v['review_note']??null;
   // Preserve the unit-head API action while distinguishing it from final approval.
   if($v['status']==='approved'&&in_array($r->user()->role,['sfu_head','cvu_head','slu_head']))$v['status']='unit_approved';
-  DB::transaction(function()use($r,$serviceRequest,$v){
+  DB::transaction(function()use($r,$serviceRequest,$v,$note){
    $q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);
    $this->requireCondition(array_key_exists($v['status'],$q->reviewActions($r->user())),422,'This action is not allowed at the current review stage. Unit approval must be forwarded by the assistant before admin approval.');
    $details=$q->details;
@@ -50,17 +52,17 @@ class StaffController extends Controller {
    if($q->kind==='clearance'&&in_array($v['status'],['unit_approved','approved']))$details['appointment_status']=$v['status']==='approved'?'completed':'confirmed';
    if($q->kind==='readmission'&&$v['status']==='approved'){$details['issued_at']=now()->toIso8601String();$details['issued_by']=$r->user()->name;$details['sent_at']=now()->toIso8601String();}
    if($q->kind==='seminar'&&$v['status']==='rejected')Attendance::where('event_id',$details['event_id']??0)->where('user_id',$q->user_id)->where('status','pending')->update(['status'=>'cancelled']);
-   $q->update(['status'=>$v['status'],'review_note'=>$v['review_note'],'details'=>$details,'reviewed_by'=>$r->user()->id,'reviewed_at'=>now()]);
-   $this->audit($r,'request.'.$v['status'],$q->ticket,$v['review_note']);
+   $q->update(['status'=>$v['status'],'review_note'=>$note,'details'=>$details,'reviewed_by'=>$r->user()->id,'reviewed_at'=>now()]);
+   $this->audit($r,'request.'.$v['status'],$q->ticket,$note??'');
    if($v['status']==='unit_approved')\App\Support\StaffAlerts::role('assistant','Unit approved: '.$q->ticket,'/workspace/request/'.$q->id);
    if($v['status']==='awaiting_admin')\App\Support\StaffAlerts::role('admin','Forwarded transaction: '.$q->ticket,'/workspace/request/'.$q->id);
    if(in_array($v['status'],['approved','needs_revision','rejected']))\App\Support\StaffAlerts::role($q->office(),'Review update: '.$q->ticket,'/workspace/request/'.$q->id,'feedback',$r->user()->id);
    $studentUrl=rtrim(config('app.student_portal_url','http://127.0.0.1:8001'),'/').(in_array($q->kind,['readmission','clearance','seminar'])&&$q->status!=='needs_revision'?'/cvu/submitted/':'/requests/').$q->id;
-   if($q->user->preferences['in_app']??true)$q->user->notifications()->create(['id'=>Str::uuid(),'type'=>'request','data'=>['title'=>$q->ticket.' '.$v['status'],'url'=>$studentUrl,'message'=>$v['review_note']]]);
+   if($q->user->preferences['in_app']??true)$q->user->notifications()->create(['id'=>Str::uuid(),'type'=>'request','data'=>['title'=>$q->ticket.' '.$v['status'],'url'=>$studentUrl,'message'=>$note??'']]);
    \App\Support\TransactionEmail::sendAfterCommit(
     $q->user,
     'iServe request update: '.$q->ticket,
-    'Your request '.$q->ticket.' is now '.str_replace('_',' ',$v['status']).".\n\n".$v['review_note']."\n\nView your request: ".$studentUrl,
+    'Your request '.$q->ticket.' is now '.str_replace('_',' ',$v['status']).".\n\n".($note?"$note\n\n":'').'View your request: '.$studentUrl,
     ['request_id'=>$q->id],
    );
   });return back()->with('success','Review saved. Notifications follow the applicant’s preferences.');
