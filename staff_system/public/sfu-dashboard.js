@@ -3,6 +3,70 @@ sfuFilters?.addEventListener('change', (event) => {
     if (event.target.matches('select')) sfuFilters.requestSubmit();
 });
 
+const contentCarousel = document.querySelector('[data-content-carousel]');
+if (contentCarousel) {
+    const slides = [...contentCarousel.querySelectorAll('[data-content-slide]')];
+    const dots = [...contentCarousel.querySelectorAll('[data-content-dot]')];
+    const status = contentCarousel.querySelector('[data-content-slide-status]');
+    let active = 0;
+
+    function showContentSlide(index) {
+        active = (index + slides.length) % slides.length;
+        slides.forEach((slide, position) => { slide.hidden = position !== active; });
+        dots.forEach((dot, position) => {
+            if (position === active) dot.setAttribute('aria-current', 'true');
+            else dot.removeAttribute('aria-current');
+        });
+        status.textContent = `Preview ${active + 1} of ${slides.length}`;
+    }
+
+    contentCarousel.querySelector('[data-content-prev]')?.addEventListener('click', () => showContentSlide(active - 1));
+    contentCarousel.querySelector('[data-content-next]')?.addEventListener('click', () => showContentSlide(active + 1));
+    dots.forEach((dot, index) => dot.addEventListener('click', () => showContentSlide(index)));
+    contentCarousel.addEventListener('keydown', (event) => {
+        if (slides.length < 2 || event.target.closest('[data-content-slide]') || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+        event.preventDefault();
+        showContentSlide(active + (event.key === 'ArrowLeft' ? -1 : 1));
+    });
+}
+
+document.querySelector('.slu-report-review-form')?.addEventListener('invalid', (event) => {
+    const details = event.target.closest('details');
+    if (details) details.open = true;
+}, true);
+
+const achievementReview = document.querySelector('[data-achievement-review]');
+if (achievementReview) {
+    const points = achievementReview.elements.awarded_points;
+    const impact = achievementReview.querySelector('[data-achievement-impact]');
+    const endorse = achievementReview.querySelector('[data-achievement-endorse]');
+    const format = new Intl.NumberFormat('en-PH');
+
+    function updateAchievementImpact() {
+        const amount = points.value === '' ? Number(achievementReview.dataset.defaultPoints) : points.valueAsNumber;
+        const valid = points.validity.valid && Number.isInteger(amount);
+        impact.textContent = valid
+            ? `${amount > 0 ? '+' : ''}${format.format(amount)} points after final approval`
+            : 'Enter a valid point amount';
+        if (endorse) endorse.textContent = valid ? `Endorse for ${format.format(amount)} Points` : 'Endorse to Assistant';
+    }
+    points.addEventListener('input', updateAchievementImpact);
+    updateAchievementImpact();
+}
+
+if (document.querySelector('[data-slu-event-calendar]')) {
+    function openLinkedEvent() {
+        const match = window.location.hash.match(/^#(event-\d+)-(attendance|entry)$/);
+        if (!match) return;
+        const [, event, target] = match;
+        if (target === 'entry' && document.getElementById(`${event}-entry`)) return;
+        const dialog = document.getElementById(target === 'attendance' ? `${event}-attendance` : event);
+        if (dialog && !dialog.open) dialog.showModal();
+    }
+    window.addEventListener('hashchange', openLinkedEvent);
+    openLinkedEvent();
+}
+
 const organizationForm = document.querySelector('[data-slu-org-create]');
 if (organizationForm) {
     const studentInput = organizationForm.elements.president_ref;

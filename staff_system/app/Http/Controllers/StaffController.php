@@ -18,7 +18,14 @@ class StaffController extends Controller {
  public function review(Request $r,ServiceRequest $serviceRequest){
   $this->requireCondition(in_array($r->user()->role,['admin','assistant'])||$serviceRequest->office()===$r->user()->role,403);
   $isMembershipRejection=$r->user()->role==='admin'&&$serviceRequest->kind==='leadership'&&$r->input('status')==='rejected';
-  $remarksOptional=$r->user()->role==='sfu_head'&&$serviceRequest->kind==='scholarship'&&in_array($r->input('status'),['unit_approved','approved'],true);
+  $unitApproval=in_array($r->input('status'),['unit_approved','approved'],true);
+  $remarksOptional=$unitApproval&&match($serviceRequest->kind){
+   'scholarship'=>$r->user()->role==='sfu_head',
+   'leadership'=>$r->user()->role==='slu_head',
+   'activity'=>$r->user()->role==='slu_head'&&empty($serviceRequest->details['completion_report']),
+   'achievement'=>$r->user()->role==='slu_head'&&empty($serviceRequest->details['adjustment']),
+   default=>false,
+  };
   $v=$r->validate(
    ['status'=>'required|in:in_review,needs_revision,unit_approved,awaiting_admin,approved,rejected','review_note'=>($remarksOptional?'nullable':'required').'|string|min:5|max:3000','discount_rate'=>'nullable|integer|between:0,100','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean','awarded_points'=>'nullable|integer|between:-1000,1000'],
    [],
@@ -91,7 +98,11 @@ class StaffController extends Controller {
     $path=$a->assignment_id?'/portal/values/community-service':'/portal/leadership/events#event-'.$a->event_id;
     \App\Support\StaffAlerts::account($a->user,'Attendance '.$a->status,$path,message:$r->review_note);
    }
-  });return back()->with('success','Attendance reviewed.');
+  });
+  $response=back()->with('success','Attendance reviewed.');
+  $dialog='event-'.$attendance->event_id.'-attendance';
+  if($attendance->event_id&&$r->input('_dialog')===$dialog)$response->with('attendance_dialog',$dialog);
+  return $response;
  }
  public function journal(Request $r,Journal $journal){
   $this->office($r,'cvu_head');$r->validate(['status'=>'required|in:approved,rejected']);

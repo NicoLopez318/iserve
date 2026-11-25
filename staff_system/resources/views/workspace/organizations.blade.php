@@ -1,19 +1,17 @@
 <section class="sfu-panel slu-org-directory" aria-labelledby="slu-org-title">
     <div class="slu-queue-heading slu-org-heading">
-        <h2 id="slu-org-title"><span class="slu-org-heading-icon" aria-hidden="true"></span>{{ $membershipTab ? 'Membership Applications' : 'Organization Directory' }}</h2>
+        <h2 id="slu-org-title"><span class="slu-org-heading-icon" aria-hidden="true"></span>{{ $membershipTab ? 'Membership Application' : 'Organization Directory' }}</h2>
         <button class="sfu-button" type="button" data-dialog="create-organization">Add Organization</button>
     </div>
 
     <nav class="slu-org-tabs" aria-label="Organization views">
         <a href="/workspace/organizations" @unless($membershipTab) aria-current="page" @endunless>Organization Directory</a>
         <span aria-hidden="true">/</span>
-        <a href="/workspace/organizations?tab=membership" @if($membershipTab) aria-current="page" @endif>Membership Applications</a>
+        <a href="/workspace/organizations?tab=membership" @if($membershipTab) aria-current="page" @endif>Membership Application</a>
     </nav>
 
     @if($membershipTab)
-        <div class="slu-org-membership">
-            @include('workspace.request-table', ['showHeading'=>false, 'queryTab'=>'membership'])
-        </div>
+        @include('workspace.organization-membership')
     @else
         <form class="sfu-filters slu-org-filters" method="get" action="/workspace/organizations" data-sfu-filters>
             <div class="sfu-search">

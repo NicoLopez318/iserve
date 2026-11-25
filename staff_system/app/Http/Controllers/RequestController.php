@@ -52,7 +52,7 @@ class RequestController extends Controller {
    });
   }catch(\Throwable $e){foreach($newPaths as $p)Storage::delete($p);throw $e;}
   if($draft){DB::table('proposal_drafts')->where('id',$draft->id)->delete();foreach(json_decode($draft->files,true) as $key=>$p)if(($paths[$key]['path']??null)!==$p['path'])Storage::delete($p['path']);}
-  \App\Support\StaffAlerts::role($q->office(),'New transaction: '.$q->ticket,'/workspace/request/'.$q->id);
+  \App\Support\StaffAlerts::role($q->office(),'New transaction: '.$q->ticket,'/workspace/request/'.$q->id,$kind==='activity'?'proposals':'submissions');
   return redirect('/requests/'.$q->id)->with('success','Your request has been submitted successfully.');
  }
  public function draft(Request $r){
@@ -118,8 +118,8 @@ class RequestController extends Controller {
  private function attachment(Request $r,ServiceRequest $serviceRequest,string $key):array {
   $this->access($r,$serviceRequest);
   $file=$serviceRequest->files[$key]??null;
-  $path=is_array($file)?($file['path']??null):$file;
-  abort_unless(is_string($path)&&$path!==''&&Storage::exists($path),404);
+  $path=$serviceRequest->attachmentPath($key);
+  abort_unless($path!==null&&Storage::exists($path),404);
   return ['path'=>$path,'name'=>basename(is_array($file)?($file['name']??$path):$path)];
  }
  private function access(Request $r,ServiceRequest $q){$this->requireCondition($q->user_id===$r->user()->id||($r->user()->isStaff()&&(in_array($r->user()->role,['admin','assistant'])||$q->office()===$r->user()->role)),403);}

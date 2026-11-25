@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\{DB,Storage,Hash};
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use App\Support\StaffDrafts;
+use App\Support\LeadershipPoints;
+use App\Support\PortalContent;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 class StaffPortalController extends Controller
@@ -89,50 +92,127 @@ class StaffPortalController extends Controller
   $menus=self::menus($r->user()->role);abort_unless(isset($menus[$page]),404);
   $sfuDashboard=$page==='dashboard'&&$r->user()->role==='sfu_head';
   $sluDashboard=$page==='dashboard'&&$r->user()->role==='slu_head';
+  $sluProposals=$page==='proposals'&&$r->user()->role==='slu_head';
+  $sluAchievements=$page==='achievements'&&$r->user()->role==='slu_head';
+  $fullProposalQueue=$sluProposals&&$r->query('queue')==='all';
   $sluOrganizations=$page==='organizations'&&$r->user()->role==='slu_head';
   $membershipTab=$sluOrganizations&&($r->query('tab')==='membership'||($r->filled('review')&&$r->query('tab')!=='directory'));
   $fullSluQueue=$sluDashboard&&$r->query('queue')==='all';
   $sfuQueue=$sfuDashboard||($page==='applications'&&$r->user()->role==='sfu_head');
   $sfuReports=$page==='reports'&&$r->user()->role==='sfu_head';
-  $scope=$this->scope($r);$kinds=['complaints'=>['complaint'],'lost-found'=>['lost','found'],'readmission'=>['readmission'],'id-replacement'=>['id-replacement'],'applications'=>['scholarship'],'organizations'=>['leadership'],'proposals'=>['activity','leadership'],'achievements'=>['achievement'],'clearance'=>['clearance'],'seminars'=>['seminar']];
+  $sluReports=$page==='reports'&&$r->user()->role==='slu_head';
+  $scope=$this->scope($r);$kinds=['complaints'=>['complaint'],'lost-found'=>['lost','found'],'readmission'=>['readmission'],'id-replacement'=>['id-replacement'],'applications'=>['scholarship'],'organizations'=>['leadership'],'proposals'=>['activity'],'achievements'=>['achievement'],'clearance'=>['clearance'],'seminars'=>['seminar']];
   if(isset($kinds[$page]))$scope->whereIn('kind',$kinds[$page]);
   if($unit=$this->unitRole($page))$scope->whereIn('kind',config('portal.office.'.$unit));
-  $scope->when($r->filled('search'),fn($q)=>$q->where(fn($x)=>$x->where('ticket','like','%'.$r->search.'%')->orWhereHas('user',fn($u)=>$u->where('name','like','%'.$r->search.'%')->orWhere('student_id','like','%'.$r->search.'%'))));
+  $scope->when($r->boolean('archive'),fn($q)=>$q->where('details->archived',true),fn($q)=>$q->where(fn($x)=>$x->whereNull('details->archived')->orWhere('details->archived',false)));
+  $achievementCategories=collect();
+  if($sluAchievements){
+   $scope->where(fn($query)=>$query->whereNull('details->adjustment')->orWhere('details->adjustment',false));
+   $achievementCategories=(clone $scope)->toBase()->select('details->category as category','details->award as award')
+    ->distinct()->get()->map(fn($item)=>filled($item->category)?$item->category:$item->award)
+    ->filter(fn($category)=>filled($category))->unique()->sort(SORT_NATURAL|SORT_FLAG_CASE);
+   if($r->filled('category')){
+    $category=$r->string('category')->toString();
+    $scope->where(fn($query)=>$query->where('details->category',$category)
+     ->orWhere(fn($legacy)=>$legacy->where(fn($empty)=>$empty->whereNull('details->category')->orWhere('details->category',''))
+      ->where('details->award',$category)));
+   }
+  }
+  if($r->filled('search')){
+   $term='%'.$r->string('search')->trim().'%';
+   $scope->where(fn($query)=>$query->where('ticket','like',$term)
+    ->orWhereHas('user',fn($user)=>$user->where('name','like',$term)->orWhere('student_id','like',$term))
+    ->when($membershipTab,fn($membership)=>$membership->orWhereIn('details->organization_id',Organization::select('id')->where('name','like',$term)))
+    ->when($sluProposals||$sluAchievements,fn($submission)=>$submission->orWhere('details->title','like',$term)
+     ->orWhere(fn($organization)=>$this->filterRequestOrganization($organization,Organization::select('id')->where('name','like',$term)))));
+  }
+  if($membershipTab&&$r->filled('organization')){
+   $organizationId=$r->integer('organization');
+   $scope->whereIn('details->organization_id',[$organizationId,(string)$organizationId]);
+  }
+  if(($sluProposals||$sluAchievements)&&$r->filled('organization')){
+   $this->filterRequestOrganization($scope,Organization::select('id')->whereKey($r->integer('organization')));
+  }
   $scope->when($r->filled('status'),fn($q)=>$sfuQueue&&$r->status==='pending'
    ?$q->whereIn('status',['pending','in_review']):$q->where('status',$r->status));
   $scope->when($sfuQueue&&$r->filled('program'),fn($q)=>$q->whereHas('user',fn($user)=>$user->where('course',$r->string('program')->toString())));
   if($page==='points')$scope->where('details->adjustment',true)->whereIn('status',['unit_approved','awaiting_admin']);
-  $scope->when($r->boolean('archive'),fn($q)=>$q->where('details->archived',true),fn($q)=>$q->where(fn($x)=>$x->whereNull('details->archived')->orWhere('details->archived',false)));
   if($sluDashboard&&!$fullSluQueue&&!$r->filled('status'))$scope->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin']);
-  $queueSize=$fullSluQueue?15:(($sfuDashboard||$sluDashboard)?4:5);
-  $requests=$scope->latest()->paginate($queueSize,['*'],'transactions')->withQueryString();
-  if($sfuQueue&&!$sfuDashboard)$requests->appends(['review'=>null,'report'=>null]);
-  $reports=$this->reports($r)->when($unit,fn($q)=>$q->whereHas('user',fn($u)=>$u->where('role',$unit)))->when($r->filled('search'),fn($q)=>$q->where('title','like','%'.$r->search.'%'))->when($r->filled('status'),fn($q)=>$q->where('status',$r->status))
+  $queueSize=$fullSluQueue||$fullProposalQueue?15:(($sfuDashboard||$sluDashboard||$sluProposals)?4:5);
+  $requests=$scope->latest()->when($sluProposals||$sluAchievements,fn($query)=>$query->orderByDesc('id'))
+   ->paginate($queueSize,['*'],'transactions')->withQueryString();
+  if(($sfuQueue&&!$sfuDashboard)||$membershipTab||$sluProposals||$sluAchievements||$page==='points')$requests->appends(['review'=>null,'report'=>null]);
+  $reportQuery=$this->reports($r)->when($unit,fn($q)=>$q->whereHas('user',fn($u)=>$u->where('role',$unit)));
+  $reportPeriods=$sluReports?$this->filterSluReportPeriod($r,$reportQuery):[];
+  $sluReportActivity=$sluReports?$this->scope($r)->selectRaw('kind, count(*) as total')->groupBy('kind')->pluck('total','kind'):collect();
+  if($r->filled('search')){
+   $search=$r->string('search')->trim()->toString();
+   $reportId=$sluReports&&preg_match('/\A(?:RPT-SLU-)?([0-9]+)\z/i',$search,$matches)?(int)$matches[1]:null;
+   $reportQuery->where(fn($q)=>$q->where('title','like','%'.$search.'%')->when($reportId,fn($match)=>$match->orWhere('id',$reportId)));
+  }
+  $reports=$reportQuery->when($r->filled('status'),fn($q)=>$q->where('status',$r->status))
    ->when($sfuReports&&$r->filled('semester'),fn($q)=>$q->where('semester',$r->string('semester')->toString()))
-   ->latest()->paginate(in_array($r->user()->role,['admin','assistant'])?4:5,['*'],'reports');
-  $reports->appends($sfuReports?$r->except(['report','review']):$r->query());
+   ->latest()->when($sluReports,fn($q)=>$q->orderByDesc('id'))->paginate(in_array($r->user()->role,['admin','assistant'])?4:5,['*'],'reports');
+  $reports->appends($sfuReports||$sluReports?$r->except(['report','review']):$r->query());
   $counts=$this->scope($r)->selectRaw('status,count(*) as total')->groupBy('status')->pluck('total','status');
   $reportCounts=$this->reports($r)->selectRaw('status,count(*) as total')->groupBy('status')->pluck('total','status');
-  $organizations=Organization::withCount('members')->get();$events=Event::withCount(['attendances'=>fn($q)=>$q->when($page==='seminars',fn($x)=>$x->where('status','<>','cancelled'))])->latest()->get();
-  $eventVenues=$page==='events'
-   ?Event::venueChoices($events->where('type','leadership')->pluck('venue'))
-   :collect();
+  $organizations=Organization::withCount('members')->get();
+  $events=Event::withCount(['attendances'=>fn($q)=>$q->when($page==='seminars',fn($x)=>$x->where('status','<>','cancelled'))])->latest()->get();
+  $eventVenues=collect();
+  $eventCalendar=null;
+  if($page==='events'){
+   $leadershipEvents=$events->where('type','leadership')->load('attendances.user');
+   $eventVenues=Event::venueChoices($leadershipEvents->pluck('venue'));
+   $eventCalendar=$this->eventCalendar($r,$leadershipEvents);
+  }
   $assignments=Assignment::with(['user','attendances','journals'])->latest()->get();$students=User::where('account_type','student')->get();
   $attendance=Attendance::with(['user','event','assignment'])->where('status','pending')->get();$journals=Journal::with('assignment.user')->where('status','pending')->get();
   $points=Point::with('user')->latest()->get();
-  $organizationPoints=($page==='points'||($sluOrganizations&&!$membershipTab))?Point::join('users','points.user_id','=','users.id')
+  $organizationPoints=($sluOrganizations&&!$membershipTab)?Point::join('users','points.user_id','=','users.id')
    ->whereNotNull('users.organization_id')->selectRaw('users.organization_id, SUM(points.amount) AS total')
    ->groupBy('users.organization_id')->pluck('total','users.organization_id'):collect();
-  $rankings=$page==='points'?$organizations->map(fn($o)=>['organization'=>$o,'total'=>$organizationPoints[$o->id]??0])->sortByDesc('total')->values():collect();
-  $sfuSettings=$page==='settings'&&$r->user()->role==='sfu_head';
+  $leadershipPoints=null;
+  $scoringPublication=null;
+  $scoringHistory=collect();
+  if($page==='points'){
+   $leadershipPoints=LeadershipPoints::dashboard($organizations,$points,$r->string('term')->toString(),$r->string('department')->toString());
+   $ledger=$leadershipPoints['ledger'];
+   $fullLedger=$r->query('ledger')==='all';
+   $ledgerPage=max(1,min((int)ceil($ledger->count()/15),$r->integer('ledger_page',1)));
+   $leadershipPoints['ledger']=$fullLedger
+    ?(new LengthAwarePaginator($ledger->forPage($ledgerPage,15),$ledger->count(),15,$ledgerPage,['path'=>$r->url(),'pageName'=>'ledger_page']))
+     ->appends($r->except(['review','report']))
+    :$ledger->take(3);
+   $pendingAwards=ServiceRequest::where('kind','achievement')
+    ->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin']);
+   $scoringPublication=[
+    'awards'=>(clone $pendingAwards)->where(fn($query)=>$query->whereNull('details->adjustment')->orWhere('details->adjustment',false))->count(),
+    'adjustments'=>$pendingAwards->where('details->adjustment',true)->count(),
+   ];
+   $scoringHistory=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')
+    ->where('audit_logs.action','points.rules')->latest('audit_logs.id')->limit(20)
+    ->get(['audit_logs.details','audit_logs.created_at','users.name']);
+  }
+  $unitSettings=$page==='settings'&&in_array($r->user()->role,['sfu_head','slu_head'],true);
   $audit=DB::table('audit_logs')->when(!in_array($r->user()->role,['admin','assistant']),fn($q)=>$q->where('user_id',$r->user()->id))
-   ->when($sfuSettings,fn($q)=>$q->where('action','account.login'))->latest('id')->limit($sfuSettings?20:80)->get();
-  $announcements=DB::table('announcements')->where('unit','leadership')->latest('id')->get();$slots=array_map(fn($slot)=>[...$slot,'end'=>$slot['end']??'—'],$this->metadata('clearance-slots'));$rules=$this->metadata('points-rules');
-  $designs=json_decode(file_get_contents(base_path('design-pages.json')),true);$design=$designs[$r->user()->role][$page]??['title'=>$menus[$page],'description'=>''];foreach($design['cards']??[] as $i=>$card)$design['cards'][$i]['value']=$this->cardValue($r,$card['label'],$page);
+   ->when($unitSettings,fn($q)=>$q->where('action','account.login'))->latest('id')->limit($unitSettings?20:80)->get();
+  $contentLibrary=$page==='content'?$this->contentLibrary($r):null;
+  $slots=array_map(fn($slot)=>[...$slot,'end'=>$slot['end']??'—'],$this->metadata('clearance-slots'));$rules=$this->metadata('points-rules');
+  $designs=json_decode(file_get_contents(base_path('design-pages.json')),true);$design=$designs[$r->user()->role][$page]??['title'=>$menus[$page],'description'=>''];
+  if(!$sluReports)foreach($design['cards']??[] as $i=>$card)$design['cards'][$i]['value']=$this->cardValue($r,$card['label'],$page);
   $selectedRequest=null;$selectedHistory=collect();
   if(!$r->filled('report')&&$r->filled('review')){$r->validate(['review'=>'integer|min:1']);$selectedRequest=$this->scope($r)->findOrFail($r->integer('review'));}
   elseif($sfuDashboard)$selectedRequest=$requests->first();
   if($selectedRequest){$selectedRequest->load(['user','reviewer']);$selectedHistory=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject',$selectedRequest->ticket)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();}
+  $achievementMatch=null;
+  if($sluAchievements&&$selectedRequest?->kind==='achievement'&&empty($selectedRequest->details['adjustment'])){
+   $details=$selectedRequest->details??[];
+   if(filled($details['title']??null)&&filled($details['achievement_date']??null)){
+    $achievementMatch=$this->scope($r)->where('kind','achievement')->where('id','<>',$selectedRequest->id)
+     ->where('user_id',$selectedRequest->user_id)->whereNotIn('status',['cancelled','rejected'])
+     ->where('details->title',$details['title'])->where('details->achievement_date',$details['achievement_date'])->exists();
+   }
+  }
   $selectedReport=null;$reportHistory=collect();if($r->filled('report')){$r->validate(['report'=>'integer|min:1']);$selectedReport=$this->reports($r)->findOrFail($r->integer('report'));$reportHistory=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject','report:'.$selectedReport->id)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();}
   $sfuPrograms=$sfuQueue?User::whereIn('id',$this->scope($r)->select('user_id'))
    ->whereNotNull('course')->where('course','<>','')->distinct()->orderBy('course')->pluck('course'):collect();
@@ -141,7 +221,66 @@ class StaffPortalController extends Controller
   $sluActivity=$sluDashboard?$this->sluActivity($r):collect();
   $orgDirectory=$sluOrganizations&&!$membershipTab?$this->organizationDirectory($r,$organizations,$organizationPoints):null;
   $orgForm=$sluOrganizations?$this->organizationFormOptions():null;
-  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','counts','reportCounts','organizations','events','eventVenues','assignments','students','attendance','journals','points','rankings','audit','announcements','slots','rules','sfuPrograms','sfuSummary','fullSluQueue','sluDeadlines','sluActivity','membershipTab','orgDirectory','orgForm'));
+  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','reportPeriods','sluReportActivity','counts','reportCounts','organizations','events','eventVenues','eventCalendar','assignments','students','attendance','journals','points','leadershipPoints','scoringPublication','scoringHistory','audit','contentLibrary','slots','rules','sfuPrograms','sfuSummary','fullSluQueue','fullProposalQueue','sluDeadlines','sluActivity','membershipTab','orgDirectory','orgForm','achievementCategories','achievementMatch'));
+ }
+ private function contentLibrary(Request $request):array
+ {
+  $entries=PortalContent::library(DB::table('announcements')->where('unit','leadership')->latest('id')->get());
+  $preview=$entries->where('status','published')->sortByDesc('start')->take(6)->values();
+  $search=$request->string('search')->trim()->toString();
+  $rows=$entries->when($search!=='',fn($list)=>$list->filter(fn($entry)=>str_contains(
+   Str::lower(implode(' ',[$entry['item']->title,$entry['item']->body,$entry['type'],$entry['location']])),Str::lower($search)
+  )));
+  foreach(['type','location','status'] as $filter){
+   if($request->filled($filter))$rows=$rows->where($filter,$request->string($filter)->toString());
+  }
+  $pageSize=8;
+  $page=max(1,min((int)ceil($rows->count()/$pageSize),$request->integer('content_page',1)));
+  $library=(new LengthAwarePaginator($rows->forPage($page,$pageSize)->values(),$rows->count(),$pageSize,$page,
+   ['path'=>$request->url(),'pageName'=>'content_page']))->withQueryString();
+  return compact('library','preview');
+ }
+ private function filterSluReportPeriod(Request $request,\Illuminate\Database\Eloquent\Builder $query):array
+ {
+  $months=[];$terms=[];
+  $periods=(clone $query)->toBase()->select('semester','academic_year','snapshot->date_from as date_from','snapshot->date_to as date_to')->distinct()->get();
+  foreach($periods as $period){
+   $month=Report::reportingMonth($period->date_from,$period->date_to);
+   if($month)$months['month:'.$month]=\Carbon\CarbonImmutable::createFromFormat('!Y-m',$month)->format('F Y');
+   $terms['term:'.$period->semester.':'.$period->academic_year]=[$period->semester,$period->academic_year];
+  }
+  krsort($months);
+  $selection=$request->string('period')->toString();
+  if(isset($months[$selection])){
+   $month=substr($selection,6).'-%';
+   $query->where('snapshot->date_from','like',$month)->where('snapshot->date_to','like',$month);
+  }elseif(isset($terms[$selection])){
+   [$semester,$year]=$terms[$selection];
+   $query->where('semester',$semester)->where('academic_year',$year);
+  }
+  return $months+array_map(fn($term)=>implode(' · ',$term),$terms);
+ }
+ private function eventCalendar(Request $request,Collection $events):array
+ {
+  $monthKey=$request->string('month')->toString();
+  $selectedMonth=preg_match('/\A[1-9][0-9]{3}-(?:0[1-9]|1[0-2])\z/',$monthKey);
+  $month=$selectedMonth?\Carbon\CarbonImmutable::createFromFormat('!Y-m',$monthKey):today()->toImmutable()->startOfMonth();
+  $now=now();
+  [$upcoming,$past]=$events->partition(fn($event)=>$event->starts_at->gte($now));
+  $chronological=$upcoming->sortBy('starts_at')->concat($past->sortByDesc('starts_at'));
+  $monthEvents=$events->filter(fn($event)=>$event->starts_at->isSameMonth($month))->sortBy('starts_at');
+  $days=$monthEvents->groupBy(fn($event)=>$event->starts_at->toDateString());
+  $all=$request->query('list')==='all';
+  $list=$all?$chronological:($selectedMonth?$monthEvents:$chronological)->take(4);
+  $monthChoices=collect(range(-6,6))->map(fn($offset)=>$month->addMonths($offset)->format('Y-m'))
+   ->merge($events->map(fn($event)=>$event->starts_at->format('Y-m')))->unique()->sort();
+  return compact('month','days','list','all','monthChoices');
+ }
+ private function filterRequestOrganization($query,$organizationIds)
+ {
+  return $query->where(fn($proposal)=>$proposal->whereIn('details->organization_id',$organizationIds)
+   ->orWhere(fn($fallback)=>$fallback->whereNull('details->organization_id')
+    ->whereHas('user',fn($applicant)=>$applicant->whereIn('organization_id',$organizationIds))));
  }
  private function organizationFormOptions():array
  {
@@ -311,9 +450,19 @@ class StaffPortalController extends Controller
   $item=Report::create(['user_id'=>$r->user()->id,'title'=>$v['title'],'academic_year'=>$v['academic_year'],'semester'=>$v['semester'],'summary'=>$v['summary'],'snapshot'=>[...$snapshot,'files'=>$files,'version'=>1,'versions'=>[]],'status'=>$r->boolean('draft')?'draft':'pending']);$this->audit($r,'report.'.$item->status,'report:'.$item->id,$v['summary']);if($item->status==='pending')\App\Support\StaffAlerts::role('assistant','New unit report: '.$item->title,'/workspace/report/'.$item->id);return redirect('/workspace/report/'.$item->id)->with('success',$r->boolean('draft')?'Draft saved.':'Report submitted to Assistant.');
  }
  public function reportUpdate(Request $r,Report $report){
-  $v=$r->validate(['summary'=>'nullable|string|min:30|max:5000','review_note'=>'nullable|string|min:5|max:3000','status'=>'required|in:pending,draft,awaiting_admin,needs_revision,assistant_revision,approved,rejected','check_content'=>'sometimes|accepted','check_files'=>'sometimes|accepted','check_source'=>'sometimes|accepted','attachments'=>'nullable|array|max:5','attachments.*'=>'file|max:10240|mimes:pdf,png,jpg,jpeg,xlsx,csv,docx']);
+  $v=$r->validate(['summary'=>'nullable|string|min:30|max:5000','unit_note'=>'sometimes|nullable|string|max:3000','review_note'=>'nullable|string|min:5|max:3000','status'=>'required|in:pending,draft,awaiting_admin,needs_revision,assistant_revision,approved,rejected','check_content'=>'sometimes|accepted','check_files'=>'sometimes|accepted','check_source'=>'sometimes|accepted','attachments'=>'nullable|array|max:5','attachments.*'=>'file|max:10240|mimes:pdf,png,jpg,jpeg,xlsx,csv,docx']);
   DB::transaction(function()use($r,$report,$v){$q=Report::lockForUpdate()->findOrFail($report->id);$role=$r->user()->role;$previousStatus=$q->status;
-   if($q->user_id===$r->user()->id){abort_unless(in_array($q->status,['draft','needs_revision'])&&in_array($v['status'],['draft','pending'])&&isset($v['summary']),422);$snapshot=$q->snapshot;if(!isset($snapshot['records']))$snapshot=['records'=>$snapshot,'version'=>1,'versions'=>[]];$snapshot['versions'][]=['version'=>$snapshot['version']??1,'summary'=>$q->summary,'status'=>$q->status,'files'=>$snapshot['files']??[],'records'=>$snapshot['records'],'saved_at'=>now()->toIso8601String()];if(isset($snapshot['date_from'],$snapshot['date_to']))$snapshot=[...$snapshot,...$this->snapshot($r,$snapshot['date_from'],$snapshot['date_to'])];if($r->hasFile('attachments')){$files=[];foreach($r->file('attachments') as $f)$files[]=['path'=>$f->store('staff-reports'),'name'=>$f->getClientOriginalName(),'size'=>$f->getSize()];$snapshot['files']=$files;}$snapshot['version']=($snapshot['version']??1)+1;unset($snapshot['admin_review_started_at']);$q->update(['summary'=>$v['summary'],'snapshot'=>$snapshot,'status'=>$v['status']]);
+   if($q->user_id===$r->user()->id){
+    abort_unless(in_array($q->status,['draft','needs_revision'])&&in_array($v['status'],['draft','pending'])&&isset($v['summary']),422);
+    $snapshot=$q->snapshot;
+    if(!isset($snapshot['records']))$snapshot=['records'=>$snapshot,'version'=>1,'versions'=>[]];
+    $snapshot['versions'][]=['version'=>$snapshot['version']??1,'summary'=>$q->summary,'unit_note'=>$snapshot['unit_note']??null,'status'=>$q->status,'files'=>$snapshot['files']??[],'records'=>$snapshot['records'],'saved_at'=>now()->toIso8601String()];
+    if(isset($snapshot['date_from'],$snapshot['date_to']))$snapshot=[...$snapshot,...$this->snapshot($r,$snapshot['date_from'],$snapshot['date_to'])];
+    if($r->hasFile('attachments')){$files=[];foreach($r->file('attachments') as $f)$files[]=['path'=>$f->store('staff-reports'),'name'=>$f->getClientOriginalName(),'size'=>$f->getSize()];$snapshot['files']=$files;}
+    if($role==='slu_head'&&array_key_exists('unit_note',$v))$snapshot['unit_note']=$v['unit_note'];
+    $snapshot['version']=($snapshot['version']??1)+1;
+    unset($snapshot['admin_review_started_at']);
+    $q->update(['summary'=>$v['summary'],'snapshot'=>$snapshot,'status'=>$v['status']]);
    }else{
     $allowed=$role==='assistant'&&in_array($q->status,['pending','assistant_revision'])?['awaiting_admin','needs_revision']:($role==='admin'&&$q->status==='awaiting_admin'?['approved','rejected','assistant_revision']:[]);
     abort_unless(in_array($v['status'],$allowed)&&isset($v['review_note']),422,'Report is not at your review stage.');
@@ -427,7 +576,8 @@ class StaffPortalController extends Controller
  public function settings(Request $r)
  {
   $user=$r->user();
-  $action=$user->role==='sfu_head'?$r->input('save'):null;
+  $unitSettings=in_array($user->role,['sfu_head','slu_head'],true);
+  $action=$unitSettings?$r->input('save'):null;
   $defaults=['theme'=>'required|in:Light,Dark','date_format'=>'required|in:mm/dd/yyyy,dd/mm/yyyy','time_format'=>'required|in:12,24'];
   $password=['current_password'=>'nullable|required_with:password|current_password','password'=>'nullable|confirmed|min:12'];
 
@@ -439,11 +589,13 @@ class StaffPortalController extends Controller
   } else {
    $values=$r->validate([...$defaults,...$password,'email'=>'nullable|boolean','in_app'=>'nullable|boolean','two_factor'=>'nullable|boolean','alerts'=>'nullable|array','alerts.*'=>'boolean']);
    if ($r->boolean('two_factor')&&!$user->hasVerifiedEmail()) {
-    abort_unless($user->role==='sfu_head',422);
+    abort_unless($unitSettings,422);
     throw ValidationException::withMessages(['two_factor'=>'Verify your email before enabling two-step verification.']);
    }
+   $alerts=$values['alerts']??[];
+   if($user->role==='slu_head')$alerts=array_replace($user->preferences['alerts']??[],$alerts);
    $user->preferences=[...($user->preferences??[]),...array_intersect_key($values,$defaults),
-    'email'=>$r->boolean('email'),'in_app'=>$r->boolean('in_app'),'alerts'=>$values['alerts']??[],
+    'email'=>$r->boolean('email'),'in_app'=>$r->boolean('in_app'),'alerts'=>$alerts,
    ];
    $user->two_factor=$r->boolean('two_factor');
    if ($r->filled('password')) $user->password=$values['password'];
@@ -454,7 +606,16 @@ class StaffPortalController extends Controller
   return back()->with('success',match($action){'password'=>'Password changed.','defaults'=>'Unit defaults saved.',default=>'Settings saved.'});
  }
  public function backup(Request $r){$role=$r->user()->role;$data=['created_at'=>now()->toIso8601String(),'unit'=>$role,'requests'=>$this->scope($r)->get()->map(fn($q)=>$q->only(['ticket','kind','status','details','created_at'])),'reports'=>$this->reports($r)->get()->map(fn($q)=>$q->only(['id','title','summary','snapshot','status','created_at']))];$this->audit($r,'backup.export',$role);return response()->streamDownload(fn()=>print(json_encode($data,JSON_PRETTY_PRINT)),'iServe-'.$role.'-'.now()->format('Ymd-His').'.json',['Content-Type'=>'application/json']);}
- public function rules(Request $r){$this->only($r,'slu_head');$v=$r->validate(['event'=>'required|integer|between:0,1000','achievement'=>'required|integer|between:0,1000','report'=>'required|integer|between:0,1000','participant'=>'required|integer|between:0,1000','penalty'=>'nullable|integer|between:0,1000']);$v['penalty']=$v['penalty']??0;$this->saveMetadata('points-rules',$v);$this->audit($r,'points.rules','SLU',json_encode($v));return back()->with('success','Scoring rules saved.');}
+ public function rules(Request $r){
+  $this->only($r,'slu_head');
+  $v=$r->validate(['event'=>'required|integer|between:0,1000','achievement'=>'required|integer|between:0,1000','report'=>'required|integer|between:0,1000','participant'=>'required|integer|between:0,1000','penalty'=>'nullable|integer|between:0,1000']);
+  $v['penalty']=$v['penalty']??0;
+  DB::transaction(function()use($r,$v){
+   $this->saveMetadata('points-rules',$v);
+   $this->audit($r,'points.rules','SLU',json_encode($v));
+  });
+  return back()->with('success','Scoring rules saved.')->with('scoring_rules_saved',true);
+ }
  public function assignment(Request $r){$this->only($r,'cvu_head');\App\Support\StaffDrafts::assertOwned($r->user(),'assignment',$r->input('draft_id'));$schedule=$r->validate(['start_date'=>'required|date','target_date'=>'required|date|after_or_equal:start_date','duty_start'=>'required|date_format:H:i','duty_end'=>'required|date_format:H:i|after:duty_start']);$r->merge(['note'=>trim(($r->note??'')."\nStart: ".$schedule['start_date']."; Target: ".$schedule['target_date']."; Duty: ".$schedule['duty_start'].' - '.$schedule['duty_end'])]);$response=app(StaffController::class)->assignment($r);\App\Support\StaffDrafts::consume($r->user(),'assignment',$r->input('draft_id'));return $response;}
  public function assignmentUpdate(Request $r,Assignment $assignment){$this->only($r,'cvu_head');$v=$r->validate(['department'=>'required|string|max:120','supervisor'=>'required|string|max:120','required_hours'=>'required|integer|between:1,500','note'=>'nullable|string|max:3000']);abort_unless($assignment->status==='active'&&$v['required_hours']*60>=$assignment->approvedMinutes(),422);$assignment->update(['department'=>$v['department'],'supervisor'=>$v['supervisor'],'required_minutes'=>$v['required_hours']*60,'note'=>$v['note']??null]);$this->audit($r,'assignment.update',$assignment->record_number);return back()->with('success','Assignment saved.');}
  public function content(Request $r,?int $id=null){

@@ -22,7 +22,7 @@ class EventCompletionController extends Controller
             DB::table('audit_logs')->insert(['user_id'=>$request->user()->id,'action'=>'request.submitted','subject'=>$item->ticket,'created_at'=>now()]);
             return $item;
         });}catch(\Throwable $error){Storage::delete($path);throw $error;}
-        StaffAlerts::role('slu_head','Event completion report: '.$item->ticket,'/workspace/request/'.$item->id);
+        StaffAlerts::role('slu_head','Event completion report: '.$item->ticket,'/workspace/request/'.$item->id,'organization_reports');
         return redirect('/requests/'.$item->id)->with('success','Completion report submitted for SLU, Assistant and Admin review.');
     }
 }

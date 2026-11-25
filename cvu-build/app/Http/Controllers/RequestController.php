@@ -60,7 +60,7 @@ class RequestController extends Controller {
    });
   }catch(\Throwable $e){foreach($newPaths as $p)Storage::delete($p);throw $e;}
   if($draft){DB::table('proposal_drafts')->where('id',$draft->id)->delete();foreach(json_decode($draft->files,true) as $key=>$p)if(($paths[$key]['path']??null)!==$p['path'])Storage::delete($p['path']);}
-  \App\Support\StaffAlerts::role($q->office(),'New transaction: '.$q->ticket,'/workspace/request/'.$q->id);
+  \App\Support\StaffAlerts::role($q->office(),'New transaction: '.$q->ticket,'/workspace/request/'.$q->id,$kind==='activity'?'proposals':'submissions');
   return redirect('/requests/'.$q->id)->with('success','Your request has been submitted successfully.');
  }
  public function draft(Request $r){

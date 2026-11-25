@@ -16,7 +16,13 @@ final class StaffAlerts
     public static function account(User $user, string $title, string $path, string $category = 'feedback', string $message = ''): void
     {
         $preferences = $user->preferences ?? [];
-        if (!($preferences['alerts'][$category] ?? true)) {
+        $alerts = $preferences['alerts'] ?? [];
+        $fallback = match ($category) {
+            'proposals', 'event_updates', 'organization_reports' => $alerts['submissions'] ?? true,
+            'event_resubmitted' => $alerts['event_updates'] ?? $alerts['resubmitted'] ?? true,
+            default => true,
+        };
+        if (!($alerts[$category] ?? $fallback)) {
             return;
         }
 

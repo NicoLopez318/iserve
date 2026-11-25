@@ -139,9 +139,40 @@ class StaffPortalTest extends TestCase {
   $this->get($files.'missing/preview')->assertNotFound();
 
   $this->actingAs($this->actor('slu_head'))->get('/workspace/organizations?review='.$application->id)
-   ->assertOk()->assertSee('Membership Applications')->assertSee('MEMBERSHIP-REVIEW')->assertSee($preview)
+   ->assertOk()->assertSee('Leadership Application Review')->assertSee('MEMBERSHIP-REVIEW')->assertSee($preview)
+   ->assertSeeTextInOrder(['Student Information','Enrollment Status','Application Details','Requirement Checklist',
+    'Endorsement Letter','Certificate of Candidacy','Scanned Copy of ID','Copy of Enrollment Form','Reviewer Remarks'])
+   ->assertSeeHtml('alt="Attached"')->assertSeeHtml('alt="Missing"')
+   ->assertSee($files.'endorsement/view')
    ->assertDontSee('class="drawer review-drawer"',false);
   $this->get($preview)->assertOk();
+ }
+
+ public function test_membership_dialog_decisions_keep_the_unit_approval_workflow():void {
+  $head=$this->actor('slu_head');
+  $student=$this->actor('student');
+  $organization=\App\Models\Organization::create(['name'=>'Campus Technology Society']);
+  $application=ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'MEMBERSHIP-DECISION','kind'=>'leadership',
+   'details'=>['organization_id'=>(string)$organization->id,'position'=>'Secretary','academic_year'=>'2026-2027',
+    'applicant'=>['name'=>'Applicant at Submission','student_id'=>'2023-2636','course'=>'BS Information Technology','year_level'=>'3rd Year']],
+  ]);
+  $url='/workspace/organizations?tab=membership&review='.$application->id;
+  $decision='/staff/requests/'.$application->id;
+  $this->actingAs($head)->get($url)->assertOk()->assertSeeTextInOrder([
+   'Leadership Application Review','Applicant at Submission','2023-2636','BS Information Technology','3rd Year',
+   'Campus Technology Society','Secretary','2026-2027','Return for Correction','Reject Application','Approve & Send to Assistant',
+  ]);
+
+  foreach(['needs_revision','rejected'] as $status){
+   $this->from($url)->post($decision,['status'=>$status])->assertRedirect($url)->assertSessionHasErrors('review_note');
+   $this->assertSame('pending',$application->fresh()->status);
+  }
+  $this->from($url)->post($decision,['status'=>'unit_approved'])->assertRedirect($url)->assertSessionHasNoErrors();
+  $this->assertSame('unit_approved',$application->fresh()->status);
+  $this->assertNull($application->fresh()->review_note);
+  $this->assertNull($student->fresh()->organization_id);
+  $this->get($url)->assertOk()->assertSeeText('Unit Approved')->assertDontSeeText('Approve & Send to Assistant');
  }
  public function test_all_role_screens_render_with_real_empty_data():void{foreach(['admin','assistant','sfu_head','cvu_head','slu_head'] as $role){$actor=$this->actor($role);foreach(StaffPortalController::menus($role) as $page=>$label){$this->actingAs($actor)->get('/workspace/'.$page)->assertOk()->assertSee($label);}}}
  public function test_staff_only_login_and_pages():void{$student=$this->actor('student');$this->post('/login',['login'=>$student->email,'password'=>'TestingPassword123!'])->assertSessionHasErrors('login');$this->assertGuest();$this->actingAs($student)->get('/workspace')->assertForbidden();$sfu=$this->actor('sfu_head');$this->actingAs($sfu)->get('/workspace/organizations')->assertNotFound();}

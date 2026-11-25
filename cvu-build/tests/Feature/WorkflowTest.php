@@ -16,6 +16,8 @@ class WorkflowTest extends TestCase {
  private function assignment(User $u):Assignment{return Assignment::create(['user_id'=>$u->id,'record_number'=>uniqid('CV-'),'offense'=>'Conduct','severity'=>'Minor','department'=>'IT','supervisor'=>'Supervisor','required_minutes'=>120]);}
  public function test_activity_drafts_are_private_and_submit_retained_documents():void{
   Storage::fake('local');$org=Organization::create(['name'=>'Draft Organization']);$u=$this->user('student',['organization_id'=>$org->id]);$this->actingAs($u);
+  $following=$this->user('slu_head',['preferences'=>['alerts'=>['proposals'=>true,'submissions'=>false]]]);
+  $muted=$this->user('slu_head',['preferences'=>['alerts'=>['proposals'=>false,'submissions'=>true]]]);
   $this->post('/proposal-draft',['details'=>['title'=>'Saved activity'],'documents'=>['pre_intent'=>$this->image()]])->assertRedirect('/apply/activity');
   $this->assertDatabaseCount('service_requests',0);$this->assertDatabaseHas('proposal_drafts',['user_id'=>$u->id]);
   $this->get('/apply/activity')->assertOk()->assertSee('Saved activity')->assertSee('photo.png');
@@ -24,6 +26,8 @@ class WorkflowTest extends TestCase {
   $this->assertDatabaseCount('proposal_drafts',1);
   $this->post('/apply/activity',['declaration'=>1,'details'=>['title'=>'Submitted activity','description'=>'A complete activity description','venue'=>'Campus','starts_at'=>now()->addDays(2)->format('Y-m-d H:i'),'ends_at'=>now()->addDays(2)->addHours(2)->format('Y-m-d H:i'),'capacity'=>50,'points'=>100]])->assertRedirect();
   $q=ServiceRequest::first();$this->assertSame('pending',$q->status);$this->assertSame('photo.png',$q->files['pre_intent']['name']);Storage::assertExists($q->files['pre_intent']['path']);$this->assertDatabaseCount('proposal_drafts',0);
+  $this->assertSame('New transaction: '.$q->ticket,$following->notifications()->sole()->data['title']);
+  $this->assertSame(0,$muted->notifications()->count());
  }
  public function test_moderator_editing_requires_president_and_same_organization():void{
   $org=Organization::create(['name'=>'Test organization']);$other=Organization::create(['name'=>'Other']);
@@ -138,6 +142,17 @@ class WorkflowTest extends TestCase {
   $this->post('/events/'.$event->id,['action'=>'reflection','reflection'=>'We learned valuable skills while serving the community.'])->assertRedirect();$this->assertSame(0,Point::count());
   $a=Attendance::first();$this->actingAs($this->user('slu_head'))->post('/staff/attendance/'.$a->id,['status'=>'approved','review_note'=>'Participation verified'])->assertRedirect();$this->assertSame(50,(int)Point::sum('amount'));
   $this->post('/staff/attendance/'.$a->id,['status'=>'approved','review_note'=>'Attempt duplicate award'])->assertSessionHasErrors('workflow');$this->assertSame(1,Point::count());
+ }
+ public function test_event_reflections_respect_slu_event_notification_preferences():void{
+  $following=$this->user('slu_head',['preferences'=>['alerts'=>['event_updates'=>true,'submissions'=>false]]]);
+  $muted=$this->user('slu_head',['preferences'=>['alerts'=>['event_updates'=>false,'submissions'=>true]]]);
+  $organization=Organization::create(['name'=>'Events Organization']);
+  $student=$this->user('student',['organization_id'=>$organization->id]);
+  $event=Event::create(['title'=>'Service Day','description'=>'Campus service activity','venue'=>'Campus','starts_at'=>now()->subHours(2),'ends_at'=>now()->subHour(),'capacity'=>1,'points'=>50]);
+  Attendance::create(['user_id'=>$student->id,'event_id'=>$event->id,'time_in'=>now()->subHours(2),'time_out'=>now()->subHour(),'status'=>'awaiting_reflection']);
+  $this->actingAs($student)->post('/events/'.$event->id,['action'=>'reflection','reflection'=>'We learned valuable skills while serving the community.'])->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame('Event attendance ready to verify: '.$event->title,$following->notifications()->sole()->data['title']);
+  $this->assertSame(0,$muted->notifications()->count());
  }
  public function test_clearance_requires_completed_community_record():void{
   $u=$this->user();$this->assignment($u);$this->actingAs($u)->post('/apply/clearance',['details'=>['appointment_date'=>now()->addDays(2)->toDateString(),'schedule'=>'09:00','purpose'=>'Graduation'],'declaration'=>1])->assertSessionHasErrors('workflow');

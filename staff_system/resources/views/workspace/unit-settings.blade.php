@@ -2,7 +2,13 @@
     $account = auth()->user();
     $preferences = $account->preferences ?? [];
     $alerts = $preferences['alerts'] ?? [];
-    $notificationOptions = [
+    $isSlu = $account->role === 'slu_head';
+    $notificationOptions = $isSlu ? [
+        'proposals' => 'New Organization Proposals',
+        'event_updates' => 'Event & Attendance Updates',
+        'organization_reports' => 'Organization Report Submissions',
+        'feedback' => 'Assistant Feedback & Revision Requests',
+    ] : [
         'submissions' => 'New application submitted',
         'resubmitted' => 'Incomplete requirements resubmitted',
         'feedback' => 'Admin action completed',
@@ -14,7 +20,7 @@
         .' · '.(($preferences['time_format'] ?? '') === '24' ? 'H:i' : 'g:i A');
 @endphp
 
-<form class="sfu-settings-form" method="post" action="/workspace/settings" data-sfu-settings>
+<form @class(['sfu-settings-form', 'slu-settings-form' => $isSlu]) method="post" action="/workspace/settings" data-sfu-settings>
     @csrf
     <div class="sfu-settings-grid">
         <section class="sfu-panel sfu-settings-panel" aria-labelledby="sfu-account-title">
@@ -23,7 +29,7 @@
                 <div class="sfu-settings-avatar"><img src="/staff-assets/21-5331.svg" alt=""></div>
                 <div class="sfu-account-info">
                     <strong>{{ $account->name }}</strong>
-                    <p>Scholarships &amp; Financial Unit Head</p>
+                    <p>{{ $isSlu ? 'Student Leadership Unit Head' : 'Scholarships & Financial Unit Head' }}</p>
                     <a href="mailto:{{ $account->email }}"><img src="/staff-assets/21-5332.svg" alt="">{{ $account->email }}</a>
                 </div>
             </div>
@@ -57,13 +63,21 @@
                 @foreach($notificationOptions as $key => $label)
                     @include('workspace.sfu-setting-toggle', [
                         'label' => $label, 'name' => 'alerts['.$key.']',
-                        'checked' => old('alerts.'.$key, $alerts[$key] ?? (str_starts_with($key, 'report_') ? ($alerts['feedback'] ?? true) : true)),
+                        'checked' => old('alerts.'.$key, $alerts[$key] ?? match (true) {
+                            $isSlu && in_array($key, ['proposals', 'event_updates', 'organization_reports'], true) => $alerts['submissions'] ?? true,
+                            str_starts_with($key, 'report_') => $alerts['feedback'] ?? true,
+                            default => true,
+                        }),
                     ])
                 @endforeach
                 @include('workspace.sfu-setting-toggle', ['label' => 'Email Notifications', 'name' => 'email', 'checked' => old('email', $preferences['email'] ?? false)])
             </div>
             <details class="sfu-in-app-options">
-                <summary>In-app delivery</summary>
+                <summary>{{ $isSlu ? 'Other notification settings' : 'In-app delivery' }}</summary>
+                @if($isSlu)
+                    @include('workspace.sfu-setting-toggle', ['label' => 'Other new submissions', 'name' => 'alerts[submissions]', 'checked' => old('alerts.submissions', $alerts['submissions'] ?? true)])
+                    @include('workspace.sfu-setting-toggle', ['label' => 'Requirements resubmitted', 'name' => 'alerts[resubmitted]', 'checked' => old('alerts.resubmitted', $alerts['resubmitted'] ?? true)])
+                @endif
                 @include('workspace.sfu-setting-toggle', ['label' => 'In-app notifications', 'name' => 'in_app', 'checked' => old('in_app', $preferences['in_app'] ?? true)])
             </details>
         </section>

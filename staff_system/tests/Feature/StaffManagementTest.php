@@ -35,13 +35,15 @@ class StaffManagementTest extends TestCase {
  public function test_slu_organization_directory_shows_metadata_points_and_membership_tab():void {
   $head=$this->actor('slu_head');$student=$this->actor('student');
   $org=Organization::create(['name'=>'Learning Society']);
-  Organization::create(['name'=>'Legacy Organization']);
+  $otherOrg=Organization::create(['name'=>'Legacy Organization']);
   $student->update(['organization_id'=>$org->id,'position'=>'President']);
   Point::create(['user_id'=>$student->id,'amount'=>1800,'source'=>'directory-sample','reason'=>'Verified points']);
   DB::table('settings')->insert(['key'=>'staff.organization.'.$org->id,'value'=>json_encode([
    'college'=>'CITE','adviser'=>'Dr. Cruz','acronym'=>'LS','status'=>'for_renewal',
   ])]);
-  $membership=ServiceRequest::create(['user_id'=>$student->id,'kind'=>'leadership','ticket'=>'SLU-MEMBER-SAMPLE','details'=>['organization_id'=>$org->id]]);
+  $files=collect(config('portal.documents.leadership'))->map(fn($label,$key)=>['path'=>"requests/$key.pdf"])->all();
+  $membership=ServiceRequest::create(['user_id'=>$student->id,'kind'=>'leadership','ticket'=>'SLU-MEMBER-SAMPLE','details'=>['organization_id'=>(string)$org->id,'position'=>'Vice President'],'files'=>$files]);
+  $otherMembership=ServiceRequest::create(['user_id'=>$student->id,'kind'=>'leadership','ticket'=>'SLU-MEMBER-OTHER','status'=>'needs_revision','details'=>['organization_id'=>$otherOrg->id,'position'=>'Member']]);
   ServiceRequest::create(['user_id'=>$student->id,'kind'=>'achievement','ticket'=>'SLU-ACHIEVED','status'=>'approved','details'=>['title'=>'Approved Society Award']]);
   ServiceRequest::create(['user_id'=>$student->id,'kind'=>'achievement','ticket'=>'SLU-PENDING-AWARD','details'=>['title'=>'Pending Society Award']]);
 
@@ -51,8 +53,123 @@ class StaffManagementTest extends TestCase {
    ->assertSeeHtml('id="organization-'.$org->id.'"')->assertSeeText('Officers')->assertSeeText('Approved Society Award')
    ->assertDontSeeText('Pending Society Award')->assertSeeText('Add / Accept Member')->assertSeeText('Manage Officer Roles');
   $this->get('/workspace/organizations?tab=membership')->assertOk()->assertSeeText($membership->ticket)
-   ->assertSeeHtml('name="tab" value="membership"')->assertDontSeeHtml('id="organization-'.$org->id.'"');
+   ->assertSeeTextInOrder([$membership->ticket,'Learning Society','Vice President','Complete','New','Review'])
+   ->assertSeeTextInOrder([$otherMembership->ticket,'Legacy Organization','Member','Missing','Incomplete','View'])
+   ->assertSeeHtml('name="tab" value="membership"')->assertSeeHtml('id="create-organization"')->assertDontSeeHtml('id="organization-'.$org->id.'"');
+  $this->get('/workspace/organizations?tab=membership&search=Learning')->assertOk()
+   ->assertSeeText($membership->ticket)->assertDontSeeText($otherMembership->ticket);
+  $this->get('/workspace/organizations?tab=membership&organization='.$org->id.'&status=pending')->assertOk()
+   ->assertSeeText($membership->ticket)->assertDontSeeText($otherMembership->ticket);
+  $this->get('/workspace/organizations?tab=membership&organization='.$org->id.'&status=needs_revision')->assertOk()
+   ->assertSeeText('No membership applications found.');
   $this->get('/workspace/organizations?review='.$membership->id)->assertOk()->assertSeeHtml('id="transaction-review"');
+ }
+
+ public function test_slu_proposal_queue_filters_and_expands_with_live_application_details():void {
+  $head=$this->actor('slu_head');
+  $student=$this->actor('student');
+  $current=Organization::create(['name'=>'Current Student Society']);
+  $submitted=Organization::create(['name'=>'Campus Research Club']);
+  $student->update(['organization_id'=>$current->id]);
+  $files=collect(['pre_intent','pre_matrix','pre_evaluation','pre_resolution','pre_budget'])
+   ->mapWithKeys(fn($key)=>[$key=>['path'=>"requests/$key.pdf"]])->all();
+  $proposal=ServiceRequest::create([
+   'user_id'=>$student->id,'kind'=>'activity','ticket'=>'QUEUE-CAMPUS','status'=>'in_review','files'=>$files,
+   'details'=>['title'=>'Campus Research Expo','organization_id'=>(string)$submitted->id,'starts_at'=>now()->addDays(3)->toDateTimeString()],
+  ]);
+  ServiceRequest::create([
+   'user_id'=>$student->id,'kind'=>'activity','ticket'=>'QUEUE-LEGACY',
+   'details'=>['title'=>'Volunteer Day','starts_at'=>now()->subDay()->toDateTimeString()],
+  ]);
+  for($index=0;$index<3;$index++){
+   ServiceRequest::create([
+    'user_id'=>$student->id,'kind'=>'activity','ticket'=>'QUEUE-OLDER-'.$index,
+    'details'=>['title'=>'Earlier Proposal '.$index],'created_at'=>now()->subDays($index+2),
+   ]);
+  }
+  ServiceRequest::create(['user_id'=>$student->id,'kind'=>'leadership','ticket'=>'MEMBERSHIP-ONLY','details'=>['title'=>'Unrelated Membership']]);
+  $url='/workspace/proposals';
+  $this->actingAs($head)->get($url)->assertOk()->assertSeeText('Proposal Queue')->assertSeeText('View all')
+   ->assertSeeTextInOrder(['Campus Research Expo','Campus Research Club','5 of 5 attached','Ready to Endorse'])
+   ->assertSeeTextInOrder(['Volunteer Day','Current Student Society','0 of 5 attached','Overdue Review'])
+   ->assertDontSeeText('Earlier Proposal 2')->assertDontSeeText('Unrelated Membership');
+  $this->get($url.'?queue=all')->assertOk()->assertSeeText('Earlier Proposal 2')->assertSeeText('Back to queue');
+  $this->get($url.'?search=Research+Club')->assertOk()->assertSeeText('Campus Research Expo')->assertDontSeeText('Volunteer Day');
+  $this->get($url.'?search=Volunteer&organization='.$current->id.'&status=pending')->assertOk()
+   ->assertSeeText('Volunteer Day')->assertDontSeeText('Campus Research Expo');
+  $this->get($url.'?organization='.$submitted->id.'&status=in_review&review='.$proposal->id)->assertOk()
+   ->assertSeeText('Proposal Review')->assertSeeHtml('id="transaction-review"')->assertDontSeeText('Volunteer Day');
+ }
+
+ public function test_slu_achievement_submissions_show_evidence_and_filter_existing_categories():void {
+  $head=$this->actor('slu_head');
+  $student=$this->actor('student');
+  $current=Organization::create(['name'=>'Campus Society']);
+  $submitted=Organization::create(['name'=>'Research Circle']);
+  $student->update(['organization_id'=>$current->id]);
+  DB::table('settings')->insert(['key'=>'staff.points-rules','value'=>json_encode(['achievement'=>250])]);
+  $submission=ServiceRequest::create([
+   'user_id'=>$student->id,'kind'=>'achievement','ticket'=>'ACH-RESEARCH','details'=>[
+    'title'=>'Science Expo Award','category'=>'Research','award'=>'First Place','achievement_date'=>'2026-09-20',
+    'organization_id'=>(string)$submitted->id,
+   ],'files'=>['evidence'=>['path'=>'requests/certificate.pdf'],'photo'=>'requests/photo.png'],
+  ]);
+  $legacy=ServiceRequest::create([
+   'user_id'=>$student->id,'kind'=>'achievement','ticket'=>'ACH-LEGACY','status'=>'needs_revision',
+   'details'=>['title'=>'Legacy Volunteer Award','award'=>'Service'],
+  ]);
+  $approved=ServiceRequest::create([
+   'user_id'=>$student->id,'kind'=>'achievement','ticket'=>'ACH-APPROVED','status'=>'approved',
+   'details'=>['title'=>'Verified Campus Award','awarded_points'=>100],
+  ]);
+  Point::create(['user_id'=>$student->id,'amount'=>180,'source'=>'achievement:'.$approved->id,'reason'=>'Verified award']);
+  ServiceRequest::create([
+   'user_id'=>$student->id,'kind'=>'achievement','ticket'=>'ADJ-HIDDEN',
+   'details'=>['title'=>'Unrelated point adjustment','adjustment'=>true],
+  ]);
+  $url='/workspace/achievements';
+  $this->actingAs($head)->get($url)->assertOk()->assertSeeText('Achievements Submissions')
+   ->assertSeeTextInOrder(['Science Expo Award','Research Circle','Sep 20, 2026','2 Files','250','Pending Review','Review'])
+   ->assertSeeTextInOrder(['Legacy Volunteer Award','Campus Society','No evidence','Missing Evidence','View'])
+   ->assertSeeTextInOrder(['Verified Campus Award','180','Approved','View'])
+   ->assertDontSeeText('Unrelated point adjustment');
+  $this->get($url.'?search=Research+Circle&status=pending&organization='.$submitted->id.'&category=Research')->assertOk()
+   ->assertSeeText('Science Expo Award')->assertDontSeeText('Legacy Volunteer Award');
+  $this->get($url.'?category=Service')->assertOk()->assertSeeText('Legacy Volunteer Award')->assertDontSeeText('Science Expo Award');
+  $reviewUrl=$url.'?review='.$submission->id;
+  $this->get($reviewUrl)->assertOk()->assertSeeHtml('class="slu-achievement-dialog"')
+   ->assertSeeTextInOrder(['Achievement Review','Science Expo Award','Supporting Documentation','certificate.pdf',
+    'Verification Checklist','Manual verification','No matching submission','Recommended Points',
+    'Portal Impact','+250 points after final approval','Return for Evidence','Endorse for 250 Points'])
+   ->assertSeeHtml('name="awarded_points" min="-1000" max="1000"')
+   ->assertSeeHtml('value="250" aria-describedby="slu-achievement-points-help"')
+   ->assertSee('/files/evidence/view');
+  $this->get($url.'?review='.$legacy->id)->assertOk()->assertSeeText('No review yet.');
+  $this->get($url.'?review='.$approved->id)->assertOk()->assertSeeText('+180 points awarded')
+   ->assertDontSeeText('Return for Evidence');
+
+  $possibleDuplicate=ServiceRequest::create([
+   'user_id'=>$student->id,'kind'=>'achievement','ticket'=>'ACH-MATCH','details'=>$submission->details,'files'=>$submission->files,
+  ]);
+  $this->get($reviewUrl)->assertOk()->assertSeeText('Possible match');
+  $this->from($reviewUrl)->post('/staff/requests/'.$submission->id,['status'=>'needs_revision'])
+   ->assertRedirect($reviewUrl)->assertSessionHasErrors('review_note');
+  $this->assertSame('pending',$submission->fresh()->status);
+  $this->from($reviewUrl)->post('/staff/requests/'.$possibleDuplicate->id,['status'=>'needs_revision','review_note'=>'Please attach the official certificate.'])
+   ->assertRedirect($reviewUrl)->assertSessionHasNoErrors();
+  $this->assertSame('needs_revision',$possibleDuplicate->fresh()->status);
+
+  $decision='/staff/requests/'.$submission->id;
+  $this->from($reviewUrl)->post($decision,['status'=>'unit_approved','awarded_points'=>500])
+   ->assertRedirect($reviewUrl)->assertSessionHasNoErrors();
+  $this->assertSame('unit_approved',$submission->fresh()->status);
+  $this->assertNull($submission->fresh()->review_note);
+  $this->assertDatabaseMissing('points',['source'=>'achievement:'.$submission->id]);
+  $this->actingAs($this->actor('assistant'))->post($decision,['status'=>'awaiting_admin','review_note'=>'Checked the recommendation.'])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->actingAs($this->actor('admin'))->post($decision,['status'=>'approved','review_note'=>'Final approval.'])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertDatabaseHas('points',['source'=>'achievement:'.$submission->id,'amount'=>500]);
  }
 
  public function test_slu_dashboard_shows_scoped_action_queue_deadlines_and_activity():void {
@@ -104,6 +221,51 @@ class StaffManagementTest extends TestCase {
   ])->assertRedirect($url)->assertSessionHasNoErrors();
   $this->assertTrue(\Illuminate\Support\Facades\Hash::check('UpdatedPassword123!',$head->fresh()->password));
   $this->assertSame('Dark',$head->fresh()->preferences['theme']);
+ }
+
+ public function test_slu_settings_save_sections_and_track_verified_logins():void {
+  $this->travelTo(\Illuminate\Support\Carbon::parse('2026-09-17 08:14'));
+  $head=$this->actor('slu_head');
+  $other=$this->actor('slu_head');
+  DB::table('audit_logs')->insert([
+   ['user_id'=>$head->id,'action'=>'account.login','subject'=>$head->email,'details'=>'Staff portal login','created_at'=>now()],
+   ['user_id'=>$other->id,'action'=>'account.login','subject'=>'private-login@example.test','details'=>'Other login','created_at'=>now()],
+  ]);
+  $url='/workspace/settings';
+  $this->actingAs($head)->get($url)->assertOk()
+   ->assertSeeTextInOrder(['Account','Student Leadership Unit Head','System Preferences','Notifications',
+    'New Organization Proposals','Event & Attendance Updates','Organization Report Submissions','Assistant Feedback & Revision Requests',
+    'Data Backup & Security','Last login','09/17/2026','View Login Activity'])
+   ->assertDontSeeText('private-login@example.test')->assertSeeHtml('id="login-activity"');
+
+  $defaults=['theme'=>'Light','date_format'=>'mm/dd/yyyy','time_format'=>'12'];
+  $this->from($url)->post($url,[...$defaults,'save'=>'changes','in_app'=>1,'email'=>0,'two_factor'=>1,
+   'alerts'=>['proposals'=>0,'event_updates'=>1,'organization_reports'=>0,'feedback'=>1,'submissions'=>1]])
+   ->assertRedirect($url)->assertSessionHasNoErrors();
+  $this->from($url)->post($url,['save'=>'defaults','theme'=>'Dark','date_format'=>'dd/mm/yyyy','time_format'=>'24'])
+   ->assertRedirect($url)->assertSessionHasNoErrors();
+  $head->refresh();
+  $this->assertSame('Dark',$head->preferences['theme']);
+  $this->assertTrue((bool)$head->two_factor);
+  $this->assertSame(0,$head->preferences['alerts']['proposals']);
+  $this->assertTrue($head->preferences['in_app']);
+  $this->get($url)->assertOk()->assertSeeText('17/09/2026 · 08:14');
+
+  foreach(['proposals'=>'Proposal alert','event_updates'=>'Attendance alert','organization_reports'=>'Organization report alert','report_returned'=>'Assistant feedback alert'] as $category=>$title){
+   \App\Support\StaffAlerts::account($head,$title,'/workspace',$category);
+  }
+  $this->assertEqualsCanonicalizing(['Attendance alert','Assistant feedback alert'],$head->notifications()->get()->map(fn($notice)=>$notice->data['title'])->all());
+  $this->from($url)->post($url,['save'=>'password','current_password'=>'TestingPassword123!','password'=>'ChangedPassword123!','password_confirmation'=>'ChangedPassword123!'])
+   ->assertRedirect($url)->assertSessionHasNoErrors();
+  $this->assertTrue(\Illuminate\Support\Facades\Hash::check('ChangedPassword123!',$head->fresh()->password));
+  $this->assertSame('Dark',$head->fresh()->preferences['theme']);
+  $this->get('/workspace/backup')->assertDownload();
+
+  $this->post('/logout');
+  $this->withSession(['challenge'=>['user'=>$head->id,'remember'=>false,
+   'hash'=>\Illuminate\Support\Facades\Hash::make('123456'),'expires'=>time()+60]])
+   ->post('/two-factor',['code'=>'123456'])->assertRedirect('/staff');
+  $this->assertSame(2,DB::table('audit_logs')->where('user_id',$head->id)->where('action','account.login')->count());
  }
 
  public function test_sfu_reports_filters_by_term_and_status_and_shows_snapshot_counts():void {
@@ -213,6 +375,32 @@ class StaffManagementTest extends TestCase {
   }
   Storage::delete(['time-in.png','time-out.png']);
  }
+ public function test_slu_activity_calendar_navigates_months_and_opens_event_attendance():void {
+  $this->travelTo(\Illuminate\Support\Carbon::parse('2026-10-01 08:00'));
+  $head=$this->actor('slu_head');
+  $eventFields=['description'=>'University activity','venue'=>'Mini-Gym','type'=>'leadership','capacity'=>20,'status'=>'published'];
+  $first=Event::create([...$eventFields,'title'=>'Clean Drive','starts_at'=>'2026-10-05 08:00','ends_at'=>'2026-10-05 09:00']);
+  $second=Event::create([...$eventFields,'title'=>'Leadership Workshop','starts_at'=>'2026-10-05 10:00','ends_at'=>'2026-10-05 11:00']);
+  $later=Event::create([...$eventFields,'title'=>'Next Month Event','starts_at'=>'2026-11-15 10:00','ends_at'=>'2026-11-15 11:00']);
+  $student=$this->actor('student');
+  $record=Attendance::create(['user_id'=>$student->id,'event_id'=>$first->id,'status'=>'pending',
+   'time_in'=>'2026-10-05 08:00','time_out'=>'2026-10-05 09:00','reflection'=>'Completed this university activity.']);
+  $url='/workspace/events?month=2026-10';
+  $this->actingAs($head)->get($url)->assertOk()
+   ->assertSeeText('Activity Calendar')->assertSeeText('Event List')->assertSeeText('Registration Open')
+   ->assertSeeHtml('aria-label="October 2026 activity calendar"')->assertSeeHtml('datetime="2026-09-27"')
+   ->assertSeeHtml('href="#calendar-day-2026-10-05"')->assertSeeHtml('aria-label="October 5, 2026 · 2 events"')
+   ->assertSeeHtml('id="event-'.$first->id.'-entry"')->assertSeeHtml('id="event-'.$second->id.'-entry"')
+   ->assertDontSeeHtml('id="event-'.$later->id.'-entry"')
+   ->assertSeeHtml('data-dialog="event-'.$first->id.'-attendance"')->assertSeeHtml('data-dialog="event-'.$first->id.'"');
+  $this->get('/workspace/events?month=2026-11')->assertOk()
+   ->assertSeeHtml('id="event-'.$later->id.'-entry"')->assertDontSeeHtml('id="event-'.$first->id.'-entry"');
+  $this->get($url.'&list=all')->assertOk()->assertSeeHtml('id="event-'.$later->id.'-entry"');
+  $this->from($url)->post('/staff/attendance/'.$record->id,['status'=>'approved','review_note'=>'Verified attendance.',
+   '_dialog'=>'event-'.$first->id.'-attendance'])->assertRedirect($url)->assertSessionHas('attendance_dialog','event-'.$first->id.'-attendance');
+  $this->assertSame('approved',$record->fresh()->status);
+ }
+
  public function test_new_event_venues_remain_available_after_an_event_moves():void {
   $head=$this->actor('slu_head');
   $fields=[
@@ -271,9 +459,153 @@ class StaffManagementTest extends TestCase {
   foreach(array_keys(ServiceRequest::kinds()) as $kind)ServiceRequest::create(['user_id'=>$student->id,'ticket'=>'TEST-'.$kind,'kind'=>$kind,'details'=>['title'=>'Test '.$kind,'description'=>'Source details','subject'=>'NSTP','academic_year'=>'2026-2027','semester'=>'1st Semester','starts_at'=>now()->addDays(3)->toIso8601String()]]);
   foreach($heads as $role=>$actor){Report::create(['user_id'=>$actor->id,'title'=>'Unit Activity Report','academic_year'=>'2026-2027','semester'=>'1st Semester','summary'=>str_repeat('Verified report snapshot. ',3),'snapshot'=>['records'=>[['ticket'=>'TEST','name'=>$student->name,'student_id'=>$student->student_id,'kind'=>'complaint','status'=>'pending']],'version'=>1]]);foreach(StaffPortalController::menus($role) as $page=>$label)$this->actingAs($actor)->get('/workspace/'.$page)->assertOk();}
  }
+ public function test_slu_leaderboards_show_point_breakdowns_filters_and_review_links():void {
+  $head=$this->actor('slu_head');
+  $researcher=$this->actor('student');$volunteer=$this->actor('student');
+  $research=Organization::create(['name'=>'Research Circle']);$service=Organization::create(['name'=>'Service Club']);
+  $researcher->update(['organization_id'=>$research->id]);$volunteer->update(['organization_id'=>$service->id]);
+  foreach([[$research,'CITE'],[$service,'CBA']] as [$organization,$department]){
+   DB::table('settings')->insert(['key'=>'staff.organization.'.$organization->id,'value'=>json_encode(['college'=>$department])]);
+  }
+  $event=Event::create(['title'=>'Tech Workshop','description'=>'Student activity','venue'=>'Lab','type'=>'leadership',
+   'starts_at'=>'2026-09-01 09:00','ends_at'=>'2026-09-01 11:00']);
+  $attendance=Attendance::create(['user_id'=>$researcher->id,'event_id'=>$event->id,'status'=>'approved']);
+  $award=ServiceRequest::create(['user_id'=>$researcher->id,'kind'=>'achievement','ticket'=>'RANK-AWARD','status'=>'approved',
+   'details'=>['title'=>'Research Award','academic_year'=>'2026-2027','semester'=>'1st Semester']]);
+  $penalty=ServiceRequest::create(['user_id'=>$researcher->id,'kind'=>'achievement','ticket'=>'RANK-PENALTY','status'=>'approved',
+   'details'=>['title'=>'Late Report Penalty','adjustment'=>true]]);
+  $pending=ServiceRequest::create(['user_id'=>$researcher->id,'kind'=>'achievement','ticket'=>'RANK-PENDING','status'=>'unit_approved',
+   'details'=>['title'=>'Point Adjustment','adjustment'=>true,'description'=>'Advisor correction','awarded_points'=>50]]);
+  foreach([
+   [$researcher,'attendance:'.$attendance->id,120,'Workshop attendance','2026-09-01 11:00'],
+   [$volunteer,'legacy-award',200,'Recorded service credit','2026-09-01 12:00'],
+   [$researcher,'achievement:'.$award->id,300,'Research Award','2026-09-02 09:00'],
+   [$researcher,'achievement:'.$penalty->id,-20,'Late Report Penalty','2026-09-02 10:00'],
+  ] as [$student,$source,$amount,$reason,$date]){
+   Point::create(['user_id'=>$student->id,'source'=>$source,'amount'=>$amount,'reason'=>$reason,'created_at'=>$date]);
+  }
+  $url='/workspace/points';
+  $this->actingAs($head)->get($url)->assertOk()
+   ->assertSeeTextInOrder(['Current Rankings','Participation','Achievement','Adjustment','Total Points','Research Circle','120','300','-20','400'])
+   ->assertSeeHtml('aria-label="Up 1 place"')->assertSeeHtml('aria-label="Down 1 place"')
+   ->assertSeeText('Point Ledger')->assertSeeText('Pending Adjustments')->assertSeeText('Advisor correction')->assertSeeText('+50')
+   ->assertSee('/workspace/request/'.$award->id)->assertSee('/workspace/request/'.$penalty->id)
+   ->assertDontSeeText('Workshop attendance');
+  $this->get($url.'?ledger=all')->assertOk()->assertSeeText('Workshop attendance')->assertSee('#event-'.$event->id.'-attendance');
+  $this->get($url.'?department=CITE&term='.urlencode('1st Semester 2026-2027'))->assertOk()
+   ->assertSeeTextInOrder(['Research Circle','0','300','0','300'])->assertSeeText('Research Award')
+   ->assertViewHas('leadershipPoints',fn($data)=>$data['rankings']->pluck('organization.name')->all()===['Research Circle'])
+   ->assertDontSeeText('Late Report Penalty');
+  $this->get($url.'?review='.$pending->id)->assertOk()->assertSeeHtml('id="transaction-review"')->assertSeeText('RANK-PENDING');
+ }
+
+ public function test_scoring_rules_dialog_uses_saved_values_and_audit_history():void {
+  $head=$this->actor('slu_head');
+  $student=$this->actor('student');
+  ServiceRequest::create(['user_id'=>$student->id,'kind'=>'achievement','ticket'=>'RULES-AWARD','details'=>['title'=>'New award']]);
+  ServiceRequest::create(['user_id'=>$student->id,'kind'=>'achievement','ticket'=>'RULES-ADJ','status'=>'unit_approved',
+   'details'=>['title'=>'Point Adjustment','adjustment'=>true,'awarded_points'=>25]]);
+  $url='/workspace/points';
+  $this->actingAs($head)->get($url)->assertOk()
+   ->assertSeeHtml('id="scoring-rules"')->assertSeeText('Leadership Levels')->assertSeeTextInOrder(['Leader','Amasser','Hoarder','Stockpiler'])
+   ->assertSeeTextInOrder(['Calculation Valid','Yes','1 Pending Award Excluded','1 Adjustment Excluded'])
+   ->assertSee('/portal/leadership/leaderboards')->assertSeeText('No scoring rule changes recorded.')
+   ->assertSeeText('Per event');
+
+  $values=['event'=>200,'achievement'=>500,'report'=>50,'participant'=>10,'penalty'=>100,'_dialog'=>'scoring-rules-edit'];
+  $this->actingAs($this->actor('assistant'))->post('/workspace/points-rules',$values)->assertForbidden();
+  $this->actingAs($head)->from($url)->post('/workspace/points-rules',[...$values,'event'=>1001])
+   ->assertRedirect($url)->assertSessionHasErrors('event');
+  $this->get($url)->assertOk()->assertSeeHtml('aria-invalid="true"')->assertSeeHtml('open data-auto-open');
+  $this->from($url)->post('/workspace/points-rules',$values)->assertRedirect($url)
+   ->assertSessionHasNoErrors()->assertSessionHas('scoring_rules_saved',true);
+  $this->assertDatabaseHas('audit_logs',['action'=>'points.rules','user_id'=>$head->id]);
+  $this->get($url)->assertOk()->assertSeeTextInOrder(['Completed Approved Event','+200','Approved Achievement','+500','On-Time Completion Report','+50','Verified Participant','+10','Late Report Deduction','−100'])
+   ->assertSeeTextInOrder(['Rule History','Recent saved scoring rule changes.',$head->name,'+200'])
+   ->assertDontSeeText('No scoring rule changes recorded.');
+ }
+
  public function test_negative_adjustment_applies_only_after_admin_approval():void{$student=$this->actor('student');$org=Organization::create(['name'=>'Test Organization']);$student->update(['organization_id'=>$org->id]);$head=$this->actor('slu_head');$assistant=$this->actor('assistant');$admin=$this->actor('admin');$this->actingAs($head)->post('/workspace/adjustments',['user_id'=>$student->id,'amount'=>-100,'reason'=>'Late organization completion report'])->assertRedirect()->assertSessionHasNoErrors();$q=ServiceRequest::first();$this->assertSame(0,Point::count());$this->actingAs($admin)->post('/staff/requests/'.$q->id,['status'=>'approved','review_note'=>'Reviewed valid evidence'])->assertSessionHasErrors('workflow');$this->actingAs($assistant)->post('/staff/requests/'.$q->id,['status'=>'awaiting_admin','review_note'=>'Verified adjustment for final review'])->assertRedirect()->assertSessionHasNoErrors();$this->actingAs($admin)->post('/staff/requests/'.$q->id,['status'=>'approved','review_note'=>'Approved documented adjustment'])->assertRedirect()->assertSessionHasNoErrors();$this->assertSame(-100,(int)Point::first()->amount);$this->post('/staff/requests/'.$q->id,['status'=>'approved','review_note'=>'Repeated approval attempt'])->assertSessionHasErrors('workflow');$this->assertSame(1,Point::count());}
  public function test_configured_clearance_capacity_is_shared_with_user_submission():void{$head=$this->actor('cvu_head');$date=today()->addDays(3)->format('Y-m-d');$this->actingAs($head)->post('/workspace/slots',['date'=>$date,'start'=>'10:30','end'=>'11:00','capacity'=>1,'open'=>1])->assertRedirect()->assertSessionHasNoErrors();$a=$this->actor('student');$b=$this->actor('student');$input=['declaration'=>1,'details'=>['appointment_date'=>$date,'schedule'=>'10:30','purpose'=>'University clearance']];$this->actingAs($a)->post('/apply/clearance',$input)->assertRedirect()->assertSessionHasNoErrors();$this->actingAs($b)->post('/apply/clearance',$input)->assertSessionHasErrors('workflow');$this->assertSame(1,ServiceRequest::count());}
+ public function test_slu_reports_show_snapshot_coverage_and_filter_recorded_periods():void {
+  $head=$this->actor('slu_head');
+  $other=$this->actor('slu_head');
+  $fields=['user_id'=>$head->id,'academic_year'=>'2026-2027','semester'=>'1st Semester','summary'=>str_repeat('Recorded organization activity. ',3)];
+  $monthly=Report::create([...$fields,'title'=>'Organization Activity Summary','status'=>'draft','snapshot'=>[
+   'date_from'=>'2026-09-01','date_to'=>'2026-09-30','records'=>[['ticket'=>'SLU-01'],['ticket'=>'SLU-02']],
+   'activity'=>[['service'=>'Event approvals','completed'=>2,'pending'=>0]],
+   'files'=>[['name'=>'Activity evidence.pdf','path'=>'staff-reports/evidence.pdf']],
+  ]]);
+  $semester=Report::create([...$fields,'title'=>'Organization Compliance Report','status'=>'pending',
+   'snapshot'=>[['ticket'=>'SLU-03']]]);
+  $returned=Report::create([...$fields,'title'=>'Achievement Audit','status'=>'needs_revision',
+   'snapshot'=>['date_from'=>'2026-10-01','date_to'=>'2026-10-31','records'=>[]]]);
+  Report::create([...$fields,'user_id'=>$other->id,'title'=>'Private Other Unit Report','status'=>'draft','snapshot'=>[]]);
+  $url='/workspace/reports';
+  $this->actingAs($head)->get($url)->assertOk()
+   ->assertSeeTextInOrder(['Prepare Unit Report','Draft Reports','Returned Reports','Unit Reports','Source Coverage'])
+   ->assertSeeTextInOrder(['Organization Activity Summary','September 2026','2 source records','1 activity summary','Draft','Edit'])
+   ->assertSeeTextInOrder(['Organization Compliance Report','1st Semester','2026-2027','1 source record','Under Assistant Review','Track'])
+   ->assertSeeTextInOrder(['Achievement Audit','October 2026','0 source records','Returned for Revision','Revise'])
+   ->assertDontSeeText('Private Other Unit Report')->assertSeeHtml('id="prepare-report"');
+  $this->get($url.'?period=month%3A2026-09&status=draft')->assertOk()
+   ->assertSeeText('Organization Activity Summary')->assertDontSeeText('Organization Compliance Report')->assertDontSeeText('Achievement Audit');
+  $this->get($url.'?period='.urlencode('term:1st Semester:2026-2027').'&search=RPT-SLU-'.str_pad($semester->id,4,'0',STR_PAD_LEFT))
+   ->assertOk()->assertSeeText('Organization Compliance Report')->assertDontSeeText('Organization Activity Summary');
+  $this->get($url.'?status=needs_revision&report='.$returned->id)->assertOk()
+   ->assertSeeHtml('class="slu-report-dialog"')->assertSeeText('Revision required')
+   ->assertSeeText('Submit to Assistant')->assertSeeText('Save Draft');
+  $reviewUrl=$url.'?status=draft&report='.$monthly->id;
+  $this->get($reviewUrl)->assertOk()
+   ->assertSeeTextInOrder(['Unit Report Review','Organization Activity Summary','September 2026','Prepared by',
+    'Report Contents','Event approvals','Activity evidence.pdf','Source Validation','Duplicate references','None found',
+    'Approval Route','Unit Head','Draft','Assistant','Pending','Admin','Pending','Unit Head Note'])
+   ->assertSee('/workspace/report/'.$monthly->id.'/file/0');
+  $update='/workspace/report/'.$monthly->id;
+  $summary=str_repeat('Updated monthly report. ',3);
+  $this->from($reviewUrl)->post($update,['summary'=>$summary,'status'=>'draft','unit_note'=>'Draft clarification.'])
+   ->assertRedirect($reviewUrl)->assertSessionHasNoErrors();
+  $this->assertSame('Draft clarification.',$monthly->fresh()->snapshot['unit_note']);
+  $this->from($reviewUrl)->post($update,['summary'=>$summary,'status'=>'pending','unit_note'=>'Please review the revised source list.'])
+   ->assertRedirect($reviewUrl)->assertSessionHasNoErrors();
+  $this->assertSame('pending',$monthly->fresh()->status);
+  $this->assertSame('Draft clarification.',collect($monthly->fresh()->snapshot['versions'])->last()['unit_note']);
+  $this->get($reviewUrl)->assertOk()->assertSeeText('Under review')->assertSeeText('Please review the revised source list.')
+   ->assertDontSeeText('Submit to Assistant');
+  $this->actingAs($this->actor('assistant'))->get($update)->assertOk()->assertSeeText('Please review the revised source list.');
+ }
+
  public function test_report_files_and_settings_backup_are_scoped():void{Storage::fake('local');$head=$this->actor('cvu_head');$wrong=$this->actor('sfu_head');$assistant=$this->actor('assistant');$this->actingAs($head)->post('/workspace/reports',['title'=>'Unit Activity Report','academic_year'=>'2026-2027','semester'=>'1st Semester','summary'=>str_repeat('Verified unit activity snapshot. ',3),'date_from'=>'2026-09-01','date_to'=>'2026-09-30','attachments'=>[UploadedFile::fake()->create('report.pdf',20,'application/pdf')]])->assertRedirect()->assertSessionHasNoErrors();$report=Report::first();$this->actingAs($wrong)->get('/workspace/report/'.$report->id.'/file/0')->assertForbidden();$this->actingAs($assistant)->get('/workspace/report/'.$report->id.'/file/0')->assertOk();$this->actingAs($head)->post('/workspace/settings',['theme'=>'Dark','date_format'=>'dd/mm/yyyy','time_format'=>'24','in_app'=>1,'email'=>0,'alerts'=>['feedback'=>0]])->assertRedirect()->assertSessionHasNoErrors();$this->assertSame('Dark',$head->fresh()->preferences['theme']);$this->get('/workspace/backup')->assertOk()->assertDownload();}
+ public function test_slu_content_library_filters_and_previews_current_publications():void {
+  $this->travelTo(\Illuminate\Support\Carbon::parse('2026-09-25 09:00'));
+  $head=$this->actor('slu_head');
+  $details=['body'=>'University content for the student portal.','audience'=>'All Students'];
+  $this->actingAs($head);
+  foreach([
+   ['Leadership Week','Announcement Banner','Student Dashboard','2026-09-24 09:00','2026-10-03 18:00',true],
+   ['Campus Clean Drive','Featured Event','Event & Activities','2026-09-20 09:00',null,true],
+   ['Proposal Deadline Reminder','Notification','Student Dashboard','2026-09-28 09:00',null,true],
+   ['Organization Spotlight','Organization Feature','Student Dashboard',null,null,false],
+   ['Old Evidence Guide','Helping Content','Achievement Form','2026-09-01 09:00','2026-09-10 18:00',true],
+  ] as [$title,$type,$location,$start,$end,$publish]){
+   $this->post('/workspace/content',[...$details,'title'=>$title,'content_type'=>$type,'portal_location'=>$location,
+    'published_at'=>$start,'ends_at'=>$end,'publish'=>$publish,'cta_label'=>'View Events','cta_destination'=>'events'])
+    ->assertRedirect()->assertSessionHasNoErrors();
+  }
+  $url='/workspace/content';
+  $this->get($url)->assertOk()->assertSeeText('Content Library')->assertSeeText('Student Portal Preview')
+   ->assertSeeTextInOrder(['Leadership Week','Announcement Banner','Student Dashboard','Sep 24, 2026','Oct 3, 2026','Published'])
+   ->assertSeeTextInOrder(['Proposal Deadline Reminder','Scheduled'])
+   ->assertSeeTextInOrder(['Organization Spotlight','Draft'])
+   ->assertSeeTextInOrder(['Old Evidence Guide','Expired'])
+   ->assertSeeHtml('data-content-prev')->assertSeeHtml('data-content-next')
+   ->assertViewHas('contentLibrary',fn($data)=>$data['preview']->pluck('item.title')->all()===['Leadership Week','Campus Clean Drive']);
+  $this->get($url.'?'.http_build_query(['search'=>'deadline','type'=>'Notification','location'=>'Student Dashboard','status'=>'scheduled']))
+   ->assertOk()->assertViewHas('contentLibrary',fn($data)=>collect($data['library']->items())->pluck('item.title')->all()===['Proposal Deadline Reminder']);
+  $this->get($url.'?search=unknown')->assertOk()->assertSeeText('No matching portal content.')
+   ->assertSeeText('Student Portal Preview');
+ }
+
  public function test_content_schedule_audience_and_images_are_private_until_published():void{
  Storage::fake('local');$head=$this->actor('slu_head');$data=['title'=>'Leadership Week','body'=>'Join the university leadership seminars.','content_type'=>'Announcement Banner','portal_location'=>'Student Dashboard','audience'=>'All Students','cta_label'=>'View Events','cta_destination'=>'events','image'=>UploadedFile::fake()->createWithContent('banner.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII='))];
  $this->actingAs($head)->post('/workspace/content',$data)->assertRedirect()->assertSessionHasNoErrors();$id=DB::table('announcements')->value('id');$this->get('/content-image/'.$id)->assertOk();
@@ -308,22 +640,29 @@ class StaffManagementTest extends TestCase {
    'details'=>[
     'title'=>'Test proposal','description'=>'A practical leadership workshop.','venue'=>'University Chapel',
     'starts_at'=>now()->addDays(2)->toDateTimeString(),'ends_at'=>now()->addDays(2)->addHour()->toDateTimeString(),
-    'capacity'=>40,'points'=>10,'revision'=>'Updated the planned attendance.',
+    'capacity'=>40,'points'=>10,'budget'=>45000,'revision'=>'Updated the planned attendance.',
    ],
-   'files'=>['pre_intent'=>['path'=>'requests/letter.pdf','name'=>'letter.pdf']],
+   'files'=>['pre_intent'=>['path'=>'requests/letter.pdf','name'=>'letter.pdf'],'post_narrative'=>['path'=>'requests/narrative.pdf','name'=>'narrative.pdf']],
   ]);
   $head=$this->actor('slu_head');$assistant=$this->actor('assistant');
   $headPage='/workspace/proposals?review='.$proposal->id;
   $adminPage='/workspace/leadership?review='.$proposal->id;
   $decision='/staff/requests/'.$proposal->id;
   $this->actingAs($head)->get($headPage)->assertOk()->assertSee('transaction-review')->assertSee('PROP-PANEL')
-   ->assertSee('Proposal Review')->assertSee('University Chapel')->assertSee('Letter of Intent')
+   ->assertSeeTextInOrder(['Proposal Review','Event Date','University Chapel','Expected Participants','₱45,000',
+    'Requirement Documents','Pre-Activity','Letter of Intent','Post-Activity','Narrative Report','Reviewer Remarks'])
+   ->assertSeeHtml('alt="Not attached"')->assertSee('/files/post_narrative/view')
    ->assertSee('Updated the planned attendance.')->assertSee('Endorse to Assistant')
+   ->assertSee('Return for Revision')->assertSeeHtml('class="slu-proposal-dialog"')
    ->assertSee('class="proposal-decision"',false)->assertDontSee('class="drawer review-drawer"',false);
+  $this->from($headPage)->post($decision,['status'=>'needs_revision'])->assertRedirect($headPage)->assertSessionHasErrors('review_note');
+  $this->assertSame('pending',$proposal->fresh()->status);
   $this->actingAs($admin)->get($adminPage)->assertOk()
    ->assertSee('Proposal Details')->assertDontSee('class="proposal-decision"',false);
-  $this->actingAs($head)->post($decision,['status'=>'unit_approved','review_note'=>'Proposal and documents reviewed.'])
+  $this->actingAs($head)->from($headPage)->post($decision,['status'=>'unit_approved'])
    ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame('unit_approved',$proposal->fresh()->status);
+  $this->assertNull($proposal->fresh()->review_note);
   $this->actingAs($assistant)->post($decision,['status'=>'awaiting_admin','review_note'=>'Endorsement checked and forwarded.'])
    ->assertRedirect()->assertSessionHasNoErrors();
   $this->actingAs($admin)->get($adminPage)->assertOk()->assertSee('Proposal Review')->assertSee('Final approval')

@@ -1,6 +1,6 @@
-@php($metadata=isset($a)?json_decode(\Illuminate\Support\Facades\DB::table('settings')->where('key','staff.content.'.$a->id)->value('value')??'[]',true):[])
-<label class="field">Type<select name="content_type">@foreach(['Announcement Banner','Featured Event','Organization Feature','Notification','Helping Content'] as $option)<option @selected(($metadata['content_type']??'Announcement Banner')===$option)>{{$option}}</option>@endforeach</select></label>
-<label class="field">Portal Location<select name="portal_location">@foreach(['Student Dashboard','Event & Activities','Achievement Form'] as $option)<option @selected(($metadata['portal_location']??'Student Dashboard')===$option)>{{$option}}</option>@endforeach</select></label>
+@php($metadata=$contentMetadata ?? (isset($a) ? App\Support\PortalContent::metadata($a->id) : []))
+<label class="field">Type<select name="content_type">@foreach(App\Support\PortalContent::TYPES as $option)<option @selected(($metadata['content_type']??'Announcement Banner')===$option)>{{$option}}</option>@endforeach</select></label>
+<label class="field">Portal Location<select name="portal_location">@foreach(App\Support\PortalContent::LOCATIONS as $option)<option @selected(($metadata['portal_location']??'Student Dashboard')===$option)>{{$option}}</option>@endforeach</select></label>
 <label class="field">Audience<select name="audience">@foreach(['All Students','All Student Leaders'] as $option)<option @selected(($metadata['audience']??'All Students')===$option)>{{$option}}</option>@endforeach</select></label>
 <label class="field">End Date & Time<input type="datetime-local" name="ends_at" value="{{isset($metadata['ends_at'])?\Carbon\Carbon::parse($metadata['ends_at'])->format('Y-m-d\TH:i'):''}}"></label>
 <label class="field">CTA Label<input name="cta_label" maxlength="80" value="{{$metadata['cta_label']??''}}"></label>

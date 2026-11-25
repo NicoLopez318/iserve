@@ -106,7 +106,7 @@ class PortalController extends Controller {
     $resubmitted=$a->status==='rejected';
     $a->update(['reflection'=>$r->reflection,'status'=>'pending']);
     \App\Support\StaffAlerts::role('slu_head','Event attendance ready to verify: '.$event->title,'/workspace/events#event-'.$event->id.'-attendance',
-     $resubmitted?'resubmitted':'submissions');
+     $resubmitted?'event_resubmitted':'event_updates');
    }
   });return back()->with('success','Event participation updated.');
  }

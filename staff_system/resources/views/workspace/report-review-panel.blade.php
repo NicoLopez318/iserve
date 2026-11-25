@@ -2,6 +2,7 @@
 <section class="panel compact-review"><h2>{{auth()->user()->role==='admin'?'Final Report Review':'Report Review'}}</h2>
 <strong>{{$item->title}}</strong><p>{{$item->semester}} · {{$item->academic_year}}</p><p class="muted">{{$item->user->name}} · Version {{$snapshot['version']??1}}</p><span class="status {{$item->status}}">{{ucwords(str_replace('_',' ',$item->status))}}</span>
 <h3>Summary</h3><p class="text-body">{{$item->summary}}</p>
+@if(filled($snapshot['unit_note'] ?? null))<h3>Unit Head Note</h3><p class="text-body">{{ $snapshot['unit_note'] }}</p>@endif
 @foreach($snapshot['activity']??[] as $metric)<div class="summary-line"><span>{{$metric['service']}}</span><strong>{{$metric['completed']}} / {{$metric['pending']}} pending</strong></div>@endforeach
 <h3>Attachments</h3>
 @forelse($snapshot['files']??[] as $i=>$file)<a class="file" href="/workspace/report/{{$item->id}}/file/{{$i}}">{{$file['name']}}</a>@empty<p class="muted">No supporting files.</p>@endforelse

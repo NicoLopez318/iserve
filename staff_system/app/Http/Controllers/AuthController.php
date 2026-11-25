@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth,Hash,Password,Mail,Http};
+use Illuminate\Support\Facades\{Auth,DB,Hash,Password,Mail,Http};
 use Illuminate\Support\Str;
 class AuthController extends Controller {
  public function login(Request $r){
@@ -18,13 +18,16 @@ class AuthController extends Controller {
    return redirect('/two-factor');
   }
   Auth::login($u,$r->boolean('remember'));$r->session()->regenerate();
-  \Illuminate\Support\Facades\DB::table('audit_logs')->insert(['user_id'=>$u->id,'action'=>'account.login','subject'=>$u->email,'details'=>'Staff portal login','created_at'=>now()]);
+  $this->recordStaffLogin($u);
   return redirect()->intended($u->isStaff()?'/staff':($u->profile_complete?'/home':'/profile/setup'));
  }
  public function challenge(Request $r){
   $r->validate(['code'=>'required|digits:6']);$c=$r->session()->get('challenge');
   if(!$c||$c['expires']<time()||!Hash::check($r->code,$c['hash']))return back()->withErrors(['code'=>'Incorrect or expired code.']);
-  $u=User::findOrFail($c['user']);Auth::login($u,$c['remember']);$r->session()->forget('challenge');$r->session()->regenerate();return redirect($u->isStaff()?'/staff':'/home');
+  $u=User::findOrFail($c['user']);Auth::login($u,$c['remember']);$r->session()->forget('challenge');$r->session()->regenerate();$this->recordStaffLogin($u);return redirect($u->isStaff()?'/staff':'/home');
+ }
+ private function recordStaffLogin(User $user):void{
+  if($user->isStaff())DB::table('audit_logs')->insert(['user_id'=>$user->id,'action'=>'account.login','subject'=>$user->email,'details'=>'Staff portal login','created_at'=>now()]);
  }
  public function register(Request $r){
   $r->merge(['email'=>strtolower(trim((string)$r->email))]);
@@ -51,7 +54,7 @@ class AuthController extends Controller {
   $u=User::where('email',$info['email'])->first();
   if($u?->two_factor)return redirect('/login')->withErrors(['login'=>'Use your password and sign-in code for this protected account.']);
   $u??=User::create(['email'=>$info['email'],'name'=>$info['name']??'Student','username'=>'user_'.Str::lower(Str::random(12)),'password'=>Str::random(64),'role'=>'student','email_verified_at'=>now()]);
-  Auth::login($u);$r->session()->regenerate();return redirect($u->isStaff()?'/staff':($u->profile_complete?'/home':'/profile/setup'));
+  Auth::login($u);$r->session()->regenerate();$this->recordStaffLogin($u);return redirect($u->isStaff()?'/staff':($u->profile_complete?'/home':'/profile/setup'));
  }
 }
 
