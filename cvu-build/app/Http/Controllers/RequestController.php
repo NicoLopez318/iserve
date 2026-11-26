@@ -14,7 +14,7 @@ class RequestController extends Controller {
   if(in_array($kind,['scholarship','leadership','activity','achievement','seminar','clearance']))$this->requireCondition($r->user()->account_type==='student',403);
   if($kind==='clearance'){$configured=json_decode(DB::table('settings')->where('key','staff.clearance-slots')->value('value')??'[]',true);if($configured)config(['portal.fields.clearance.schedule'=>'select:'.implode(',',array_unique(array_column(array_filter($configured,fn($s)=>($s['open']??false)&&$s['date']>today()->format('Y-m-d')),'start')))]);}
   $draft=$kind==='activity'?DB::table('proposal_drafts')->where('user_id',$r->user()->id)->first():null;
-  return view('transactions.form',['kind'=>$kind,'draft'=>$draft,'draftDetails'=>$draft?json_decode($draft->details,true):[],'draftFiles'=>$draft?json_decode($draft->files,true):[],'organizations'=>Organization::all(),'seminars'=>Event::where('type','seminar')->where('status','published')->where('starts_at','>',now())->get()]);
+  return view('transactions.form',['kind'=>$kind,'draft'=>$draft,'draftDetails'=>$draft?json_decode($draft->details,true):[],'draftFiles'=>$draft?json_decode($draft->files,true):[],'organizations'=>Organization::visibleInStudentPortal()->get(),'seminars'=>Event::where('type','seminar')->where('status','published')->where('starts_at','>',now())->get()]);
  }
  public function store(Request $r,string $kind){
   if(in_array($kind,['readmission','clearance','seminar']))return app(CvuFlowController::class)->submit($r,$kind);
@@ -30,7 +30,7 @@ class RequestController extends Controller {
    if($type==='datetime-local')$rule='required|date|after_or_equal:today';
    if($type==='number')$rule='required|integer|min:1|max:'.($name==='points'?'1000':'5000');
    if(str_starts_with($type,'select:'))$rule='required|in:'.substr($type,7);
-   if($type==='organization')$rule='required|integer|exists:organizations,id';
+   if($type==='organization')$rule=['required','integer',Organization::visibleInStudentPortalRule()];
    if($type==='seminar')$rule='required|integer|exists:events,id';
    $rules['details.'.$name]=$rule;
   }

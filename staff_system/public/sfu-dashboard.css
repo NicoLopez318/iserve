@@ -1420,6 +1420,8 @@ body.unit-workspace[data-page="settings"] #change-password .field + .field { mar
 .slu-create-verify { min-height: 33px; padding: 3px 6px; border-color: #777; border-radius: 8px; background: #716c6c; color: #fff; font-size: 10px; text-transform: uppercase; }
 .slu-create-verify:enabled { border-color: var(--sfu-red); background: var(--sfu-red); }
 .slu-create-help { display: block; margin: 5px 8px; }
+.slu-create-help[data-state="error"] { color: var(--sfu-red); font-weight: 700; }
+.slu-create-help[data-state="verified"] { font-weight: 700; }
 .slu-create-student-preview { display: flex; align-items: center; gap: 12px; min-height: 55px; margin: 9px 8px 0; padding: 5px 10px; border-radius: 10px; background: #dedada; }
 .Dark .slu-create-student-preview { background: #493e3e; }
 .slu-create-student-icon { display: grid; place-items: center; flex: none; width: 41px; height: 41px; border-radius: 50%; background: #8f8989; }
@@ -1430,10 +1432,14 @@ body.unit-workspace[data-page="settings"] #change-password .field + .field { mar
 .slu-create-portal-row { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
 .slu-create-portal-row p { margin: 0; font-size: 11px; font-weight: 500; }
 .slu-create-portal-row small { display: block; margin-top: 4px; }
-.slu-setting-toggle-static { position: relative; flex: none; width: 48px; height: 25px; }
-.slu-setting-toggle-static input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; }
-.slu-setting-toggle-static span { width: 48px; height: 25px; border-radius: 8px; background: #d6d3d3; }
-.slu-setting-toggle-static span::after { content: ''; display: block; width: 20px; height: 20px; margin: 2px; border-radius: 50%; background: #fff; }
+.slu-portal-switch { position: relative; flex: none; width: 48px; height: 25px; }
+.slu-portal-switch input[type="checkbox"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
+.slu-portal-switch span { display: block; width: 100%; height: 100%; padding: 2px; border-radius: 8px; background: #d6d3d3; }
+.slu-portal-switch span::after { content: ''; display: block; width: 20px; height: 20px; border-radius: 50%; background: #fff; }
+.slu-portal-switch input:checked + span { background: var(--sfu-red); }
+.slu-portal-switch input:checked + span::after { transform: translateX(23px); }
+.slu-portal-switch input:focus-visible + span { outline: 2px solid var(--sfu-red); outline-offset: 2px; }
+.slu-org-create-dialog .slu-create-portal-row p label { display: inline; cursor: pointer; }
 .slu-create-actions { display: flex; align-items: stretch; justify-content: flex-end; gap: 18px; margin: 12px 23px 0 0; }
 .slu-create-actions button { min-height: 39px; padding: 6px 13px; border-radius: 8px; font-size: 11px; font-weight: 700; }
 .slu-create-actions button:nth-child(1) { min-width: 84px; }

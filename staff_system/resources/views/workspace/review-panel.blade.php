@@ -87,15 +87,7 @@
 <a class="button outline" href="/workspace/community">Proceed to Community Service</a>
 @endif
 @if(auth()->user()->role===$item->office()&&in_array($item->status,['approved','rejected','cancelled']))
-<details><summary>Record Actions</summary><form method="post" action="/workspace/request/{{$item->id}}/disposition">@csrf
-<label class="field">Remarks<textarea name="review_note" minlength="5" maxlength="3000" required></textarea></label><div class="actions">
-@if($item->status==='approved'&&in_array($item->kind,['lost','found','id-replacement'])&&!($item->details['released']??false))<button name="action" value="release">Release Item / Slip</button>@endif
-<button class="outline" name="action" value="{{$item->details['archived']??false?'restore':'archive'}}">{{$item->details['archived']??false?'Restore Record':'Archive Record'}}</button>
-</div></form></details>
+@include('workspace.review-record-actions')
 @endif
-<details><summary>Submission Timeline</summary><div class="timeline"><article><strong>Submitted</strong><small>{{$item->created_at->format('M j, Y g:i A')}}</small></article>
-@foreach($history as $entry)
-<article><strong>{{ucwords(str_replace(['request.','_'],['',' '],$entry->action))}}</strong><p>{{$entry->details}}</p><small>{{$entry->name}} · {{$entry->created_at}}</small></article>
-@endforeach
-</div></details>
+@include('workspace.review-history')
 </section>

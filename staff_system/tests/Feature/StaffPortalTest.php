@@ -175,6 +175,199 @@ class StaffPortalTest extends TestCase {
   $this->get($url)->assertOk()->assertSeeText('Unit Approved')->assertDontSeeText('Approve & Send to Assistant');
  }
  public function test_all_role_screens_render_with_real_empty_data():void{foreach(['admin','assistant','sfu_head','cvu_head','slu_head'] as $role){$actor=$this->actor($role);foreach(StaffPortalController::menus($role) as $page=>$label){$this->actingAs($actor)->get('/workspace/'.$page)->assertOk()->assertSee($label);}}}
+
+ public function test_slu_can_verify_an_available_student_and_create_an_organization():void
+ {
+  $head=$this->actor('slu_head');
+  $student=$this->actor('student');
+  $student->update(['student_id'=>'SLU-2026-01','course'=>'Information Technology']);
+  $unverified=$this->actor('student');
+  $unverified->update(['student_id'=>'SLU-2026-02','email_verified_at'=>null]);
+  $verify='/workspace/organizations/verify-leader';
+  $this->actingAs($this->actor('cvu_head'))->postJson($verify,['student_ref'=>$student->student_id])->assertForbidden();
+  $this->actingAs($head)->postJson($verify,['student_ref'=>'unknown'])->assertNotFound()
+   ->assertJsonPath('message','No iServe student account matches that ID.');
+  $this->postJson($verify,['student_ref'=>$unverified->student_id])->assertUnprocessable()
+   ->assertJsonPath('message','This student must verify their iServe email before they can lead an organization.');
+
+  $leader=$this->postJson($verify,['student_ref'=>'  slu-2026-01  '])->assertOk()
+   ->assertJsonPath('reference',$student->student_id)->assertJsonPath('program','Information Technology')
+   ->json('id');
+  $organization=[
+   'name'=>'Technology Society','acronym'=>'TECH','college'=>'Computing','type'=>'Academic',
+   'adviser'=>'Test Adviser','president_id'=>$leader,
+  ];
+  $this->from('/workspace/organizations')->post('/workspace/organizations',$organization+['president_ref'=>$unverified->student_id])
+   ->assertRedirect('/workspace/organizations')->assertSessionHasErrors('president_id');
+  $this->post('/workspace/organizations',$organization+['president_ref'=>$student->student_id])
+   ->assertRedirect('/workspace/organizations')->assertSessionHasNoErrors();
+  $this->assertDatabaseHas('organizations',['name'=>'Technology Society']);
+  $this->assertSame('Technology Society',$student->fresh()->organization->name);
+  $this->assertSame('President',$student->fresh()->position);
+  $metadata=DB::table('settings')->where('key','staff.organization.'.$student->fresh()->organization_id)->value('value');
+  $this->assertTrue(json_decode($metadata,true)['portal_visible']);
+  $this->postJson($verify,['student_ref'=>$student->student_id])->assertUnprocessable()
+   ->assertJsonPath('message','This student already belongs to an organization.');
+ }
+
+ public function test_slu_can_save_and_create_an_organization_with_portal_visibility_off():void
+ {
+  $head=$this->actor('slu_head');
+  $student=$this->actor('student');
+  $page='/workspace/organizations';
+  $details=[
+   'name'=>'Staff-Only Society','acronym'=>'SOS','college'=>'Computing','type'=>'Academic',
+   'adviser'=>'Test Adviser','president_id'=>(string)$student->id,'portal_visible'=>'0',
+  ];
+  $this->actingAs($head)->from($page)->post('/workspace/drafts/organization',$details)
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $draft=collect(\App\Support\StaffDrafts::listing($head,'organization'))->sole();
+  $this->assertSame('0',$draft['fields']['portal_visible']);
+  $this->post($page,$details+['draft_id'=>$draft['id']])->assertRedirect($page)->assertSessionHasNoErrors();
+  $metadata=DB::table('settings')->where('key','staff.organization.'.$student->fresh()->organization_id)->value('value');
+  $this->assertFalse(json_decode($metadata,true)['portal_visible']);
+  $this->get($page)->assertOk()->assertSee('Staff-Only Society');
+ }
+
+ public function test_cvu_dashboard_shows_only_actionable_unit_requests_and_opens_the_review():void
+ {
+  $student=$this->actor('student');
+  $head=$this->actor('cvu_head');
+  $createRequest=fn($ticket,$kind,$status,$details=[])=>ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>$ticket,'kind'=>$kind,'status'=>$status,'details'=>$details,
+  ]);
+  $older=$createRequest('CVU-OLDER','lost','pending');
+  foreach(range(1,3) as $number)$createRequest('CVU-PRIOR-'.$number,'readmission','pending');
+  $item=$createRequest('CVU-REVIEW','complaint','in_review');
+  $createRequest('CVU-ARCHIVED','complaint','pending',['archived'=>true]);
+  $createRequest('CVU-APPROVED','complaint','approved');
+  $createRequest('SFU-PENDING','scholarship','pending');
+
+  $dashboard=$this->actingAs($head)->get('/workspace/dashboard')->assertOk()
+   ->assertSee('Today’s Summary')->assertSee('Items Needing Review')->assertSee('Community Service Overview')
+   ->assertSee('Review '.$item->ticket)
+   ->assertDontSee($older->ticket)->assertDontSee('CVU-ARCHIVED')->assertDontSee('CVU-APPROVED')
+   ->assertDontSee('SFU-PENDING');
+  $this->assertSame(5,$dashboard->viewData('cvuReviewQueue')->total());
+  $this->get('/workspace/dashboard?reviews=2')->assertOk()->assertSee('Review '.$older->ticket);
+  $this->get('/workspace/dashboard?review='.$item->id)->assertOk()->assertSee('id="transaction-review"',false);
+ }
+
+ public function test_cvu_complaints_keep_search_status_and_archive_filters_on_the_review_queue():void
+ {
+  $student=$this->actor('student');
+  $head=$this->actor('cvu_head');
+  $active=ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'CMP-ACTIVE','kind'=>'complaint','status'=>'pending',
+   'details'=>['respondent'=>'Jamie Santos','complaint_type'=>'Bullying'],
+  ]);
+  ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'CMP-ARCHIVED','kind'=>'complaint','status'=>'approved',
+   'details'=>['respondent'=>'Jamie Santos','complaint_type'=>'Harassment','archived'=>true],
+  ]);
+
+  $this->actingAs($head)->get('/workspace/complaints?search=Jamie&status=pending')->assertOk()
+   ->assertSee('Find Archived')->assertSee('1 archived')->assertSee('CMP-ACTIVE')->assertDontSee('CMP-ARCHIVED');
+  $this->get('/workspace/complaints?search=Bullying&status=pending&review='.$active->id)
+   ->assertOk()->assertSee('id="transaction-review"',false)->assertSee('Jamie Santos');
+  $this->get('/workspace/complaints?search=Bullying&status=approved')->assertOk()
+   ->assertSee('No complaints found.');
+  $this->get('/workspace/complaints?archive=1&search=Harassment&status=approved')->assertOk()
+   ->assertSee('Archived Complaints')->assertSee('Back to Active')->assertSee('CMP-ARCHIVED')
+   ->assertDontSee('CMP-ACTIVE');
+ }
+
+ public function test_cvu_complaint_review_preserves_the_unit_workflow():void
+ {
+  $student=$this->actor('student');
+  $head=$this->actor('cvu_head');
+  $complaint=ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'CMP-DETAILS','kind'=>'complaint','status'=>'pending',
+   'details'=>['incident_date'=>'2026-09-13','incident_time'=>'10:30','description'=>str_repeat('Incident details. ',9)],
+   'files'=>['evidence'=>['path'=>'requests/incident.jpg','name'=>'incident.jpg','size'=>2400000]],
+  ]);
+  $page='/workspace/complaints?review='.$complaint->id;
+  $submit='/workspace/request/'.$complaint->id.'/note';
+  $remarks='Verify the attached incident evidence.';
+  $interview=now()->addDays(2)->format('Y-m-d\TH:i');
+
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('Complaints Details')
+   ->assertSee('Sep 13, 2026, 10:30 AM')->assertSee('Show more')->assertSee('incident.jpg');
+  $this->from($page)->post($submit,['complaint_action'=>'schedule','review_note'=>$remarks])
+   ->assertRedirect($page)->assertSessionHasErrors('interview_at');
+  $this->from($page)->post($submit,['complaint_action'=>'schedule','review_note'=>$remarks,'interview_at'=>$interview])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('in_review',$complaint->fresh()->status);
+  $this->from($page)->post($submit,['complaint_action'=>'save','review_note'=>$remarks,'interview_at'=>''])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame($interview,$complaint->fresh()->details['interview_at']);
+  $this->from($page)->post($submit,['complaint_action'=>'save','review_note'=>$remarks,'status'=>'approved'])
+   ->assertRedirect($page)->assertSessionHasErrors('status');
+  $this->assertSame('in_review',$complaint->fresh()->status);
+  $this->from($page)->post($submit,['complaint_action'=>'request-info','review_note'=>$remarks])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('needs_revision',$complaint->fresh()->status);
+
+  $complaint->refresh()->update(['status'=>'pending']);
+  $this->from($page)->post($submit,['complaint_action'=>'save','review_note'=>$remarks,'status'=>'unit_approved'])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('unit_approved',$complaint->fresh()->status);
+ }
+
+ public function test_cvu_lost_and_found_lists_only_reports_and_tracks_claim_release():void
+ {
+  $student=$this->actor('student');
+  $head=$this->actor('cvu_head');
+  $report=fn($ticket,$kind,$status,$details)=>ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>$ticket,'kind'=>$kind,'status'=>$status,'details'=>$details,
+  ]);
+  $report('LF-LOST','lost','pending',['item_name'=>'Umbrella']);
+  $claim=$report('LF-CLAIM','found','approved',['item_name'=>'Wallet']);
+  $report('LF-ARCHIVED','lost','cancelled',['archived'=>true]);
+  $report('OTHER-ARCHIVED','complaint','cancelled',['archived'=>true]);
+
+  $page='/workspace/lost-found';
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('Lost &amp; Found Record',false)
+   ->assertSee('1 archived')->assertSee('LF-LOST')->assertSee('LF-CLAIM')->assertDontSee('LF-ARCHIVED');
+  $this->get($page.'?search=Lost%20Report')->assertOk()->assertSee('LF-LOST')->assertDontSee('LF-CLAIM');
+  $this->get($page.'?search=Umbrella')->assertOk()->assertSee('LF-LOST')->assertDontSee('LF-CLAIM');
+  $this->get($page.'?status=claim_pending')->assertOk()->assertSee('LF-CLAIM')->assertDontSee('LF-LOST');
+  $this->get($page.'?archive=1')->assertOk()->assertSee('LF-ARCHIVED')->assertDontSee('OTHER-ARCHIVED')->assertDontSee('LF-LOST');
+  $review=$page.'?review='.$claim->id;
+  $this->get($review)->assertOk()->assertSee('id="transaction-review"',false)->assertSee('Release Item / Slip');
+  $this->from($review)->post('/workspace/request/'.$claim->id.'/disposition',['action'=>'release','review_note'=>'Ownership verified at pickup.'])
+   ->assertRedirect($review)->assertSessionHasNoErrors();
+  $this->get($page.'?status=released')->assertOk()->assertSee('LF-CLAIM')->assertDontSee('LF-LOST');
+  $this->get($page.'?status=claim_pending')->assertOk()->assertDontSee('LF-CLAIM');
+ }
+
+ public function test_cvu_lost_and_found_drawer_uses_the_existing_review_actions():void
+ {
+  $student=$this->actor('student');
+  $head=$this->actor('cvu_head');
+  $report=ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'LF-DETAILS','kind'=>'lost','status'=>'pending',
+   'details'=>['item_name'=>'Black Wallet','description'=>str_repeat('Identifying details. ',8),'location'=>'Library'],
+   'files'=>['item_photo'=>['path'=>'requests/wallet.jpg','name'=>'wallet.jpg']],
+  ]);
+  $page='/workspace/lost-found?review='.$report->id;
+  $submit='/workspace/request/'.$report->id.'/note';
+  $remarks='Student confirmed the identifying details.';
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('Selected Item Details')
+   ->assertSee('Black Wallet')->assertSee('wallet.jpg')->assertSee('Show more')
+   ->assertSee('Validate Claim')->assertSee('More Report Details');
+  $this->from($page)->post($submit,['lost_found_action'=>'save','review_note'=>$remarks])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('in_review',$report->fresh()->status);
+  $this->from($page)->post($submit,['lost_found_action'=>'request-info','review_note'=>$remarks])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('needs_revision',$report->fresh()->status);
+  $report->refresh()->update(['status'=>'pending']);
+  $this->from($page)->post($submit,['lost_found_action'=>'validate','review_note'=>$remarks])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('unit_approved',$report->fresh()->status);
+  $this->get($page)->assertOk()->assertSee('Unit Approved')->assertDontSee('Validate Claim');
+ }
  public function test_staff_only_login_and_pages():void{$student=$this->actor('student');$this->post('/login',['login'=>$student->email,'password'=>'TestingPassword123!'])->assertSessionHasErrors('login');$this->assertGuest();$this->actingAs($student)->get('/workspace')->assertForbidden();$sfu=$this->actor('sfu_head');$this->actingAs($sfu)->get('/workspace/organizations')->assertNotFound();}
  public function test_all_units_submit_and_revision_preserves_snapshot_history():void{$assistant=$this->actor('assistant');$admin=$this->actor('admin');foreach(['cvu_head','slu_head','sfu_head'] as $role){$head=$this->actor($role);$this->actingAs($head)->post('/workspace/reports',['title'=>'Monthly unit report','academic_year'=>'2026-2027','semester'=>'1st Semester','summary'=>str_repeat('Verified unit report. ',3),'date_from'=>'2026-09-01','date_to'=>'2026-09-30'])->assertRedirect();$report=Report::latest('id')->first();$this->assertSame('pending',$report->status);$this->actingAs($admin)->post('/workspace/report/'.$report->id,['status'=>'approved','review_note'=>'Reviewed all source records','check_content'=>1,'check_files'=>1,'check_source'=>1])->assertStatus(422);$this->actingAs($assistant)->post('/workspace/report/'.$report->id,['status'=>'needs_revision','review_note'=>'Please correct the attendance totals'])->assertRedirect()->assertSessionHasNoErrors();$this->actingAs($head)->post('/workspace/report/'.$report->id,['status'=>'pending','summary'=>str_repeat('Corrected unit report. ',3)])->assertRedirect()->assertSessionHasNoErrors();$this->assertCount(1,$report->fresh()->snapshot['versions']);$this->actingAs($assistant)->post('/workspace/report/'.$report->id,['status'=>'awaiting_admin','review_note'=>'Source records and attachments verified','check_content'=>1,'check_files'=>1,'check_source'=>1])->assertRedirect();$this->actingAs($admin)->post('/workspace/report/'.$report->id,['status'=>'assistant_revision','review_note'=>'Assistant clarification is required'])->assertRedirect();$this->actingAs($head)->post('/workspace/report/'.$report->id,['status'=>'pending','summary'=>str_repeat('Forbidden owner revision. ',3)])->assertStatus(422);$this->actingAs($assistant)->post('/workspace/report/'.$report->id,['status'=>'awaiting_admin','review_note'=>'Clarification added and source confirmed','check_content'=>1,'check_files'=>1,'check_source'=>1])->assertRedirect();$this->actingAs($admin)->post('/workspace/report/'.$report->id,['status'=>'approved','review_note'=>'Final report review complete','check_content'=>1,'check_files'=>1,'check_source'=>1])->assertRedirect();$this->assertSame('approved',$report->fresh()->status);$this->get('/workspace/report/'.$report->id)->assertOk();$this->get('/workspace/report/'.$report->id.'/receipt')->assertOk();}}
  public function test_cross_unit_private_files_and_reports_are_denied():void{Storage::fake('local');Storage::put('requests/evidence.pdf','PRIVATE');$owner=$this->actor('student');$sfu=$this->actor('sfu_head');$cvu=$this->actor('cvu_head');$q=ServiceRequest::create(['user_id'=>$owner->id,'ticket'=>'PRIVATE-CVU','kind'=>'complaint','details'=>['description'=>'Private case details'],'files'=>['evidence'=>['path'=>'requests/evidence.pdf','name'=>'evidence.pdf']]]);$this->actingAs($sfu)->get('/workspace/request/'.$q->id)->assertForbidden();$this->get('/requests/'.$q->id.'/files/evidence')->assertForbidden();$this->actingAs($cvu)->get('/workspace/request/'.$q->id)->assertOk();$this->get('/requests/'.$q->id.'/files/evidence')->assertOk();}

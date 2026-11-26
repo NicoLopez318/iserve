@@ -19,6 +19,7 @@ Route::middleware(['auth','staff'])->group(function(){
  Route::get('/workspace/report/{report}/receipt',[Portal::class,'reportReceipt']);
  Route::post('/workspace/drafts/{kind}',[App\Http\Controllers\StaffDraftController::class,'store']);
  Route::post('/workspace/organizations',[Portal::class,'organization']);
+ Route::post('/workspace/organizations/verify-leader',[Portal::class,'verifyOrganizationLeader'])->name('staff.organizations.verify-leader');
  Route::post('/workspace/organization/{organization}/member',[Portal::class,'organizationMember']);
  Route::post('/workspace/event/{event}',[Portal::class,'event']);
  Route::delete('/workspace/event-venues',[Portal::class,'removeEventVenue'])->name('staff.event-venues.remove');

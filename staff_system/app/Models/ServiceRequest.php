@@ -1,10 +1,22 @@
 <?php
 namespace App\Models;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 class ServiceRequest extends Model {
  public const MEMBERSHIP_STATUSES=[
   'pending'=>'New','in_review'=>'For Review','needs_revision'=>'Incomplete','unit_approved'=>'Unit Approved',
   'awaiting_admin'=>'Under Admin Review','approved'=>'Approved','rejected'=>'Declined','cancelled'=>'Cancelled',
+ ];
+ public const COMPLAINT_STATUSES=[
+  'pending'=>'For Review','in_review'=>'Under Unit Review','needs_revision'=>'For Compliance',
+  'unit_approved'=>'Unit Approved','awaiting_admin'=>'Under Admin Review','approved'=>'Resolved',
+  'rejected'=>'Declined','cancelled'=>'Cancelled',
+ ];
+ public const LOST_FOUND_TYPES=['lost'=>'Lost Report','found'=>'Found Report'];
+ public const LOST_FOUND_STATUSES=[
+  'pending'=>'New','in_review'=>'For Review','needs_revision'=>'For Compliance',
+  'unit_approved'=>'Unit Approved','awaiting_admin'=>'Under Admin Review','approved'=>'All Approved','claim_pending'=>'Claim Pending',
+  'released'=>'Released','rejected'=>'Declined','cancelled'=>'Cancelled',
  ];
  public const PROPOSAL_CHECKLIST=[
   'Pre-Activity'=>['pre_intent','pre_matrix','pre_evaluation','pre_resolution','pre_budget'],
@@ -14,6 +26,17 @@ class ServiceRequest extends Model {
  protected function casts():array{return ['details'=>'array','files'=>'array','reviewed_at'=>'datetime'];}
  public function user(){return $this->belongsTo(User::class);}
  public function reviewer(){return $this->belongsTo(User::class,'reviewed_by');}
+ public function scopeAwaitingRelease(Builder $query):Builder{
+  return $query->where('status','approved')
+   ->where(fn($items)=>$items->whereNull('details->released')->orWhere('details->released',false));
+ }
+ public function lostFoundStatus():string{
+  return match(true){
+   !empty($this->details['released'])=>'released',
+   $this->status==='approved'=>'claim_pending',
+   default=>$this->status,
+  };
+ }
  public function attachmentPath(string $key):?string{
   $file=$this->files[$key]??null;
   $path=is_array($file)?($file['path']??null):$file;

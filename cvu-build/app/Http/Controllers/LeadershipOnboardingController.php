@@ -18,7 +18,7 @@ class LeadershipOnboardingController extends Controller
         if ($pending) return redirect('/leadership/submitted/'.$pending->id);
         $revision = $request->user()->requests()->where('kind', 'leadership')->where('status', 'needs_revision')->latest()->first();
         if ($revision) return redirect('/requests/'.$revision->id);
-        return view('transactions.leadership', ['organizations' => Organization::orderBy('name')->get()]);
+        return view('transactions.leadership', ['organizations' => Organization::visibleInStudentPortal()->orderBy('name')->get()]);
     }
 
     public function store(Request $request)
@@ -30,7 +30,7 @@ class LeadershipOnboardingController extends Controller
             'student_id' => ['required','string','max:40',Rule::unique('users')->ignore($user->id)],
             'course' => 'required|string|max:100',
             'year_level' => 'required|in:1st Year,2nd Year,3rd Year,4th Year,5th Year,Graduate',
-            'details.organization_id' => 'required|integer|exists:organizations,id',
+            'details.organization_id' => ['required', 'integer', Organization::visibleInStudentPortalRule()],
             'details.position' => 'required|string|max:100',
         ];
         $documentAttributes = [];

@@ -2,7 +2,11 @@
 @section('content')
 @php($role=auth()->user()->role)
 @php($monitor=in_array($role,['admin','assistant']))
-@if($role === 'sfu_head' && $page === 'dashboard')
+@if($role === 'cvu_head' && $page === 'dashboard')
+ @include('workspace.cvu-dashboard')
+@elseif($role === 'cvu_head' && in_array($page, ['complaints', 'lost-found'], true))
+ @include('workspace.cvu-request-list')
+@elseif($role === 'sfu_head' && $page === 'dashboard')
  @include('workspace.sfu-dashboard')
 @elseif($role === 'sfu_head' && $page === 'applications')
  @include('workspace.unit-stat-cards')
@@ -72,16 +76,20 @@
 @php($membershipReview = $membershipTab && $selectedRequest->kind === 'leadership')
 @php($sluProposalReview = $role === 'slu_head' && $page === 'proposals' && $selectedRequest->kind === 'activity' && empty($selectedRequest->details['completion_report']))
 @php($sluAchievementReview = $role === 'slu_head' && $page === 'achievements' && $selectedRequest->kind === 'achievement' && empty($selectedRequest->details['adjustment']))
+@php($cvuComplaintReview = $role === 'cvu_head' && $page === 'complaints' && $selectedRequest->kind === 'complaint')
+@php($cvuLostFoundReview = $role === 'cvu_head' && $page === 'lost-found' && isset(App\Models\ServiceRequest::LOST_FOUND_TYPES[$selectedRequest->kind]))
+@php($cvuCaseReview = $cvuComplaintReview || $cvuLostFoundReview)
 @php($centerReview = $adminView || $scholarshipReview || $leadershipReview || $sluAchievementReview)
 @php($closeReviewUrl=$role==='slu_head'&&$page==='organizations'?request()->fullUrlWithQuery(['tab'=>'membership','review'=>null,'report'=>null]):request()->fullUrlWithoutQuery(['review','report']))
-<dialog id="transaction-review" @class(['drawer review-drawer' => !$centerReview, 'slu-membership-dialog' => $membershipReview, 'slu-proposal-dialog' => $sluProposalReview, 'slu-achievement-dialog' => $sluAchievementReview])
+<dialog id="transaction-review" @class(['drawer review-drawer' => !$centerReview, 'slu-membership-dialog' => $membershipReview, 'slu-proposal-dialog' => $sluProposalReview, 'slu-achievement-dialog' => $sluAchievementReview, 'cvu-case-dialog' => $cvuCaseReview, 'cvu-lost-found-dialog' => $cvuLostFoundReview])
         open data-auto-open
         @if($membershipReview) aria-labelledby="slu-membership-review-title"
         @elseif($sluProposalReview) aria-labelledby="slu-proposal-review-title"
         @elseif($sluAchievementReview) aria-labelledby="slu-achievement-review-title"
+        @elseif($cvuCaseReview) aria-labelledby="cvu-case-review-title"
         @else aria-label="Transaction details" @endif>
     <a class="close-dialog" href="{{ $closeReviewUrl }}" aria-label="Close">×</a>
-    @include('workspace.review-panel',['item'=>$selectedRequest,'history'=>$selectedHistory])
+    @include($cvuCaseReview ? 'workspace.cvu-case-review' : 'workspace.review-panel',['item'=>$selectedRequest,'history'=>$selectedHistory])
 </dialog>
 @endif
 @if($selectedReport)

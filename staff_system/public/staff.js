@@ -17,6 +17,9 @@ document.querySelectorAll('dialog').forEach(dialog => {
     });
 });
 document.querySelectorAll('[data-verify]').forEach(button=>button.addEventListener('click',()=>{const select=document.getElementById(button.dataset.verify);const output=document.getElementById(button.dataset.result);output.textContent=select?.selectedOptions[0]?.dataset.info||'Select a verified student record first.';}));
+document.querySelectorAll('[data-submit-on-change]').forEach(control => {
+    control.addEventListener('change', () => control.form.requestSubmit());
+});
 
 document.querySelectorAll('dialog[data-auto-open]').forEach(dialog => {
     if (typeof dialog.showModal !== 'function') return;

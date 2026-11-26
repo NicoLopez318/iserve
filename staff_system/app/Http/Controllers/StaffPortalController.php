@@ -67,6 +67,7 @@ class StaffPortalController extends Controller
    str_contains($label,'found reports')=>$q->where('kind','found')->count(),
    str_contains($label,'resolved'),str_contains($label,'approved'),str_contains($label,'processed'),str_contains($label,'cleared')=>$q->where('status','approved')->count(),
    str_contains($label,'released')=>$q->where('details->released',true)->count(),
+   $page==='lost-found'&&$label==='pending claims'=>$q->awaitingRelease()->count(),
    str_contains($label,'interview')=>$q->whereNotNull('details->interview_at')->count(),
    str_contains($label,'appointments today')=>$q->where('kind','clearance')->where('details->appointment_date',today()->format('Y-m-d'))->count(),
    str_contains($label,'compliance'),str_contains($label,'incomplete'),str_contains($label,'awaiting requirements')=>$q->where('status','needs_revision')->count(),
@@ -92,6 +93,9 @@ class StaffPortalController extends Controller
   $menus=self::menus($r->user()->role);abort_unless(isset($menus[$page]),404);
   $sfuDashboard=$page==='dashboard'&&$r->user()->role==='sfu_head';
   $sluDashboard=$page==='dashboard'&&$r->user()->role==='slu_head';
+  $cvuDashboard=$page==='dashboard'&&$r->user()->role==='cvu_head';
+  $cvuComplaints=$page==='complaints'&&$r->user()->role==='cvu_head';
+  $cvuLostFound=$page==='lost-found'&&$r->user()->role==='cvu_head';
   $sluProposals=$page==='proposals'&&$r->user()->role==='slu_head';
   $sluAchievements=$page==='achievements'&&$r->user()->role==='slu_head';
   $fullProposalQueue=$sluProposals&&$r->query('queue')==='all';
@@ -103,6 +107,9 @@ class StaffPortalController extends Controller
   $sluReports=$page==='reports'&&$r->user()->role==='slu_head';
   $scope=$this->scope($r);$kinds=['complaints'=>['complaint'],'lost-found'=>['lost','found'],'readmission'=>['readmission'],'id-replacement'=>['id-replacement'],'applications'=>['scholarship'],'organizations'=>['leadership'],'proposals'=>['activity'],'achievements'=>['achievement'],'clearance'=>['clearance'],'seminars'=>['seminar']];
   if(isset($kinds[$page]))$scope->whereIn('kind',$kinds[$page]);
+  $archivedRequestCount=$cvuComplaints||$cvuLostFound
+   ?(clone $scope)->where('details->archived',true)->count()
+   :0;
   if($unit=$this->unitRole($page))$scope->whereIn('kind',config('portal.office.'.$unit));
   $scope->when($r->boolean('archive'),fn($q)=>$q->where('details->archived',true),fn($q)=>$q->where(fn($x)=>$x->whereNull('details->archived')->orWhere('details->archived',false)));
   $achievementCategories=collect();
@@ -119,9 +126,16 @@ class StaffPortalController extends Controller
    }
   }
   if($r->filled('search')){
-   $term='%'.$r->string('search')->trim().'%';
+   $search=$r->string('search')->trim()->toString();
+   $term='%'.$search.'%';
+   $reportKinds=$cvuLostFound?array_keys(array_filter(ServiceRequest::LOST_FOUND_TYPES,
+    fn($label)=>stripos($label,$search)!==false)):[];
    $scope->where(fn($query)=>$query->where('ticket','like',$term)
     ->orWhereHas('user',fn($user)=>$user->where('name','like',$term)->orWhere('student_id','like',$term))
+    ->when($cvuComplaints,fn($complaints)=>$complaints->orWhere('details->respondent','like',$term)
+     ->orWhere('details->complaint_type','like',$term))
+    ->when($cvuLostFound,fn($items)=>$items->orWhere('details->item_name','like',$term)
+     ->orWhereIn('kind',$reportKinds))
     ->when($membershipTab,fn($membership)=>$membership->orWhereIn('details->organization_id',Organization::select('id')->where('name','like',$term)))
     ->when($sluProposals||$sluAchievements,fn($submission)=>$submission->orWhere('details->title','like',$term)
      ->orWhere(fn($organization)=>$this->filterRequestOrganization($organization,Organization::select('id')->where('name','like',$term)))));
@@ -133,13 +147,17 @@ class StaffPortalController extends Controller
   if(($sluProposals||$sluAchievements)&&$r->filled('organization')){
    $this->filterRequestOrganization($scope,Organization::select('id')->whereKey($r->integer('organization')));
   }
-  $scope->when($r->filled('status'),fn($q)=>$sfuQueue&&$r->status==='pending'
-   ?$q->whereIn('status',['pending','in_review']):$q->where('status',$r->status));
+  $scope->when($r->filled('status'),fn($q)=>match(true){
+   $sfuQueue&&$r->status==='pending'=>$q->whereIn('status',['pending','in_review']),
+   $cvuLostFound&&$r->status==='claim_pending'=>$q->awaitingRelease(),
+   $cvuLostFound&&$r->status==='released'=>$q->where('details->released',true),
+   default=>$q->where('status',$r->status),
+  });
   $scope->when($sfuQueue&&$r->filled('program'),fn($q)=>$q->whereHas('user',fn($user)=>$user->where('course',$r->string('program')->toString())));
   if($page==='points')$scope->where('details->adjustment',true)->whereIn('status',['unit_approved','awaiting_admin']);
   if($sluDashboard&&!$fullSluQueue&&!$r->filled('status'))$scope->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin']);
   $queueSize=$fullSluQueue||$fullProposalQueue?15:(($sfuDashboard||$sluDashboard||$sluProposals)?4:5);
-  $requests=$scope->latest()->when($sluProposals||$sluAchievements,fn($query)=>$query->orderByDesc('id'))
+  $requests=$scope->latest()->when($sluProposals||$sluAchievements||$cvuLostFound,fn($query)=>$query->orderByDesc('id'))
    ->paginate($queueSize,['*'],'transactions')->withQueryString();
   if(($sfuQueue&&!$sfuDashboard)||$membershipTab||$sluProposals||$sluAchievements||$page==='points')$requests->appends(['review'=>null,'report'=>null]);
   $reportQuery=$this->reports($r)->when($unit,fn($q)=>$q->whereHas('user',fn($u)=>$u->where('role',$unit)));
@@ -199,7 +217,28 @@ class StaffPortalController extends Controller
   $contentLibrary=$page==='content'?$this->contentLibrary($r):null;
   $slots=array_map(fn($slot)=>[...$slot,'end'=>$slot['end']??'—'],$this->metadata('clearance-slots'));$rules=$this->metadata('points-rules');
   $designs=json_decode(file_get_contents(base_path('design-pages.json')),true);$design=$designs[$r->user()->role][$page]??['title'=>$menus[$page],'description'=>''];
-  if(!$sluReports)foreach($design['cards']??[] as $i=>$card)$design['cards'][$i]['value']=$this->cardValue($r,$card['label'],$page);
+  if(!$sluReports&&!$cvuDashboard)foreach($design['cards']??[] as $i=>$card)$design['cards'][$i]['value']=$this->cardValue($r,$card['label'],$page);
+  $cvuSummary=collect();$cvuReviewQueue=null;$cvuCommunityStats=[];
+  if($cvuDashboard){
+   $cvuSummary=$this->scope($r)->whereDate('created_at',today())
+    ->selectRaw('kind, count(*) as total')->groupBy('kind')->pluck('total','kind');
+   $pendingReviews=$this->scope($r)->whereIn('status',['pending','in_review'])
+    ->where(fn($q)=>$q->whereNull('details->archived')->orWhere('details->archived',false));
+   $cvuReviewQueue=$pendingReviews->without(['user','reviewer'])->latest()->orderByDesc('id')
+    ->paginate(4,['*'],'reviews')->appends($r->except(['review','report']));
+   $cvuCommunityStats=[
+    'active'=>$assignments->where('status','active')->count(),
+    'verification'=>$attendance->whereNotNull('assignment_id')->count(),
+    'completed'=>$assignments->where('status','completed')->filter(fn($item)=>$item->updated_at?->isSameMonth(today()))->count(),
+   ];
+   $dashboardCounts=[
+    'Clients Today'=>$cvuSummary->sum(),
+    'Pending Reviews'=>$cvuReviewQueue->total(),
+    'Active Community Service'=>$cvuCommunityStats['active'],
+    'Completed Today'=>$this->cardValue($r,'Completed Today',$page),
+   ];
+   foreach($design['cards'] as $i=>$card)$design['cards'][$i]['value']=$dashboardCounts[$card['label']];
+  }
   $selectedRequest=null;$selectedHistory=collect();
   if(!$r->filled('report')&&$r->filled('review')){$r->validate(['review'=>'integer|min:1']);$selectedRequest=$this->scope($r)->findOrFail($r->integer('review'));}
   elseif($sfuDashboard)$selectedRequest=$requests->first();
@@ -221,7 +260,7 @@ class StaffPortalController extends Controller
   $sluActivity=$sluDashboard?$this->sluActivity($r):collect();
   $orgDirectory=$sluOrganizations&&!$membershipTab?$this->organizationDirectory($r,$organizations,$organizationPoints):null;
   $orgForm=$sluOrganizations?$this->organizationFormOptions():null;
-  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','reportPeriods','sluReportActivity','counts','reportCounts','organizations','events','eventVenues','eventCalendar','assignments','students','attendance','journals','points','leadershipPoints','scoringPublication','scoringHistory','audit','contentLibrary','slots','rules','sfuPrograms','sfuSummary','fullSluQueue','fullProposalQueue','sluDeadlines','sluActivity','membershipTab','orgDirectory','orgForm','achievementCategories','achievementMatch'));
+  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','reportPeriods','sluReportActivity','counts','reportCounts','organizations','events','eventVenues','eventCalendar','assignments','students','attendance','journals','points','leadershipPoints','scoringPublication','scoringHistory','audit','contentLibrary','slots','rules','sfuPrograms','sfuSummary','fullSluQueue','fullProposalQueue','sluDeadlines','sluActivity','membershipTab','orgDirectory','orgForm','achievementCategories','achievementMatch','cvuSummary','cvuReviewQueue','cvuCommunityStats','archivedRequestCount'));
  }
  private function contentLibrary(Request $request):array
  {
@@ -414,7 +453,40 @@ class StaffPortalController extends Controller
  }
  public function requestNote(Request $r,ServiceRequest $serviceRequest){
   abort_unless($r->user()->role===$serviceRequest->office()&&in_array($serviceRequest->status,['pending','in_review']),403);
-  $v=$r->validate(['review_note'=>'required|string|min:5|max:3000','interview_at'=>'nullable|date|after:now','appointment_date'=>'nullable|date','schedule'=>'nullable|date_format:H:i','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean']);
+  $action=null;$status=null;
+  if(isset(ServiceRequest::LOST_FOUND_TYPES[$serviceRequest->kind])&&$r->has('lost_found_action')){
+   $decision=$r->validate([
+    'lost_found_action'=>'required|in:save,request-info,validate',
+    'status'=>'nullable|in:rejected',
+   ]);
+   $action=$decision['lost_found_action'];
+   $status=match($action){
+    'request-info'=>'needs_revision',
+    'validate'=>'unit_approved',
+    'save'=>$decision['status']??null,
+   };
+  }elseif($serviceRequest->kind==='complaint'&&$r->has('complaint_action')){
+   $decision=$r->validate([
+    'complaint_action'=>'required|in:save,request-info,schedule',
+    'status'=>'nullable|in:unit_approved,rejected',
+   ]);
+   $action=$decision['complaint_action'];
+   $status=match($action){
+    'request-info'=>'needs_revision',
+    'save'=>$decision['status']??null,
+    default=>null,
+   };
+  }
+  if($status!==null){
+   $r->merge(['status'=>$status]);
+   return app(StaffController::class)->review($r,$serviceRequest);
+  }
+  $interviewRules=match($action){
+   'schedule'=>'required|date|after:now',
+   'save'=>'exclude',
+   default=>'nullable|date|after:now',
+  };
+  $v=$r->validate(['review_note'=>'required|string|min:5|max:3000','interview_at'=>$interviewRules,'appointment_date'=>'nullable|date','schedule'=>'nullable|date_format:H:i','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean']);
   DB::transaction(function()use($r,$serviceRequest,$v){
    if($serviceRequest->kind==='clearance'){DB::table('settings')->insertOrIgnore(['key'=>'staff.clearance-slots','value'=>'[]']);DB::table('settings')->where('key','staff.clearance-slots')->lockForUpdate()->first();}
    $q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);$this->requireCondition(in_array($q->status,['pending','in_review']),422);$details=$q->details;
@@ -487,6 +559,38 @@ class StaffPortalController extends Controller
  }
  public function reportFile(Request $r,Report $report,int $index){abort_unless(in_array($r->user()->role,['admin','assistant'])||$report->user_id===$r->user()->id,403);$snapshot=$report->snapshot;if($r->filled('version')){$version=collect($snapshot['versions']??[])->firstWhere('version',(int)$r->query('version'));abort_unless($version,404);$snapshot=$version;}$f=$snapshot['files'][$index]??null;abort_unless($f&&Storage::exists($f['path']),404);return Storage::download($f['path'],$f['name']);}
  public function reportReceipt(Request $r,Report $report){abort_unless(in_array($r->user()->role,['admin','assistant'])||$report->user_id===$r->user()->id,403);return view('workspace.receipt',['item'=>$report,'history'=>DB::table('audit_logs')->where('subject','report:'.$report->id)->orderBy('id')->get()]);}
+ private function organizationLeaderIssue(User $student):?string
+ {
+  return match(true){
+   !$student->hasVerifiedEmail()=>'This student must verify their iServe email before they can lead an organization.',
+   (bool)$student->organization_id=>'This student already belongs to an organization.',
+   default=>null,
+  };
+ }
+ public function verifyOrganizationLeader(Request $r)
+ {
+  $this->only($r,'slu_head');
+  $reference=trim($r->validate(['student_ref'=>'required|string|max:120'])['student_ref']);
+  $students=User::where('account_type','student');
+  $matches=(clone $students)->whereRaw('LOWER(TRIM(student_id)) = ?',[Str::lower($reference)])->limit(2)->get();
+  if($matches->count()>1){
+   return response()->json(['message'=>'More than one account matches that student ID.'],422);
+  }
+  $student=$matches->first();
+  if(!$student&&preg_match('/^Account #(\d+)$/i',$reference,$account)){
+   $student=$students->where(fn($query)=>$query->whereNull('student_id')->orWhere('student_id',''))->find($account[1]);
+  }
+  if(!$student){
+   return response()->json(['message'=>'No iServe student account matches that ID.'],404);
+  }
+  if($message=$this->organizationLeaderIssue($student)){
+   return response()->json(['message'=>$message],422);
+  }
+  return response()->json([
+   'id'=>$student->id,'reference'=>$student->student_id ?: 'Account #'.$student->id,
+   'name'=>$student->name,'program'=>$student->course,
+  ]);
+ }
  public function organization(Request $r)
  {
   $this->only($r,'slu_head');
@@ -494,19 +598,25 @@ class StaffPortalController extends Controller
   StaffDrafts::assertOwned($r->user(),'organization',$draftId);
   $values=$r->validate([
    'name'=>'required|string|max:150|unique:organizations','description'=>'nullable|string|max:3000',
-   'president_id'=>'required|integer|exists:users,id','acronym'=>'required|regex:/^[A-Z0-9]{2,10}$/',
+   'president_id'=>'required|integer|exists:users,id','president_ref'=>'nullable|string|max:120','acronym'=>'required|regex:/^[A-Z0-9]{2,10}$/',
    'college'=>'required|string|max:100','type'=>'required|string|max:60','adviser'=>'required|string|max:120',
-   'academic_year'=>'nullable|string|max:30',
+   'academic_year'=>'nullable|string|max:30','portal_visible'=>'sometimes|boolean',
   ],['president_id.required'=>'Verify an eligible student before creating the organization.']);
 
   DB::transaction(function()use($r,$values,$draftId){
    $student=User::whereKey($values['president_id'])->lockForUpdate()->firstOrFail();
-   if ($student->account_type!=='student'||!$student->hasVerifiedEmail()||$student->organization_id) {
+   $expectedReference=$student->student_id ?: 'Account #'.$student->id;
+   $submittedReference=$values['president_ref']??null;
+   if ($student->account_type!=='student'||$this->organizationLeaderIssue($student)
+    ||($submittedReference!==null&&strcasecmp(trim($submittedReference),trim($expectedReference))!==0)) {
     throw ValidationException::withMessages(['president_id'=>'Select a verified student who is available to lead this organization.']);
    }
    $organization=Organization::create(['name'=>$values['name'],'description'=>$values['description']??null]);
    $student->update(['organization_id'=>$organization->id,'position'=>'President']);
-   $this->saveMetadata('organization.'.$organization->id,\Illuminate\Support\Arr::only($values,['acronym','college','type','adviser','academic_year']));
+   $this->saveMetadata('organization.'.$organization->id,[
+    ...\Illuminate\Support\Arr::only($values,['acronym','college','type','adviser','academic_year']),
+    'portal_visible'=>$r->boolean('portal_visible',true),
+   ]);
    $this->audit($r,'organization.create',(string)$organization->id);
    StaffDrafts::consume($r->user(),'organization',$draftId);
   },3);

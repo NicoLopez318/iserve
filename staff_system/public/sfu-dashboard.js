@@ -72,38 +72,104 @@ if (organizationForm) {
     const studentInput = organizationForm.elements.president_ref;
     const studentId = organizationForm.elements.president_id;
     const verify = organizationForm.querySelector('[data-verify-organization-leader]');
+    const portalVisibility = organizationForm.querySelector('#slu-portal-visible');
     const status = organizationForm.querySelector('[data-org-leader-message]');
-    const records = Array.from(studentInput.list.options);
-    const normalize = (value) => value.trim().toLowerCase();
+    const name = organizationForm.querySelector('[data-org-leader-name]');
+    const program = organizationForm.querySelector('[data-org-leader-program]');
+    const enrollment = organizationForm.querySelector('[data-org-leader-enrollment]');
+    let lookup;
+    let verifiedReference = '';
 
-    function showStudent(record, message) {
-        studentId.value = record?.dataset.userId ?? '';
-        organizationForm.querySelector('[data-org-leader-name]').textContent = record?.dataset.studentName ?? '—';
-        organizationForm.querySelector('[data-org-leader-program]').textContent = record?.dataset.program || '—';
-        organizationForm.querySelector('[data-org-leader-enrollment]').textContent = record ? 'Not recorded' : '—';
-        verify.disabled = !studentInput.value.trim();
+    function showStudent(record, message, state = '') {
+        studentId.value = record?.id ?? '';
+        name.textContent = record?.name ?? '—';
+        program.textContent = record?.program || '—';
+        enrollment.textContent = record ? 'Not recorded' : '—';
+        verifiedReference = record?.reference ?? '';
         studentInput.setCustomValidity(!record && studentInput.value.trim() ? 'Verify the student before creating the organization.' : '');
-        status.textContent = message ?? (record ? 'Student account verified in iServe.' : 'Verified student records from iServe');
+        status.textContent = message;
+        status.dataset.state = state;
     }
 
-    function restoreStudent() {
-        const record = records.find((option) => option.dataset.userId === studentId.value);
-        if (record && (!studentInput.value || normalize(studentInput.value) === normalize(record.value))) {
-            studentInput.value = record.value;
-            showStudent(record);
-        } else {
-            showStudent(null);
+    function resetStudent() {
+        lookup?.abort();
+        lookup = undefined;
+        verify.disabled = false;
+        verify.textContent = 'Verify';
+        showStudent(null, 'Enter a student ID, then select Verify.');
+    }
+
+    async function verifyStudent() {
+        resetStudent();
+        const reference = studentInput.value.trim();
+        if (!reference) {
+            showStudent(null, 'Enter a student ID to verify.', 'error');
+            studentInput.focus();
+            return;
+        }
+
+        const controller = new AbortController();
+        lookup = controller;
+        verify.disabled = true;
+        verify.textContent = 'Verifying…';
+        showStudent(null, 'Checking the student account…');
+        try {
+            const response = await fetch(organizationForm.dataset.verifyUrl, {
+                method: 'POST',
+                headers: { Accept: 'application/json' },
+                body: new URLSearchParams({
+                    _token: organizationForm.elements._token.value,
+                    student_ref: reference,
+                }),
+                signal: controller.signal,
+            });
+            if (![200, 404, 422].includes(response.status)) throw new Error('Verification unavailable');
+            const record = await response.json();
+            if (lookup !== controller) return;
+            if (!response.ok) {
+                showStudent(null, record.message, 'error');
+                return;
+            }
+            studentInput.value = record.reference;
+            showStudent(record, 'Student account verified in iServe.', 'verified');
+        } catch {
+            if (lookup === controller) showStudent(null, 'Could not verify the student. Try again.', 'error');
+        } finally {
+            if (lookup === controller) {
+                lookup = undefined;
+                verify.disabled = false;
+                verify.textContent = 'Verify';
+            }
         }
     }
 
-    studentInput.addEventListener('input', () => showStudent(null));
-    verify.addEventListener('click', () => {
-        const record = records.find((option) => normalize(option.value) === normalize(studentInput.value));
-        if (record) studentInput.value = record.value;
-        showStudent(record, record ? undefined : 'No eligible verified student matched that ID.');
+    function restoreStudent() {
+        const savedId = studentId.value;
+        if (savedId && studentInput.value === verifiedReference) return;
+        if (savedId && !studentInput.value.trim()) {
+            const saved = Array.from(studentInput.list?.options ?? []).find(option => option.dataset.userId === savedId);
+            if (saved) studentInput.value = saved.value;
+        }
+        if (savedId && studentInput.value.trim()) verifyStudent();
+        else resetStudent();
+    }
+
+    studentInput.addEventListener('input', resetStudent);
+    studentInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            verifyStudent();
+        }
     });
+    verify.addEventListener('click', verifyStudent);
     document.addEventListener('click', (event) => {
-        if (event.target.closest('[data-dialog="create-organization"]')) restoreStudent();
+        const opener = event.target.closest('[data-dialog="create-organization"]');
+        if (!opener) return;
+        if (opener.dataset.draft) {
+            const { fields } = JSON.parse(opener.dataset.draft);
+            portalVisibility.checked = String(fields.portal_visible ?? '1') === '1';
+        }
+        restoreStudent();
     });
     restoreStudent();
 }

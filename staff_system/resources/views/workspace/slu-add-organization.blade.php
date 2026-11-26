@@ -1,6 +1,6 @@
 <dialog id="create-organization" class="slu-org-create-dialog" aria-labelledby="slu-org-create-title">
     <button type="button" class="close-dialog" data-close aria-label="Close Add Organization">×</button>
-    <form method="post" action="/workspace/organizations" data-slu-org-create>
+    <form method="post" action="/workspace/organizations" data-slu-org-create data-verify-url="{{ route('staff.organizations.verify-leader') }}">
         @csrf
         <input type="hidden" name="draft_id" value="{{ old('draft_id') }}">
         <input type="hidden" name="president_id" value="{{ old('president_id') }}">
@@ -56,15 +56,15 @@
                 <h3 id="slu-create-leader">Initial Student Leader</h3>
                 <div class="slu-create-leader-fields">
                     <label>Student ID
-                        <span class="slu-create-search"><img src="/staff-assets/21-4727.svg" alt=""><input name="president_ref" list="slu-eligible-presidents" value="{{ old('president_ref') }}" placeholder="Search student ID (e.g. 2023-12345)" maxlength="120" required></span>
+                        <span class="slu-create-search"><img src="/staff-assets/21-4727.svg" alt=""><input name="president_ref" list="slu-eligible-presidents" value="{{ old('president_ref') }}" placeholder="Search student ID (e.g. 2023-12345)" maxlength="120" aria-describedby="slu-leader-message" required></span>
                     </label>
-                    <button type="button" class="slu-create-verify" data-verify-organization-leader disabled>Verify</button>
+                    <button type="button" class="slu-create-verify" data-verify-organization-leader>Verify</button>
                 </div>
-                <small class="slu-create-help" data-org-leader-message aria-live="polite">Verified student records from iServe</small>
+                <small id="slu-leader-message" class="slu-create-help" data-org-leader-message role="status">Enter a student ID, then select Verify.</small>
                 @error('president_id')<p class="sfu-review-error" role="alert">{{ $message }}</p>@enderror
                 <datalist id="slu-eligible-presidents">
                     @foreach($students->filter(fn($student) => $student->hasVerifiedEmail() && !$student->organization_id) as $student)
-                        <option value="{{ $student->student_id ?: 'Account #'.$student->id }}" data-user-id="{{ $student->id }}" data-student-name="{{ $student->name }}" data-program="{{ $student->course }}">{{ $student->name }}</option>
+                        <option value="{{ $student->student_id ?: 'Account #'.$student->id }}" data-user-id="{{ $student->id }}">{{ $student->name }}</option>
                     @endforeach
                 </datalist>
                 <div class="slu-create-student-preview" aria-live="polite">
@@ -81,8 +81,12 @@
             <section aria-labelledby="slu-create-portal">
                 <h3 id="slu-create-portal">Portal Access</h3>
                 <div class="slu-create-portal-row">
-                    <label class="slu-setting-toggle-static"><input type="checkbox" role="switch" disabled aria-label="Show in Student Leadership Portal"><span aria-hidden="true"></span></label>
-                    <p>Show in Student Leadership Portal<small>A new organization appears in the portal after it is created.</small></p>
+                    <label class="slu-portal-switch">
+                        <input type="hidden" name="portal_visible" value="0">
+                        <input type="checkbox" id="slu-portal-visible" role="switch" name="portal_visible" value="1" aria-describedby="slu-portal-visible-help" @checked(old('portal_visible', true))>
+                        <span aria-hidden="true"></span>
+                    </label>
+                    <p><label for="slu-portal-visible">Show in Student Leadership Portal</label><small id="slu-portal-visible-help">Allow students to select this organization on the leadership application.</small></p>
                 </div>
             </section>
         </div>

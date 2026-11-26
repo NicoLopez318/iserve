@@ -4,7 +4,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\{User, Organization, ServiceRequest};
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\{Mail, Storage, Route};
+use Illuminate\Support\Facades\{DB, Mail, Storage, Route};
 use Illuminate\Http\UploadedFile;
 
 class LeadershipOnboardingTest extends TestCase
@@ -37,6 +37,26 @@ class LeadershipOnboardingTest extends TestCase
             ->assertSee('Fields marked with an asterisk')->assertSee('data-leadership-missing',false);
         $this->assertSame(6, substr_count($form->getContent(), 'class="leadership-required-mark" aria-hidden="true"'));
         $this->get('/portal/leadership')->assertRedirect('/apply/leadership');
+    }
+
+    public function test_leadership_applications_only_list_and_accept_visible_organizations(): void
+    {
+        Storage::fake('local');
+        Organization::create(['name' => 'Legacy Organization']);
+        $visible = Organization::create(['name' => 'Visible Organization']);
+        $hidden = Organization::create(['name' => 'Hidden Organization']);
+        foreach ([[$visible, true], [$hidden, false]] as [$organization, $isVisible]) {
+            DB::table('settings')->insert([
+                'key' => 'staff.organization.'.$organization->id,
+                'value' => json_encode(['portal_visible' => $isVisible]),
+            ]);
+        }
+        $this->actingAs($this->student())->get('/apply/leadership')->assertOk()
+            ->assertSee('Legacy Organization')->assertSee('Visible Organization')->assertDontSee('Hidden Organization');
+        $this->post('/apply/leadership', $this->submission($hidden))->assertSessionHasErrors('details.organization_id');
+        $this->assertDatabaseCount('service_requests', 0);
+        $this->post('/apply/leadership', $this->submission($visible))->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertSame($visible->id, ServiceRequest::sole()->details['organization_id']);
     }
     public function test_submission_acceptance_and_portal_access_across_both_apps(): void
     {
