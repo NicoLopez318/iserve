@@ -20,7 +20,7 @@ class StaffPortalController extends Controller
    'sfu_head'=>['dashboard'=>'Dashboard','applications'=>'Discount Applications','reports'=>'Reports','settings'=>'Settings'],
    'slu_head'=>['dashboard'=>'Dashboard','organizations'=>'Organizations','proposals'=>'Proposals','events'=>'Events & Activities','achievements'=>'Achievements','points'=>'Leaderboards & Points','reports'=>'Reports','content'=>'Portal Content','settings'=>'Settings'],
    'assistant'=>['dashboard'=>'Dashboard','inbox'=>'Report Inbox','leadership'=>'Student Leadership','scholarship'=>'Scholarship & Financial','values'=>'Character & Values','history'=>'Submission History','settings'=>'Settings'],
-   'admin'=>['dashboard'=>'Dashboard','inbox'=>'Report for Review','leadership'=>'Student Leadership','scholarship'=>'Scholarship & Financial','values'=>'Character & Values','history'=>'Review History','settings'=>'Settings'],
+   'admin'=>['dashboard'=>'Dashboard','inbox'=>'Report for Review','organization-documents'=>'Organization Documents','leadership'=>'Student Leadership','scholarship'=>'Scholarship & Financial','values'=>'Character & Values','history'=>'Review History','settings'=>'Settings'],
    default=>[],
   };
  }
@@ -29,6 +29,30 @@ class StaffPortalController extends Controller
  private function audit(Request $r,string $action,string $subject,string $details=''){DB::table('audit_logs')->insert(['user_id'=>$r->user()->id,'action'=>$action,'subject'=>$subject,'details'=>$details,'created_at'=>now()]);}
  private function unitRole(?string $unit):?string{return ['leadership'=>'slu_head','scholarship'=>'sfu_head','values'=>'cvu_head'][$unit]??null;}
  private function only(Request $r,string $role):void{abort_unless($r->user()->role===$role,403);}
+ public function organizationDocuments(Request $request)
+ {
+  $this->only($request,'admin');
+  $filters=$request->validate(['organization'=>'nullable|integer|min:1','search'=>'nullable|string|max:120']);
+  $organizations=Organization::orderBy('name')->get()->keyBy('id');
+  $query=ServiceRequest::with('user.organization')->whereIn('kind',['activity','achievement'])
+   ->whereNotNull('files')->whereNotIn('files',['[]','{}','null']);
+
+  if(isset($filters['organization'])){
+   $this->filterRequestOrganization($query,[$request->integer('organization')]);
+  }
+  if(filled($filters['search']??null)){
+   $term='%'.$filters['search'].'%';
+   $query->where(fn($matches)=>$matches->where('ticket','like',$term)->orWhere('details->title','like',$term)
+    ->orWhere('files','like',$term)->orWhereHas('user',fn($users)=>$users->where('name','like',$term)));
+  }
+  $submissions=$query->latest()->orderByDesc('id')->paginate(15)->appends($filters);
+  $menus=self::menus('admin');
+  $page='organization-documents';
+  $title=$menus[$page];
+  $description='Browse attachments from organization proposals, completion reports, and achievements.';
+
+  return view('workspace.organization-documents',compact('organizations','submissions','filters','menus','page','title','description'));
+ }
  private function metadata(string $key):array{return json_decode(DB::table('settings')->where('key','staff.'.$key)->value('value')??'[]',true)??[];}
  private function saveMetadata(string $key,array $data):void{DB::table('settings')->updateOrInsert(['key'=>'staff.'.$key],['value'=>json_encode($data)]);}
  private function snapshot(Request $r,string $from,string $to):array{

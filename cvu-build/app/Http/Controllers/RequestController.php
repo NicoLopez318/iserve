@@ -9,6 +9,9 @@ class RequestController extends Controller {
   if(in_array($kind,['readmission','clearance','seminar']))return app(CvuFlowController::class)->form($r,$kind);
   if($kind==='scholarship')return app(ScholarOnboardingController::class)->documents($r);
   $this->requireCondition(array_key_exists($kind,ServiceRequest::kinds()),404);
+  if($kind==='activity'&&$r->user()->account_type==='student'&&!$r->user()->isStaff()&&!$r->user()->organization_id){
+   return redirect('/apply/leadership');
+  }
   if(in_array($kind,['activity','achievement']))$this->requireCondition($r->user()->organization_id,403,'Your SLU membership must be accepted first.');
   if(!$r->user()->profile_complete)return redirect('/profile/setup');
   if(in_array($kind,['scholarship','leadership','activity','achievement','seminar','clearance']))$this->requireCondition($r->user()->account_type==='student',403);
@@ -36,7 +39,11 @@ class RequestController extends Controller {
   }
   foreach(config('portal.optional_fields.'.$kind,[]) as $name=>$type)$rules['details.'.$name]='nullable|string|max:500';
   if($kind==='clearance')$rules['details.appointment_date']='required|date|after:today';
-  if($kind==='activity')$rules['details.ends_at']='required|date|after:details.starts_at';
+  if($kind==='activity'){
+   $rules['details.ends_at']='required|date|after:details.starts_at';
+   $rules['details.capacity']='required|integer|min:1|max:'.config('portal.activity_capacity_max');
+   $rules['details.off_campus']='sometimes|boolean';
+  }
   foreach(config('portal.documents.'.$kind,[]) as $key=>$label)$rules['documents.'.$key]=(in_array($kind.'.'.$key,config('portal.optional_documents'))?'nullable':'required').'|file|mimes:pdf,jpg,jpeg,png|max:'.($kind==='activity'?'10240':'5120');
   $v=$r->validate($rules);$draft=$kind==='activity'?DB::table('proposal_drafts')->where('user_id',$r->user()->id)->first():null;$paths=$draft?json_decode($draft->files,true):[];$newPaths=[];
   try{
@@ -66,6 +73,8 @@ class RequestController extends Controller {
  public function draft(Request $r){
   $this->requireCondition($r->user()->account_type==='student'&&$r->user()->profile_complete&&$r->user()->organization_id,403);
   $rules=[];foreach(config('portal.fields.activity') as $key=>$type)$rules['details.'.$key]='nullable|string|max:5000';
+  $rules['details.capacity']='nullable|integer|min:1|max:'.config('portal.activity_capacity_max');
+  $rules['details.off_campus']='sometimes|boolean';
   foreach(config('portal.documents.activity') as $key=>$label)$rules['documents.'.$key]='nullable|file|mimes:pdf,jpg,jpeg,png|max:10240';
   $v=$r->validate($rules);$draft=DB::table('proposal_drafts')->where('user_id',$r->user()->id)->first();$files=$draft?json_decode($draft->files,true):[];$new=[];$replaced=[];
   try{foreach($r->file('documents',[]) as $key=>$f)if(isset($rules['documents.'.$key])){if(isset($files[$key]))$replaced[]=$files[$key]['path'];$path=$f->store('requests');$new[]=$path;$files[$key]=['path'=>$path,'name'=>$f->getClientOriginalName()];}
@@ -92,9 +101,11 @@ class RequestController extends Controller {
  }
  public function revise(Request $r,ServiceRequest $serviceRequest){
   $this->requireCondition($serviceRequest->user_id===$r->user()->id&&$serviceRequest->status==='needs_revision',403);
-  $v=$r->validate(['revision'=>'required|string|min:10|max:5000','documents.*'=>'nullable|file|mimes:pdf,png,jpg,jpeg|max:'.($serviceRequest->kind==='activity'?'10240':'5120')]);
+  $isCompletionReport=!empty($serviceRequest->details['completion_report']);
+  $types=$isCompletionReport?'pdf,docx,png,jpg,jpeg':'pdf,png,jpg,jpeg';
+  $v=$r->validate(['revision'=>'required|string|min:10|max:5000','documents.*'=>'nullable|file|mimes:'.$types.'|max:'.($serviceRequest->kind==='activity'?'10240':'5120')]);
   $files=$serviceRequest->files??[];$stored=[];$replaced=[];
-  $allowed=array_unique([...array_keys(config('portal.documents.'.$serviceRequest->kind,[])),...array_keys($files)]);
+  $allowed=$isCompletionReport?['completion_report']:array_unique([...array_keys(config('portal.documents.'.$serviceRequest->kind,[])),...array_keys($files)]);
   foreach(array_keys($r->file('documents',[])) as $key)$this->requireCondition(in_array($key,$allowed,true),422,'Unknown document requirement.');
   try{
   foreach($r->file('documents',[]) as $key=>$f){if(isset($files[$key]['path']))$replaced[]=$files[$key]['path'];$path=$f->store('requests');$stored[]=$path;$files[$key]=['path'=>$path,'name'=>$f->getClientOriginalName()];}

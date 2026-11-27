@@ -1,13 +1,15 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\{User,ServiceRequest,Assignment,Attendance,Journal,Event,Organization,Point,Post};
+use App\Support\PortalContent;
+use App\Support\ActivityDocumentReminders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class PortalController extends Controller {
  public function home(Request $r){return redirect($r->query('choose')==='lost-found'?'/lost-found':'/');}
  public function page(Request $r,string $portal,string $page='dashboard'){
   $this->requireCondition(in_array($portal,['values','leadership','scholar']),404);
-  $this->requireCondition(in_array($page,['dashboard','violations','community-service','journal','profile','settings','events','organization','members','leaderboards','propose','archives','tuition']),404);
+  $this->requireCondition(in_array($page,['dashboard','violations','community-service','journal','profile','settings','events','organization','members','leaderboards','propose','archives','tuition'])||($portal==='leadership'&&$page==='notifications'),404);
   $this->requireCondition($r->user()->account_type==='student'||$r->user()->isStaff(),403);
   $u=$r->user();
   if($portal==='values'){$a=$u->assignment;if(!$u->values_verified_at||!$a||!in_array($a->status,['active','completed']))return redirect('/community-link');}
@@ -17,11 +19,28 @@ class PortalController extends Controller {
    $pending=$u->requests()->where('kind','leadership')->whereIn('status',['pending','in_review','unit_approved','awaiting_admin'])->latest()->first();
    return redirect($pending?'/leadership/submitted/'.$pending->id:'/apply/leadership');
   }
+  if($page==='notifications'){
+   $announcements=PortalContent::leadershipNotifications($u);
+   PortalContent::markLeadershipNotificationsSeen($u,$announcements);
+   $activityReminders=ActivityDocumentReminders::forStudent($u);
+   return view('portal.leadership-notifications',compact('portal','page','announcements','activityReminders'));
+  }
+  $activityReminders=$portal==='leadership'&&$page==='propose'?ActivityDocumentReminders::forStudent($u):[];
   $assignment=$u->assignment;$minutes=$assignment?->approvedMinutes()??0;
   $events=Event::where('status','published')->orderBy('starts_at')->get();
+  $archivedEvents=$portal==='leadership'&&$page==='archives'
+   ?Event::where('status','completed')->orderByDesc('ends_at')->orderByDesc('id')->get()
+   :collect();
   $attendances=Attendance::where('user_id',$u->id)->with('event')->latest()->get();
   $requests=$u->requests()->latest()->get();
   $leaders=User::where('account_type','student')->select('users.*')->selectSub(Point::selectRaw('COALESCE(SUM(amount),0)')->whereColumn('points.user_id','users.id'),'xp')->orderByDesc('xp')->limit(50)->get();
+  $organizationLeaders=collect();
+  if($portal==='leadership'&&in_array($page,['dashboard','leaderboards'],true)){
+   $organizationLeaders=Organization::visibleInStudentPortal()->select('organizations.*')->selectSub(
+    Point::join('users','users.id','=','points.user_id')->whereColumn('users.organization_id','organizations.id')
+     ->selectRaw('COALESCE(SUM(points.amount),0)'),'xp'
+   )->orderByDesc('xp')->orderBy('name')->orderBy('id')->get();
+  }
   $xp=Point::where('user_id',$u->id)->sum('amount');
   $organization=$u->organization;
   $posts=$organization?->posts()->with(['user','comments.user'])->latest()->get()??collect();
@@ -30,17 +49,25 @@ class PortalController extends Controller {
   $settings=DB::table('settings')->pluck('value','key');
   $fees=['Tuition Fee'=>(int)($settings['tuition']??2000000),'Laboratory Fee'=>(int)($settings['laboratory']??500000),'Miscellaneous Fee'=>(int)($settings['miscellaneous']??350000)];
   $rate=(int)($scholarship?->details['discount_rate']??0);$total=array_sum($fees);$discount=array_sum(array_map(fn($cents)=>(int)round($cents*$rate/100),$fees));
-  return view('portal.page',compact('portal','page','u','assignment','minutes','events','attendances','requests','leaders','xp','organization','posts','scholarship','scholarEnrollment','fees','rate','total','discount'));
+  return view('portal.page',compact('portal','page','u','assignment','minutes','events','archivedEvents','attendances','requests','leaders','organizationLeaders','xp','organization','posts','scholarship','scholarEnrollment','fees','rate','total','discount','activityReminders'));
  }
  public function post(Request $r){
   $r->validate(['body'=>'required|string|min:3|max:3000']);$this->requireCondition($r->user()->organization_id,403);
   Post::create(['organization_id'=>$r->user()->organization_id,'user_id'=>$r->user()->id,'body'=>$r->body]);return back()->with('success','Post published.');
  }
+ public function manageOrganization(Request $r){
+  $user=$r->user();
+  $this->requireCondition($user->canManageOrganization(),403);
+  $organization=$user->organization()->with('members')->firstOrFail();
+  return view('portal.organization-manage',[
+   'portal'=>'leadership','page'=>'manage-organization','organization'=>$organization,'u'=>$user,
+  ]);
+ }
  public function moderators(Request $r){
   $u=$r->user();
 
   $org=$u->organization;$this->requireCondition($org,422,'Join an organization first.');
-  $this->requireCondition(in_array($u->role,['admin','slu_head'])||strtolower(trim($u->position??''))==='president',403);
+  $this->requireCondition($u->canManageOrganization(),403);
   $v=$r->validate(['moderators'=>'nullable|array|max:10','moderators.*'=>'integer|distinct']);$ids=$v['moderators']??[];
   $this->requireCondition($org->members()->whereIn('id',$ids)->count()===count($ids),422,'Choose members of your organization.');
   $org->update(['moderators'=>array_map('intval',$ids)]);return back()->with('success','Moderators updated.');

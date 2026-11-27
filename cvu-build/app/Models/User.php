@@ -13,4 +13,8 @@ class User extends Authenticatable implements MustVerifyEmail {
  public function requests(){return $this->hasMany(ServiceRequest::class);}
  public function assignment(){return $this->hasOne(Assignment::class)->latestOfMany();}
  public function organization(){return $this->belongsTo(Organization::class);}
+ public function canManageOrganization():bool{
+  return $this->organization_id!==null
+   &&(in_array($this->role,['admin','slu_head'],true)||strtolower(trim($this->position??''))==='president');
+ }
 }

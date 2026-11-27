@@ -7,6 +7,7 @@ Route::middleware(['auth','staff'])->group(function(){
  Route::get('/staff',fn()=>redirect('/workspace'));
  Route::get('/home',fn()=>redirect('/workspace'));
  Route::get('/workspace',[Portal::class,'page']);
+ Route::get('/workspace/organization-documents',[Portal::class,'organizationDocuments'])->name('staff.organization-documents');
  Route::get('/workspace/request/{serviceRequest}',[Portal::class,'request']);
  Route::post('/workspace/request/{serviceRequest}/note',[Portal::class,'requestNote']);
  Route::post('/workspace/request/{serviceRequest}/disposition',[Portal::class,'disposition']);

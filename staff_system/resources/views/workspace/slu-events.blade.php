@@ -8,7 +8,10 @@
 <section class="sfu-panel slu-event-calendar" aria-labelledby="slu-event-calendar-title" data-slu-event-calendar>
     <div class="slu-queue-heading">
         <h2 id="slu-event-calendar-title"><span class="slu-event-calendar-icon" aria-hidden="true"></span>Activity Calendar</h2>
-        <button type="button" class="sfu-button" data-dialog="create-event"><span aria-hidden="true">+</span> Create Event</button>
+        <div class="slu-event-create-actions">
+            <button type="button" class="sfu-button sfu-outline" data-dialog="create-past-event">Create Past Event</button>
+            <button type="button" class="sfu-button" data-dialog="create-event">Create Future Event</button>
+        </div>
     </div>
 
     <div class="slu-calendar-layout">

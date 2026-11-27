@@ -2,6 +2,20 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelectorAll('[data-password]').forEach(b=>b.addEventListener('click',()=>{const i=b.parentElement.querySelector('input');i.type=i.type==='password'?'text':'password';b.setAttribute('aria-label',i.type==='password'?'Show password':'Hide password');}));
  document.querySelectorAll('[data-menu]').forEach(b=>b.addEventListener('click',()=>{const el=document.getElementById(b.dataset.menu);if(el.id==='sidebar'){el.classList.toggle('mobile-open');b.setAttribute('aria-expanded',String(el.classList.contains('mobile-open')));}else{el.hidden=!el.hidden;b.setAttribute('aria-expanded',String(!el.hidden));}}));
  const select=document.getElementById('account-type');if(select){const update=()=>document.querySelectorAll('[data-account]').forEach(el=>{el.hidden=el.dataset.account!==select.value;el.querySelectorAll('input,select').forEach(i=>{i.disabled=el.hidden;});});select.addEventListener('change',update);update();}
+ const profileCourse = document.getElementById('profile-course');
+ if (profileCourse) {
+  const otherCourse = document.getElementById('profile-other-course');
+  const otherCourseInput = otherCourse.querySelector('input');
+  const updateOtherCourse = () => {
+   const showOther = select.value === 'student' && profileCourse.value === '__other__';
+   otherCourse.hidden = !showOther;
+   otherCourseInput.disabled = !showOther;
+   otherCourseInput.required = showOther;
+  };
+  profileCourse.addEventListener('change', updateOtherCourse);
+  select.addEventListener('change', updateOtherCourse);
+  updateOtherCourse();
+ }
  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('[data-tab-panel]').forEach(x=>x.hidden=x.dataset.tabPanel!==b.dataset.tab);}));
  document.querySelectorAll('form[data-confirm]').forEach(f=>f.addEventListener('submit',e=>{if(!confirm(f.dataset.confirm))e.preventDefault();}));
  document.querySelectorAll('form').forEach(form => form.addEventListener('submit', event => {

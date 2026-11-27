@@ -401,6 +401,34 @@ class StaffManagementTest extends TestCase {
   $this->assertSame('approved',$record->fresh()->status);
  }
 
+ public function test_create_event_reopens_with_field_errors_and_saves_valid_details():void
+ {
+  $head=$this->actor('slu_head');
+  $page='/workspace/events';
+  $this->actingAs($head)->from($page)->post('/staff/events',[])
+   ->assertRedirect($page)->assertSessionHasErrorsIn('createEvent',['title','description','venue','starts_at','ends_at','capacity','points']);
+  $this->get($page)->assertOk()->assertSee('open data-auto-open',false)
+   ->assertSee('Enter an event title.')->assertSee('Select a venue or enter a venue name.');
+
+  $start=now()->addDay();
+  $fields=[
+   'title'=>'Leadership workshop','description'=>'Practice running a student workshop.','venue'=>'Training Annex',
+   'starts_at'=>$start->format('Y-m-d\TH:i'),'ends_at'=>$start->copy()->subHour()->format('Y-m-d\TH:i'),
+   'capacity'=>0,'points'=>1001,'type'=>'leadership',
+  ];
+  $this->from($page)->post('/staff/events',$fields)
+   ->assertRedirect($page)->assertSessionHasErrorsIn('createEvent',['ends_at','capacity','points']);
+  $this->get($page)->assertOk()->assertSee('The end date and time must be after the start date and time.')
+   ->assertSee('value="Leadership workshop"',false)->assertSee('value="Training Annex"',false);
+  $this->assertDatabaseCount('events',0);
+  $this->from($page)->post('/staff/events',[...$fields,'starts_at'=>['invalid']])
+   ->assertRedirect($page)->assertSessionHasErrorsIn('createEvent',['starts_at']);
+  $this->from($page)->post('/staff/events',[
+   ...$fields,'ends_at'=>$start->copy()->addHour()->format('Y-m-d\TH:i'),'capacity'=>100,'points'=>10,
+  ])->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertDatabaseHas('events',['title'=>'Leadership workshop','capacity'=>100,'points'=>10]);
+ }
+
  public function test_new_event_venues_remain_available_after_an_event_moves():void {
   $head=$this->actor('slu_head');
   $fields=[
@@ -423,6 +451,28 @@ class StaffManagementTest extends TestCase {
   $this->post('/workspace/event/'.$event->id,[...$fields,'venue'=>'Media Studio'])
    ->assertRedirect()->assertSessionHasNoErrors();
   $this->assertSame(['Media Studio','Training Annex'],Event::venueChoices(collect())->values()->all());
+ }
+
+ public function test_slu_can_create_past_and_future_events_with_separate_date_rules():void
+ {
+  $head=$this->actor('slu_head');
+  $page='/workspace/events';
+  $common=['description'=>'Event details for the activity calendar.','venue'=>'Campus','capacity'=>100,'points'=>0,'type'=>'leadership'];
+  $past=[...$common,'title'=>'Past workshop','event_period'=>'past','starts_at'=>now()->subDays(2)->format('Y-m-d\TH:i'),'ends_at'=>now()->subDay()->format('Y-m-d\TH:i')];
+  $future=[...$common,'title'=>'Future workshop','event_period'=>'future','starts_at'=>now()->addDay()->format('Y-m-d\TH:i'),'ends_at'=>now()->addDays(2)->format('Y-m-d\TH:i')];
+
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('Create Past Event')->assertSee('Create Future Event');
+  $this->from($page)->post('/staff/events',[...$past,'ends_at'=>$future['ends_at']])
+   ->assertRedirect($page)->assertSessionHasErrorsIn('createPastEvent','ends_at');
+  $response=$this->get($page)->assertOk();
+  $this->assertMatchesRegularExpression('/<dialog id="create-past-event"[^>]*open data-auto-open/',$response->getContent());
+  $this->post('/staff/events',[...$future,'starts_at'=>$past['starts_at']])
+   ->assertRedirect($page)->assertSessionHasErrorsIn('createEvent','starts_at');
+  $this->assertDatabaseCount('events',0);
+  $this->post('/staff/events',$past)->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->post('/staff/events',$future)->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertDatabaseHas('events',['title'=>'Past workshop','status'=>'completed']);
+  $this->assertDatabaseHas('events',['title'=>'Future workshop','status'=>'published']);
  }
  public function test_removing_a_venue_hides_it_without_changing_existing_events():void {
   $fields=[

@@ -621,6 +621,7 @@ body.unit-workspace[data-page="settings"] #change-password .field + .field { mar
 .slu-dashboard-expanded .slu-dashboard-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .slu-action-queue { min-height: calc(372 * var(--u)); }
 .slu-queue-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: calc(11 * var(--u)); }
+.slu-event-create-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .slu-queue-heading h2, .slu-side-panel h2 { display: flex; align-items: center; gap: calc(12 * var(--u)); margin-bottom: 0; }
 .slu-queue-heading h2 img { width: calc(19 * var(--u)); height: calc(19 * var(--u)); }
 .slu-queue-heading a { display: inline-flex; align-items: center; gap: calc(10 * var(--u)); padding: 2px; color: var(--sfu-red); font-size: calc(9 * var(--u)); font-weight: 700; }

@@ -25,18 +25,4 @@
 @endif
 </dl>
 </section>
-@if($u->account_type==='student')
-<section class="account-card"><h2>Activity summary</h2><dl class="account-totals">
-<div><dt>Leadership EXP</dt><dd>{{ number_format($xp) }}</dd></div>
-<div><dt>Events joined</dt><dd>{{ $attendances->whereNotNull('event_id')->count() }}</dd></div>
-<div><dt>Achievements</dt><dd>{{ $requests->where('kind','achievement')->where('status','approved')->count() }}</dd></div>
-<div><dt>Scholarship</dt><dd>{{ $rate }}%</dd></div>
-</dl></section>
-<section class="account-card"><div class="account-section-heading"><h2>Achievements</h2><a href="/apply/achievement">Submit achievement</a></div>
-@forelse($requests->where('kind','achievement')->where('status','approved') as $achievement)
-<div class="account-achievement"><h3>{{ $achievement->details['title'] }}</h3><p>{{ $achievement->details['description'] }}</p></div>
-@empty<p class="account-muted">No approved achievements yet.</p>@endforelse
-<a class="account-archive" href="/portal/leadership/archives">View achievement archives</a>
-</section>
-@endif
 @endsection

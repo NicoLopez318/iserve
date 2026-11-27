@@ -37,7 +37,7 @@ Route::middleware('auth')->group(function(){
  Route::get('/avatar',function(Request $r){$path=$r->user()->avatar;abort_unless($path&&Illuminate\Support\Facades\Storage::disk('public')->exists($path),404);return Illuminate\Support\Facades\Storage::disk('public')->response($path);});
  Route::post('/logout',[AuthController::class,'logout']);
  Route::get('/profile',[ProfileController::class,'show'])->name('account.profile');
- Route::view('/profile/setup','auth.profile');
+ Route::get('/profile/setup',[ProfileController::class,'setup']);
  Route::post('/profile',[ProfileController::class,'save']);
  Route::post('/settings',[ProfileController::class,'settings']);
  Route::view('/email/verify','auth.verify')->name('verification.notice');
@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function(){
  Route::post('/proposal-draft',[RequestController::class,'draft'])->middleware(['verified','throttle:10,1']);
  Route::post('/apply/{kind}',[RequestController::class,'store'])->middleware(['verified','throttle:10,1']);
  Route::get('/requests/{serviceRequest}',[RequestController::class,'show']);
+ Route::get('/requests/{serviceRequest}/completion',[App\Http\Controllers\EventCompletionController::class,'create'])->name('activity.completion');
+ Route::post('/requests/{serviceRequest}/completion',[App\Http\Controllers\EventCompletionController::class,'store'])->middleware(['verified','throttle:10,1'])->name('activity.completion.store');
  Route::get('/requests/{serviceRequest}/slip',function(Request $r,App\Models\ServiceRequest $serviceRequest){
   abort_unless($serviceRequest->user_id===$r->user()->id&&$serviceRequest->kind==='readmission'&&$serviceRequest->status==='approved',403);
   return view('transactions.readmission-slip',['item'=>$serviceRequest->load('user'),'canSend'=>false]);
@@ -58,6 +60,7 @@ Route::middleware('auth')->group(function(){
  Route::post('/requests/{serviceRequest}/revise',[RequestController::class,'revise'])->middleware('verified');
  Route::get('/requests/{serviceRequest}/files/{key}',[RequestController::class,'download']);
  Route::get('/portal/{portal}/{page?}',[PortalController::class,'page']);
+ Route::get('/portal/leadership/organization/manage',[PortalController::class,'manageOrganization'])->name('organization.manage');
  Route::post('/community/clock',[PortalController::class,'clock'])->middleware('verified');
  Route::post('/community/journal',[PortalController::class,'journal'])->middleware('verified');
  Route::post('/attendance/{attendance}/revise',[PortalController::class,'reviseAttendance'])->middleware('verified');

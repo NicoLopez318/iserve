@@ -36,3 +36,5 @@
 .leadership-onboarding{min-height:100vh;height:auto;overflow-y:auto}.leadership-form{max-width:650px;margin:0 auto;padding:18px 24px 70px}.leadership-form h1{text-align:center;font-size:30px}.leadership-form .blue-card{padding:30px 38px}.leadership-form label{margin-bottom:15px}.leadership-form [hidden]{display:none!important}.leadership-success{max-width:720px;margin:80px auto;padding:24px;text-align:center}.leadership-success h1{font-size:28px}.leadership-success p{line-height:1.7}.leadership-success .btn{margin-top:30px}.leadership-onboarding .blue-footer{display:none}@media(max-width:600px){.leadership-form{padding:10px 16px 35px}.leadership-form h1{font-size:23px}.leadership-form .blue-card{padding:24px}.leadership-success{margin:35px auto}}
 
 .leadership-notice{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:16px 18px;margin:24px 0 4px;border:1px solid #ffffff45;border-radius:10px;background:#ffffff0d}.leadership-notice-icon{font-size:22px;line-height:1.35;color:#ffc275}.leadership-notice strong{color:#fff}.leadership-notice p{margin:4px 0 0;font-size:14px}
+
+.notification-back.btn { margin: 16px 0 0; }

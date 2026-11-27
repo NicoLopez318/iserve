@@ -72,7 +72,7 @@ class LeadershipOnboardingTest extends TestCase
         $this->get('/leadership/submitted/'.$application->id)->assertOk()->assertSee('Documents Submitted Successfully');
         $this->get('/portal/leadership')->assertRedirect('/leadership/submitted/'.$application->id);
         $this->get('/portal/leadership/events')->assertRedirect('/leadership/submitted/'.$application->id);
-        $this->get('/apply/activity')->assertForbidden();
+        $this->get('/apply/activity')->assertRedirect('/apply/leadership');
         $this->post('/apply/leadership',$this->submission($organization))->assertStatus(422);
         $this->assertDatabaseCount('service_requests',1);
         $this->assertCount(4,Storage::allFiles('requests'));
@@ -87,6 +87,22 @@ class LeadershipOnboardingTest extends TestCase
         $this->actingAs($student->fresh())->get('/portal/leadership')->assertOk();
         $this->get('/')->assertOk()->assertSee('href="/portal/leadership"',false);
         $this->get('/leadership/submitted/'.$application->id)->assertRedirect('/portal/leadership');
+    }
+
+    public function test_propose_activity_guides_students_to_the_current_membership_status(): void
+    {
+        $student=$this->student(['email_verified_at'=>now()]);
+        $this->actingAs($student)->get('/apply/activity')->assertRedirect('/apply/leadership');
+        $this->postJson('/apply/activity',[])->assertForbidden();
+        $application=ServiceRequest::create([
+            'user_id'=>$student->id,'ticket'=>'LEA-PROPOSAL-GATE','kind'=>'leadership','status'=>'unit_approved',
+            'details'=>[],
+        ]);
+        $statusUrl='/leadership/submitted/'.$application->id;
+        $this->get('/apply/leadership')->assertRedirect($statusUrl);
+        $this->get($statusUrl)->assertOk()->assertSee('Awaiting Assistant forwarding');
+        $application->update(['status'=>'awaiting_admin']);
+        $this->get($statusUrl)->assertOk()->assertSee('Awaiting final Admin approval');
     }
     public function test_acceptance_rejects_wrong_role_organization_and_unsubmitted_members(): void
     {

@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 use App\Models\{User,ServiceRequest,Assignment,Attendance,Journal,Event,Point};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB,Storage};
+use Illuminate\Support\Facades\{DB,Storage,Validator};
 use Illuminate\Support\Str;
 class StaffController extends Controller {
  private function query(Request $r){$q=ServiceRequest::with(['user','reviewer']);if(!in_array($r->user()->role,['admin','assistant']))$q->whereIn('kind',config('portal.office.'.$r->user()->role,[]));return $q;}
@@ -117,7 +117,47 @@ class StaffController extends Controller {
   });return back()->with('success','Record completed. The student may request clearance.');
  }
  public function event(Request $r){
-  $this->office($r,'slu_head');$v=$r->validate(['title'=>'required|string|max:150','description'=>'required|string|max:3000','venue'=>'required|string|max:120','starts_at'=>'required|date|after:now','ends_at'=>'required|date|after:starts_at','points'=>'required|integer|between:0,1000','capacity'=>'required|integer|between:1,5000','type'=>'required|in:leadership,seminar']);
+  $this->office($r,'slu_head');
+  $isPast=$r->input('event_period')==='past';
+  $dateTimeFormats='Y-m-d\TH:i,Y-m-d H:i,Y-m-d\TH:i:s,Y-m-d H:i:s';
+  $validator=Validator::make($r->all(),[
+   'title'=>'bail|required|string|max:150',
+   'description'=>'bail|required|string|max:3000',
+   'venue'=>'bail|required|string|max:120',
+   'starts_at'=>'bail|required|date_format:'.$dateTimeFormats.($isPast?'|before:now':'|after:now'),
+   'ends_at'=>'bail|required|date_format:'.$dateTimeFormats.($isPast?'|before_or_equal:now':''),
+   'points'=>'bail|required|integer|between:0,1000',
+   'capacity'=>'bail|required|integer|between:1,5000',
+   'type'=>'required|in:leadership,seminar',
+   'custom_venue'=>'sometimes|boolean',
+   'event_period'=>'sometimes|required|in:past,future',
+  ],[
+   'title.required'=>'Enter an event title.',
+   'description.required'=>'Enter an event description.',
+   'venue.required'=>'Select a venue or enter a venue name.',
+   'starts_at.required'=>'Choose a start date and time.',
+   'starts_at.date_format'=>'Enter a valid start date and time.',
+   'starts_at.after'=>'The start date and time must be in the future.',
+   'starts_at.before'=>'The start date and time must be in the past.',
+   'ends_at.required'=>'Choose an end date and time.',
+   'ends_at.date_format'=>'Enter a valid end date and time.',
+   'ends_at.before_or_equal'=>'The end date and time cannot be in the future.',
+   'capacity.required'=>'Enter the event capacity.',
+   'capacity.integer'=>'Capacity must be a whole number.',
+   'capacity.between'=>'Capacity must be between 1 and 5,000.',
+   'points.required'=>'Enter the participation points, or enter 0.',
+   'points.integer'=>'Participation points must be a whole number.',
+   'points.between'=>'Participation points must be between 0 and 1,000.',
+  ],['points'=>'participation points']);
+  $validator->after(function($validator)use($r){
+   if($validator->errors()->hasAny(['starts_at','ends_at']))return;
+   if(\Carbon\Carbon::parse($r->input('ends_at'))->lte(\Carbon\Carbon::parse($r->input('starts_at')))){
+    $validator->errors()->add('ends_at','The end date and time must be after the start date and time.');
+   }
+  });
+  $v=$validator->validateWithBag($isPast?'createPastEvent':'createEvent');
+  unset($v['custom_venue'],$v['event_period']);
+  $v['status']=$isPast?'completed':'published';
   DB::transaction(function()use($r,$v){
    $e=Event::create($v);
    if($e->type==='leadership'){
@@ -126,7 +166,7 @@ class StaffController extends Controller {
    }
    $this->audit($r,'event.create',(string)$e->id);
   });
-  return back()->with('success','Event published.');
+  return back()->with('success',$isPast?'Past event saved to the archive.':'Event published.');
  }
  public function cancelEvent(Request $r,Event $event){$this->office($r,'slu_head');$event->update(['status'=>'cancelled']);$this->audit($r,'event.cancel',(string)$event->id);return back()->with('success','Event cancelled.');}
  public function user(Request $r){
