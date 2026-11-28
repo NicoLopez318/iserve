@@ -315,6 +315,64 @@ class StaffPortalTest extends TestCase {
    ->assertSeeInOrder(['Type of Complaint','Unauthorized use of student records']);
  }
 
+ public function test_id_replacement_workspace_shows_live_cards_and_reprint_statuses():void
+ {
+  $head=$this->actor('cvu_head');
+  $student=$this->actor('student');
+  $student->update(['student_id'=>'2024-0198','course'=>'BSIT']);
+  $create=fn($ticket,$status,$details=[])=>ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>$ticket,'kind'=>'id-replacement','status'=>$status,'details'=>$details,
+  ]);
+  $create('IDR-NEW','pending',['replacement_reason'=>'Lost']);
+  $create('IDR-VERIFIED','unit_approved',['replacement_reason'=>'Damaged']);
+  $reprinted=$create('IDR-REPRINTED','approved',['replacement_reason'=>'Stolen','reprinted_at'=>now()->toIso8601String()]);
+  $create('IDR-RELEASED','approved',['released'=>true]);
+  $create('IDR-APPROVED','approved');
+  $create('IDR-ARCHIVED','approved',['archived'=>true]);
+
+  $page='/workspace/id-replacement';
+  $response=$this->actingAs($head)->get($page)->assertOk()->assertSee('cvu-id-replacement')
+   ->assertSee('ID Replacement Record')->assertSee('BSIT')->assertSee('Pending Release')->assertDontSee('IDR-ARCHIVED');
+  $this->assertSame([5,1,2,1],array_column($response->viewData('design')['cards'],'value'));
+  $this->get($page.'?search=Stolen&status=pending_release&review='.$reprinted->id)->assertOk()
+   ->assertSee('id="transaction-review"',false)->assertSee('IDR-REPRINTED')->assertDontSee('IDR-APPROVED');
+  $this->get($page.'?search=2024-0198&status=released')->assertOk()->assertSee('IDR-RELEASED')->assertDontSee('IDR-REPRINTED');
+  $this->get($page.'?status=approved')->assertOk()->assertSee('IDR-APPROVED')->assertDontSee('IDR-RELEASED')->assertDontSee('IDR-REPRINTED');
+  $this->get($page.'?archive=1')->assertOk()->assertSee('Archived ID Replacement Requests')->assertSee('IDR-ARCHIVED');
+ }
+
+ public function test_readmission_workspace_renders_live_summary_and_filters_the_new_queue():void
+ {
+  $head=$this->actor('cvu_head');
+  $student=$this->actor('student');
+  $create=fn($ticket,$status,$details=[])=>ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>$ticket,'kind'=>'readmission','status'=>$status,'details'=>$details,
+  ]);
+  $create('RA-NEW','pending',['subject'=>'Writing']);
+  $create('RA-REVIEW','in_review',['interview_at'=>null]);
+  $scheduled=$create('RA-SCHEDULED','in_review',[
+   'interview_at'=>now()->addDay()->toDateTimeString(),'subject_code'=>'BIO101','applicant'=>['name'=>'Applicant at Submission'],
+  ]);
+  $create('RA-INFO','needs_revision');
+  $create('RA-APPROVED','approved',['interview_at'=>now()->subDay()->toDateTimeString()]);
+  $create('RA-ARCHIVED','approved',['archived'=>true]);
+
+  $page='/workspace/readmission';
+  $response=$this->actingAs($head)->get($page)->assertOk()->assertSee('cvu-readmission')
+   ->assertSee('Re-Admission Request')->assertSee('1 archived')->assertSee('BIO101')->assertDontSee('RA-ARCHIVED');
+  $this->assertSame([1,1,1,1],array_column($response->viewData('design')['cards'],'value'));
+  $this->get($page.'?status=interview_scheduled&search=BIO101&review='.$scheduled->id)->assertOk()
+   ->assertSee('id="transaction-review"',false)->assertSee('RA-SCHEDULED')->assertDontSee('RA-REVIEW');
+  $this->get($page.'?status=in_review')->assertOk()->assertSee('RA-REVIEW')->assertDontSee('RA-SCHEDULED');
+  $this->get($page.'?search=Applicant+at+Submission')->assertOk()->assertSee('RA-SCHEDULED')->assertDontSee('RA-NEW');
+  $this->get($page.'?archive=1')->assertOk()->assertSee('Archived Re-Admission Requests')
+   ->assertSee('RA-ARCHIVED')->assertDontSee('RA-APPROVED');
+  $this->from($page.'?review='.$scheduled->id)->post('/workspace/request/'.$scheduled->id.'/note',[
+   'readmission_action'=>'request-info','review_note'=>'Please confirm the subject schedule.',
+  ])->assertRedirect($page.'?review='.$scheduled->id)->assertSessionHasNoErrors();
+  $this->assertSame('needs_revision',$scheduled->fresh()->status);
+ }
+
  public function test_cvu_complaint_review_preserves_the_unit_workflow():void
  {
   $student=$this->actor('student');

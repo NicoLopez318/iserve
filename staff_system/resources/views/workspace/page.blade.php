@@ -4,7 +4,7 @@
 @php($monitor=in_array($role,['admin','assistant']))
 @if($role === 'cvu_head' && $page === 'dashboard')
  @include('workspace.cvu-dashboard')
-@elseif($role === 'cvu_head' && in_array($page, ['complaints', 'lost-found'], true))
+@elseif($role === 'cvu_head' && in_array($page, ['complaints', 'lost-found', 'readmission', 'id-replacement'], true))
  @include('workspace.cvu-request-list')
 @elseif($role === 'sfu_head' && $page === 'dashboard')
  @include('workspace.sfu-dashboard')
@@ -78,18 +78,30 @@
 @php($sluAchievementReview = $role === 'slu_head' && $page === 'achievements' && $selectedRequest->kind === 'achievement' && empty($selectedRequest->details['adjustment']))
 @php($cvuComplaintReview = $role === 'cvu_head' && $page === 'complaints' && $selectedRequest->kind === 'complaint')
 @php($cvuLostFoundReview = $role === 'cvu_head' && $page === 'lost-found' && isset(App\Models\ServiceRequest::LOST_FOUND_TYPES[$selectedRequest->kind]))
+@php($cvuReadmissionReview = $role === 'cvu_head' && $page === 'readmission' && $selectedRequest->kind === 'readmission')
+@php($cvuIdReplacementReview = $role === 'cvu_head' && $page === 'id-replacement' && $selectedRequest->kind === 'id-replacement')
+@php($readmissionInterview = $cvuReadmissionReview && request('panel') === 'interview' && $selectedRequest->reviewActions(auth()->user()))
 @php($cvuCaseReview = $cvuComplaintReview || $cvuLostFoundReview)
-@php($centerReview = $adminView || $scholarshipReview || $leadershipReview || $sluAchievementReview)
-@php($closeReviewUrl=$role==='slu_head'&&$page==='organizations'?request()->fullUrlWithQuery(['tab'=>'membership','review'=>null,'report'=>null]):request()->fullUrlWithoutQuery(['review','report']))
-<dialog id="transaction-review" @class(['drawer review-drawer' => !$centerReview, 'slu-membership-dialog' => $membershipReview, 'slu-proposal-dialog' => $sluProposalReview, 'slu-achievement-dialog' => $sluAchievementReview, 'cvu-case-dialog' => $cvuCaseReview, 'cvu-lost-found-dialog' => $cvuLostFoundReview])
+@php($centerReview = $adminView || $scholarshipReview || $leadershipReview || $sluAchievementReview || $cvuReadmissionReview || $cvuIdReplacementReview)
+@php($closeReviewUrl=$role==='slu_head'&&$page==='organizations'?request()->fullUrlWithQuery(['tab'=>'membership','review'=>null,'report'=>null]):request()->fullUrlWithoutQuery(['review','report','panel']))
+<dialog id="transaction-review" @class(['drawer review-drawer' => !$centerReview, 'slu-membership-dialog' => $membershipReview, 'slu-proposal-dialog' => $sluProposalReview, 'slu-achievement-dialog' => $sluAchievementReview, 'cvu-case-dialog' => $cvuCaseReview || $cvuReadmissionReview || $cvuIdReplacementReview, 'cvu-lost-found-dialog' => $cvuLostFoundReview, 'cvu-readmission-dialog' => $cvuReadmissionReview, 'cvu-readmission-interview-dialog' => $readmissionInterview, 'cvu-id-replacement-dialog' => $cvuIdReplacementReview])
         open data-auto-open
         @if($membershipReview) aria-labelledby="slu-membership-review-title"
         @elseif($sluProposalReview) aria-labelledby="slu-proposal-review-title"
         @elseif($sluAchievementReview) aria-labelledby="slu-achievement-review-title"
+        @elseif($readmissionInterview) aria-labelledby="readmission-interview-title"
+        @elseif($cvuReadmissionReview) aria-labelledby="cvu-readmission-review-title"
+        @elseif($cvuIdReplacementReview) aria-labelledby="cvu-id-replacement-review-title"
         @elseif($cvuCaseReview) aria-labelledby="cvu-case-review-title"
         @else aria-label="Transaction details" @endif>
     <a class="close-dialog" href="{{ $closeReviewUrl }}" aria-label="Close">×</a>
-    @include($cvuCaseReview ? 'workspace.cvu-case-review' : 'workspace.review-panel',['item'=>$selectedRequest,'history'=>$selectedHistory])
+    @include(match(true) {
+        $readmissionInterview => 'workspace.readmission-interview',
+        $cvuReadmissionReview => 'workspace.cvu-readmission-review',
+        $cvuIdReplacementReview => 'workspace.cvu-id-replacement-review',
+        $cvuCaseReview => 'workspace.cvu-case-review',
+        default => 'workspace.review-panel',
+    }, ['item'=>$selectedRequest,'history'=>$selectedHistory])
 </dialog>
 @endif
 @if($selectedReport)

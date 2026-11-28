@@ -14,32 +14,64 @@ class ApprovalRoutingTest extends TestCase {
   $head=$this->user('cvu_head');
   $assistant=$this->user('assistant');
   $admin=$this->user('admin');
-  $q=ServiceRequest::create(['user_id'=>$student->id,'ticket'=>'RA-WORKFLOW','kind'=>'readmission','details'=>['subject'=>'Mathematics']]);
+  $q=ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'RA-WORKFLOW','kind'=>'readmission',
+   'details'=>['subject'=>'Mathematics','subject_code'=>'MATH 1','applicant'=>['name'=>'Submitted Student Name']],
+   'files'=>['evidence'=>['name'=>'medical-cert.pdf','path'=>'requests/medical-cert.pdf']],
+  ]);
   $this->freezeTime();
   $interview=now()->addDay()->format('Y-m-d\TH:i');
   $page='/workspace/readmission?review='.$q->id;
+  $interviewPanel=$page.'&panel=interview';
   $schedule='/workspace/request/'.$q->id.'/note';
   $slip='/workspace/request/'.$q->id.'/slip';
-  $this->actingAs($head)->get($page)->assertOk()->assertSee('Schedule Interview');
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('cvu-readmission-dialog')
+   ->assertSee('Selected Request Details')->assertSee('Submitted Student Name')->assertSee('MATH 1')
+   ->assertSee('medical-cert.pdf')->assertSee('Schedule Interview')->assertSee($interviewPanel)->assertSee('Available after final approval.');
+  $this->get($interviewPanel)->assertOk()->assertSee('cvu-readmission-interview-dialog')
+   ->assertSee('Interview Date & Time')->assertSee('Remarks for the Student')->assertSee('Save Interview')
+   ->assertDontSee('Approved for Admission');
   $this->get($slip)->assertForbidden();
-  $this->from($page)->post($schedule,['review_note'=>'Please attend the scheduled interview.','interview_at'=>$interview])
-   ->assertRedirect($page)->assertSessionHasNoErrors();
-  $this->post($schedule,['review_note'=>'The submitted evidence has been checked.','interview_at'=>''])
+  $this->from($interviewPanel)->post($schedule,['readmission_action'=>'schedule','review_note'=>'Please attend the scheduled interview.'])
+   ->assertRedirect($interviewPanel)->assertSessionHasErrors('interview_at');
+  $this->post($schedule,['readmission_action'=>'schedule','review_note'=>'Please attend the scheduled interview.','interview_at'=>$interview])
+   ->assertRedirect($interviewPanel)->assertSessionHasNoErrors();
+  $this->from($page)->post($schedule,['readmission_action'=>'save','review_note'=>'The submitted evidence has been checked.','interview_at'=>''])
    ->assertRedirect($page)->assertSessionHasNoErrors();
   $this->assertSame($interview,$q->fresh()->details['interview_at']);
   $this->review($head,$q,'unit_approved')->assertSessionHasErrors('workflow');
   $this->assertSame('in_review',$q->fresh()->status);
 
   $this->travel(2)->days();
-  $this->review($head,$q,'unit_approved')->assertSessionHasNoErrors();
+  $this->post($schedule,['readmission_action'=>'save','status'=>'unit_approved','review_note'=>'Interview completed and request endorsed.'])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
   $this->review($assistant,$q,'awaiting_admin')->assertSessionHasNoErrors();
   $this->review($admin,$q,'approved')->assertSessionHasNoErrors();
   $this->assertNotEmpty($q->fresh()->details['issued_at']);
   $this->assertSame('approved',$q->fresh()->status);
-  $this->actingAs($head)->get($slip)->assertOk()->assertSee('Re-Admission Virtual Slip');
+  $this->actingAs($head)->get($page)->assertOk()->assertSee($slip)->assertDontSee('Available after final approval.');
+  $this->get($slip)->assertOk()->assertSee('Re-Admission Virtual Slip')->assertSee('Approved for Admission')->assertSee('Send to Student');
   $this->post('/workspace/request/'.$q->id.'/disposition',['action'=>'archive','review_note'=>'Completed re-admission record.'])->assertRedirect();
   $this->get('/workspace/readmission')->assertOk()->assertDontSee('RA-WORKFLOW');
   $this->get('/workspace/readmission?archive=1')->assertOk()->assertSee('RA-WORKFLOW');
+ }
+
+ public function test_cvu_head_can_share_only_approved_readmission_slips():void
+ {
+  config(['app.student_portal_url'=>'https://students.example.test']);
+  $student=$this->user('student');
+  $item=ServiceRequest::create(['user_id'=>$student->id,'ticket'=>'RA-SLIP','kind'=>'readmission','details'=>[]]);
+  $slip='/workspace/request/'.$item->id.'/slip';
+  $this->actingAs($this->user('cvu_head'))->post($slip.'/send')->assertForbidden();
+  $item->update(['status'=>'approved']);
+  $this->actingAs($this->user('assistant'))->post($slip.'/send')->assertForbidden();
+  $this->actingAs($this->user('cvu_head'))->post($slip.'/send')->assertRedirect($slip);
+  $alert=$student->notifications()->sole()->data;
+  $this->assertSame('Re-Admission Virtual Slip: RA-SLIP',$alert['title']);
+  $this->assertSame('https://students.example.test/requests/'.$item->id.'/slip',$alert['url']);
+  $student->update(['preferences'=>['email'=>false,'in_app'=>false]]);
+  $this->post($slip.'/send')->assertRedirect($slip)->assertSessionHas('success','The slip is available in the student portal. The student has turned off notifications.');
+  $this->assertSame(1,$student->notifications()->count());
  }
 
  public function test_cvu_schedule_and_review_email_use_the_student_site():void {
@@ -80,19 +112,39 @@ class ApprovalRoutingTest extends TestCase {
    'details'=>['replacement_reason'=>'Stolen'],
   ]);
   $page='/workspace/id-replacement?review='.$item->id;
+  $note='/workspace/request/'.$item->id.'/note';
+  $slip='/workspace/request/'.$item->id.'/slip';
+  $approval=['id_replacement_action'=>'approve','review_note'=>'Replacement details reviewed.'];
   $this->actingAs($head)->from($page);
-  $this->review($head,$item,'unit_approved')->assertSessionHasErrors([
+  $this->post($note,$approval)->assertSessionHasErrors([
    'workflow'=>'An affidavit of loss is required before approving a lost or stolen ID replacement.',
   ]);
   $item->update(['files'=>['evidence'=>['path'=>'requests/affidavit.pdf','name'=>'affidavit.pdf']]]);
-  $this->review($head,$item,'unit_approved')->assertSessionHasErrors([
+  $this->post($note,$approval)->assertSessionHasErrors([
    'workflow'=>'A receipt number and valid payment amount are required before approving ID replacement.',
   ]);
   $item->update(['details'=>[...$item->details,'receipt_number'=>'000124','payment_amount'=>'125.50']]);
-  $this->get($page)->assertOk()->assertSee('000124')->assertSee('125.50')->assertSee('affidavit.pdf');
-  $this->review($head,$item,'unit_approved')->assertSessionHasNoErrors();
+  $this->get($page)->assertOk()->assertSee('cvu-id-replacement-dialog')->assertSee('Selected Request Details')
+   ->assertSee('000124')->assertSee('125.50')->assertSee('affidavit.pdf')->assertSee('Approve Request');
+  $this->get($slip)->assertForbidden();
+  $this->from($page)->post($note,['id_replacement_action'=>'save','review_note'=>'Payment and supporting file received.'])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('in_review',$item->fresh()->status);
+  $this->post($note,$approval)->assertSessionHasNoErrors();
   $this->assertSame('unit_approved',$item->fresh()->status);
   $this->assertSame($student->name,$item->fresh()->details['student_name']);
+ }
+ public function test_cvu_id_replacement_review_can_request_more_information():void
+ {
+  $student=$this->user('student');
+  $item=ServiceRequest::create(['user_id'=>$student->id,'ticket'=>'IDR-INFO','kind'=>'id-replacement','details'=>[]]);
+  $page='/workspace/id-replacement?review='.$item->id;
+  $remarks='Please attach a clearer copy of your receipt.';
+  $this->actingAs($this->user('cvu_head'))->from($page)->post('/workspace/request/'.$item->id.'/note',[
+   'id_replacement_action'=>'request-info','review_note'=>$remarks,
+  ])->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('needs_revision',$item->fresh()->status);
+  $this->assertSame($remarks,$item->fresh()->review_note);
  }
  public function test_cvu_marks_approved_ids_reprinted_and_notifies_the_applicant_once():void
  {
@@ -113,7 +165,8 @@ class ApprovalRoutingTest extends TestCase {
   $this->actingAs($this->user('admin'))->post($action,$payload)->assertForbidden();
   $this->actingAs($this->user('cvu_head'))->postJson($action,$payload)->assertUnprocessable();
   $item->update(['status'=>'approved']);
-  $this->get($page)->assertOk()->assertSee('Mark ID as Reprinted');
+  $this->get($page)->assertOk()->assertSee('Mark ID as Reprinted')->assertSee('Print Slip');
+  $this->get('/workspace/request/'.$item->id.'/slip')->assertOk();
   $this->get('/workspace/request/'.$item->id)->assertOk()->assertSee('Mark ID as Reprinted');
   $this->from($page)->post($action,$payload)->assertRedirect($page)->assertSessionHasNoErrors();
   $this->post($action,$payload)->assertRedirect($page)->assertSessionHasNoErrors();

@@ -13,6 +13,7 @@ Route::middleware(['auth','staff'])->group(function(){
  Route::post('/workspace/request/{serviceRequest}/parent-guardian',[Portal::class,'complaintParentGuardian'])->name('staff.complaints.parent-guardian');
  Route::post('/workspace/request/{serviceRequest}/disposition',[Portal::class,'disposition']);
  Route::get('/workspace/request/{serviceRequest}/slip',[Portal::class,'slip']);
+ Route::post('/workspace/request/{serviceRequest}/slip/send',[Portal::class,'sendReadmissionSlip'])->name('staff.readmission-slip.send');
  Route::get('/workspace/report/{report}',[Portal::class,'report']);
  Route::post('/workspace/reports',[Portal::class,'reportStore']);
  Route::post('/workspace/report/{report}',[Portal::class,'reportUpdate']);

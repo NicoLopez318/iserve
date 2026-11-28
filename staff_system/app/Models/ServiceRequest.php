@@ -18,6 +18,16 @@ class ServiceRequest extends Model {
   'unit_approved'=>'Unit Approved','awaiting_admin'=>'Under Admin Review','approved'=>'All Approved','claim_pending'=>'Claim Pending',
   'released'=>'Released','rejected'=>'Declined','cancelled'=>'Cancelled',
  ];
+ public const READMISSION_STATUSES=[
+  'pending'=>'New','in_review'=>'For Review','interview_scheduled'=>'Interview Scheduled',
+  'needs_revision'=>'Awaiting Information','unit_approved'=>'Unit Approved','awaiting_admin'=>'Under Admin Review',
+  'approved'=>'Approved','released'=>'Released','rejected'=>'Declined','cancelled'=>'Cancelled',
+ ];
+ public const ID_REPLACEMENT_STATUSES=[
+  'pending'=>'For Review','in_review'=>'Under Review','needs_revision'=>'Awaiting Information',
+  'unit_approved'=>'Verified','awaiting_admin'=>'Under Admin Review','approved'=>'Approved',
+  'pending_release'=>'Pending Release','released'=>'Released','rejected'=>'Declined','cancelled'=>'Cancelled',
+ ];
  public const PROPOSAL_CHECKLIST=[
   'Pre-Activity'=>['pre_intent','pre_matrix','pre_evaluation','pre_resolution','pre_budget'],
   'Post-Activity'=>['post_documentation','post_narrative','post_evaluation','post_financial','post_attendance'],
@@ -37,6 +47,19 @@ class ServiceRequest extends Model {
    default=>$this->status,
   };
  }
+ public function readmissionQueueStatus():string {
+  return in_array($this->status,['pending','in_review'],true)&&filled($this->details['interview_at']??null)
+   ? 'interview_scheduled':$this->status;
+ }
+ public function scopeWithReadmissionQueueStatus(Builder $query,string $status):Builder {
+  if($status==='interview_scheduled'){
+   return $query->where(fn($items)=>$items->where('status','interview_scheduled')
+    ->orWhere(fn($scheduled)=>$scheduled->whereIn('status',['pending','in_review'])
+     ->whereNotNull('details->interview_at')->where('details->interview_at','<>','')));
+  }
+  return $query->where('status',$status)->when(in_array($status,['pending','in_review'],true),
+   fn($unscheduled)=>$unscheduled->where(fn($items)=>$items->whereNull('details->interview_at')->orWhere('details->interview_at','')));
+ }
  public function complaintType():?string {
   $customType=$this->details['other_complaint']??null;
   return filled($customType)?$customType:($this->details['complaint_type']??null);
@@ -47,6 +70,22 @@ class ServiceRequest extends Model {
  public function canMarkIdReprinted():bool {
   return $this->kind==='id-replacement'&&$this->status==='approved'
    &&empty($this->details['reprinted_at'])&&empty($this->details['released']);
+ }
+ public function idReplacementQueueStatus():string {
+  return match(true){
+   $this->status==='released'||($this->status==='approved'&&!empty($this->details['released']))=>'released',
+   $this->status==='approved'&&filled($this->details['reprinted_at']??null)=>'pending_release',
+   default=>$this->status,
+  };
+ }
+ public function scopeWithIdReplacementQueueStatus(Builder $query,string $status):Builder {
+  return match($status){
+   'released'=>$query->where(fn($items)=>$items->where('status','released')
+    ->orWhere(fn($approved)=>$approved->where('status','approved')->where('details->released',true))),
+   'pending_release'=>$query->awaitingRelease()->whereNotNull('details->reprinted_at')->where('details->reprinted_at','<>',''),
+   'approved'=>$query->awaitingRelease()->where(fn($items)=>$items->whereNull('details->reprinted_at')->orWhere('details->reprinted_at','')),
+   default=>$query->where('status',$status),
+  };
  }
  public function attachmentPath(string $key):?string{
   $file=$this->files[$key]??null;

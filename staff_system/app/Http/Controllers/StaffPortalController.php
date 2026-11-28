@@ -68,6 +68,22 @@ class StaffPortalController extends Controller
  }
  private function cardValue(Request $r,string $label,string $page):int {
   $label=strtolower(trim($label));$q=$this->scope($r);$kinds=['complaints'=>['complaint'],'lost-found'=>['lost','found'],'readmission'=>['readmission'],'id-replacement'=>['id-replacement'],'applications'=>['scholarship']];if(isset($kinds[$page]))$q->whereIn('kind',$kinds[$page]);
+  if($page==='readmission'){
+   $status=match($label){'new request'=>'pending','for review'=>'in_review','interview scheduled'=>'interview_scheduled','approved'=>'approved',default=>null};
+   return $q->when($r->boolean('archive'),fn($items)=>$items->where('details->archived',true),
+    fn($items)=>$items->where(fn($active)=>$active->whereNull('details->archived')->orWhere('details->archived',false)))
+    ->when($status,fn($items)=>$items->withReadmissionQueueStatus($status))->count();
+  }
+  if($page==='id-replacement'){
+   $q->when($r->boolean('archive'),fn($items)=>$items->where('details->archived',true),
+    fn($items)=>$items->where(fn($active)=>$active->whereNull('details->archived')->orWhere('details->archived',false)));
+   return match($label){
+    'for review'=>$q->whereIn('status',['pending','in_review'])->count(),
+    'approved'=>$q->awaitingRelease()->count(),
+    'released'=>$q->withIdReplacementQueueStatus('released')->count(),
+    default=>$q->count(),
+   };
+  }
   if($r->user()->role==='admin'&&str_contains($label,'awaiting review'))return $this->reports($r)->where('status','awaiting_admin')->whereNull('snapshot->admin_review_started_at')->count();
   if($r->user()->role==='admin'&&str_contains($label,'under admin'))return $this->reports($r)->where('status','awaiting_admin')->whereNotNull('snapshot->admin_review_started_at')->count();
   if($page==='reports'||in_array($r->user()->role,['admin','assistant'])){
@@ -122,6 +138,8 @@ class StaffPortalController extends Controller
   $cvuDashboard=$page==='dashboard'&&$r->user()->role==='cvu_head';
   $cvuComplaints=$page==='complaints'&&$r->user()->role==='cvu_head';
   $cvuLostFound=$page==='lost-found'&&$r->user()->role==='cvu_head';
+  $cvuReadmission=$page==='readmission'&&$r->user()->role==='cvu_head';
+  $cvuIdReplacement=$page==='id-replacement'&&$r->user()->role==='cvu_head';
   $sluProposals=$page==='proposals'&&$r->user()->role==='slu_head';
   $sluAchievements=$page==='achievements'&&$r->user()->role==='slu_head';
   $fullProposalQueue=$sluProposals&&$r->query('queue')==='all';
@@ -133,7 +151,7 @@ class StaffPortalController extends Controller
   $sluReports=$page==='reports'&&$r->user()->role==='slu_head';
   $scope=$this->scope($r);$kinds=['complaints'=>['complaint'],'lost-found'=>['lost','found'],'readmission'=>['readmission'],'id-replacement'=>['id-replacement'],'applications'=>['scholarship'],'organizations'=>['leadership'],'proposals'=>['activity'],'achievements'=>['achievement'],'clearance'=>['clearance'],'seminars'=>['seminar']];
   if(isset($kinds[$page]))$scope->whereIn('kind',$kinds[$page]);
-  $archivedRequestCount=$cvuComplaints||$cvuLostFound
+  $archivedRequestCount=$cvuComplaints||$cvuLostFound||$cvuReadmission
    ?(clone $scope)->where('details->archived',true)->count()
    :0;
   if($unit=$this->unitRole($page))$scope->whereIn('kind',config('portal.office.'.$unit));
@@ -162,6 +180,9 @@ class StaffPortalController extends Controller
      ->orWhere('details->complaint_type','like',$term)->orWhere('details->other_complaint','like',$term))
     ->when($cvuLostFound,fn($items)=>$items->orWhere('details->item_name','like',$term)
      ->orWhereIn('kind',$reportKinds))
+    ->when($cvuReadmission,fn($items)=>$items->orWhere('details->subject','like',$term)
+     ->orWhere('details->subject_code','like',$term)->orWhere('details->applicant->name','like',$term))
+    ->when($cvuIdReplacement,fn($items)=>$items->orWhere('details->replacement_reason','like',$term)->orWhere('details->student_name','like',$term))
     ->when($membershipTab,fn($membership)=>$membership->orWhereIn('details->organization_id',Organization::select('id')->where('name','like',$term)))
     ->when($sluProposals||$sluAchievements,fn($submission)=>$submission->orWhere('details->title','like',$term)
      ->orWhere(fn($organization)=>$this->filterRequestOrganization($organization,Organization::select('id')->where('name','like',$term)))));
@@ -177,13 +198,15 @@ class StaffPortalController extends Controller
    $sfuQueue&&$r->status==='pending'=>$q->whereIn('status',['pending','in_review']),
    $cvuLostFound&&$r->status==='claim_pending'=>$q->awaitingRelease(),
    $cvuLostFound&&$r->status==='released'=>$q->where('details->released',true),
+   $cvuReadmission=>$q->withReadmissionQueueStatus($r->string('status')->toString()),
+   $cvuIdReplacement=>$q->withIdReplacementQueueStatus($r->string('status')->toString()),
    default=>$q->where('status',$r->status),
   });
   $scope->when($sfuQueue&&$r->filled('program'),fn($q)=>$q->whereHas('user',fn($user)=>$user->where('course',$r->string('program')->toString())));
   if($page==='points')$scope->where('details->adjustment',true)->whereIn('status',['unit_approved','awaiting_admin']);
   if($sluDashboard&&!$fullSluQueue&&!$r->filled('status'))$scope->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin']);
   $queueSize=$fullSluQueue||$fullProposalQueue?15:(($sfuDashboard||$sluDashboard||$sluProposals)?4:5);
-  $requests=$scope->latest()->when($sluProposals||$sluAchievements||$cvuLostFound,fn($query)=>$query->orderByDesc('id'))
+  $requests=$scope->latest()->when($sluProposals||$sluAchievements||$cvuLostFound||$cvuReadmission||$cvuIdReplacement,fn($query)=>$query->orderByDesc('id'))
    ->paginate($queueSize,['*'],'transactions')->withQueryString();
   if(($sfuQueue&&!$sfuDashboard)||$membershipTab||$sluProposals||$sluAchievements||$page==='points')$requests->appends(['review'=>null,'report'=>null]);
   $reportQuery=$this->reports($r)->when($unit,fn($q)=>$q->whereHas('user',fn($u)=>$u->where('role',$unit)));
@@ -510,6 +533,7 @@ class StaffPortalController extends Controller
  public function requestNote(Request $r,ServiceRequest $serviceRequest){
   abort_unless($r->user()->role===$serviceRequest->office()&&in_array($serviceRequest->status,['pending','in_review']),403);
   $action=null;$status=null;
+  $actionField=$serviceRequest->kind.'_action';
   if($r->has('lost_found_action')&&isset(ServiceRequest::LOST_FOUND_TYPES[$serviceRequest->kind])){
    $decision=$r->validate([
     'lost_found_action'=>'required|in:save,request-info,validate',
@@ -521,12 +545,23 @@ class StaffPortalController extends Controller
     'validate'=>'unit_approved',
     'save'=>$decision['status']??null,
    };
-  }elseif($serviceRequest->kind==='complaint'&&$r->has('complaint_action')){
+  }elseif($serviceRequest->kind==='id-replacement'&&$r->has('id_replacement_action')){
    $decision=$r->validate([
-    'complaint_action'=>'required|in:save,request-info,schedule',
+    'id_replacement_action'=>'required|in:save,request-info,approve',
+    'status'=>'nullable|in:rejected',
+   ]);
+   $action=$decision['id_replacement_action'];
+   $status=match($action){
+    'request-info'=>'needs_revision',
+    'approve'=>'unit_approved',
+    'save'=>$decision['status']??null,
+   };
+  }elseif(in_array($serviceRequest->kind,['complaint','readmission'],true)&&$r->has($actionField)){
+   $decision=$r->validate([
+    $actionField=>'required|in:save,request-info,schedule',
     'status'=>'nullable|in:unit_approved,rejected',
    ]);
-   $action=$decision['complaint_action'];
+   $action=$decision[$actionField];
    $status=match($action){
     'request-info'=>'needs_revision',
     'save'=>$decision['status']??null,
@@ -542,9 +577,9 @@ class StaffPortalController extends Controller
    'save'=>'exclude',
    default=>'nullable|date|after:now',
   };
-  if($serviceRequest->kind==='readmission'&&!$r->filled('interview_at'))$interviewRules='exclude';
+  if($serviceRequest->kind==='readmission'&&$action===null&&!$r->filled('interview_at'))$interviewRules='exclude';
   $v=$r->validate(['review_note'=>'required|string|min:5|max:3000','interview_at'=>$interviewRules,'appointment_date'=>'nullable|date','schedule'=>'nullable|date_format:H:i','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean',
-   'meeting_type'=>$action==='schedule'?'sometimes|required|in:Interview,Case Conference':'exclude']);
+   'meeting_type'=>$serviceRequest->kind==='complaint'&&$action==='schedule'?'sometimes|required|in:Interview,Case Conference':'exclude']);
   DB::transaction(function()use($r,$serviceRequest,$v){
    if($serviceRequest->kind==='clearance'){DB::table('settings')->insertOrIgnore(['key'=>'staff.clearance-slots','value'=>'[]']);DB::table('settings')->where('key','staff.clearance-slots')->lockForUpdate()->first();}
    $q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);$this->requireCondition(in_array($q->status,['pending','in_review']),422);$details=$q->details;
@@ -570,7 +605,34 @@ class StaffPortalController extends Controller
    }
   });return back()->with('success','Review saved.');
  }
- public function slip(Request $r,ServiceRequest $serviceRequest){abort_unless((in_array($r->user()->role,['admin','assistant'])||$r->user()->role===$serviceRequest->office())&&$serviceRequest->status==='approved',403);return view('workspace.slip',['item'=>$serviceRequest]);}
+ public function slip(Request $r,ServiceRequest $serviceRequest)
+ {
+  abort_unless((in_array($r->user()->role,['admin','assistant'])||$r->user()->role===$serviceRequest->office())&&$serviceRequest->status==='approved',403);
+  return view($serviceRequest->kind==='readmission'?'workspace.readmission-slip':'workspace.slip',['item'=>$serviceRequest]);
+ }
+ public function sendReadmissionSlip(Request $request,ServiceRequest $serviceRequest)
+ {
+  $this->only($request,'cvu_head');
+  $message=DB::transaction(function()use($request,$serviceRequest){
+   $item=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);
+   abort_unless($item->kind==='readmission'&&$item->status==='approved',403);
+   $student=$item->user;
+   $inApp=$student->preferences['in_app']??true;
+   $email=$student->preferences['email']??true;
+   if(!$inApp&&!$email)return 'The slip is available in the student portal. The student has turned off notifications.';
+
+   $title='Re-Admission Virtual Slip: '.$item->ticket;
+   $body='Your approved re-admission slip is available in your student portal.';
+   $url=rtrim(config('app.student_portal_url'),'/').'/requests/'.$item->id.'/slip';
+   if($inApp)$student->notifications()->create([
+    'id'=>Str::uuid(),'type'=>'request','data'=>['title'=>$title,'message'=>$body,'url'=>$url],
+   ]);
+   \App\Support\TransactionEmail::sendAfterCommit($student,$title,$body."\n\nView your slip: ".$url,['request_id'=>$item->id]);
+   $this->audit($request,'request.slip_shared',$item->ticket);
+   return 'Slip shared with the student.';
+  });
+  return redirect('/workspace/request/'.$serviceRequest->id.'/slip')->with('success',$message);
+ }
  public function report(Request $r,Report $report){abort_unless(in_array($r->user()->role,['admin','assistant'])||$report->user_id===$r->user()->id,403);$report->load('user');$history=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject','report:'.$report->id)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();return view('workspace.report',['item'=>$report,'history'=>$history,'menus'=>self::menus($r->user()->role)]);}
  public function reportStart(Request $r,Report $report){$this->only($r,'admin');DB::transaction(function()use($r,$report){$q=Report::lockForUpdate()->findOrFail($report->id);abort_unless($q->status==='awaiting_admin',422);$snapshot=$q->snapshot;if(!isset($snapshot['records']))$snapshot=['records'=>$snapshot,'version'=>1];if(!isset($snapshot['admin_review_started_at'])){$snapshot['admin_review_started_at']=now()->toIso8601String();$q->update(['snapshot'=>$snapshot]);$this->audit($r,'report.review_started','report:'.$q->id);}});return redirect(isset(self::menus($r->user()->role)[$r->input('page')??''])?'/workspace/'.$r->input('page').'?report='.$report->id:'/workspace/report/'.$report->id);}
  public function reportStore(Request $r){
