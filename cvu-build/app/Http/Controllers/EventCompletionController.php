@@ -48,6 +48,7 @@ class EventCompletionController extends Controller
                         'description' => $values['summary'],
                         'completion_report' => true,
                         'event_id' => $event->id,
+                        'organization_id' => $serviceRequest->details['organization_id'] ?? $serviceRequest->user->organization_id,
                     ],
                     'files' => ['completion_report' => ['path' => $path, 'name' => $file->getClientOriginalName()]],
                 ]);

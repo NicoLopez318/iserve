@@ -8,6 +8,36 @@ use App\Http\Controllers\StaffPortalController;
 class StaffPortalTest extends TestCase {
  use RefreshDatabase;
  private function actor(string $role):User{return User::create(['name'=>$role,'email'=>uniqid().'@example.test','username'=>uniqid('staff'),'password'=>'TestingPassword123!','role'=>$role,'account_type'=>$role==='student'?'student':'employee','profile_complete'=>true,'email_verified_at'=>now(),'preferences'=>['email'=>false,'in_app'=>true]]);}
+ public function test_admin_can_browse_organization_documents_across_all_submission_statuses():void
+ {
+  Storage::fake('local');
+  Storage::put('requests/agenda.pdf',"%PDF-1.4\n");
+  Storage::put('completion-reports/after-event.pdf',"%PDF-1.4\n");
+  $organization=\App\Models\Organization::create(['name'=>'Workshop Society']);
+  $other=\App\Models\Organization::create(['name'=>'Another Society']);
+  $student=$this->actor('student');
+  $student->update(['organization_id'=>$other->id]);
+  $create=fn($ticket,$kind,$status,$files,$details=[])=>ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>$ticket,'kind'=>$kind,'status'=>$status,'files'=>$files,'details'=>$details,
+  ]);
+  $proposal=$create('DOC-PROPOSAL','activity','pending',[
+   'pre_matrix'=>['path'=>'requests/agenda.pdf','name'=>'agenda.pdf'],
+   'post_evaluation'=>['path'=>'requests/evaluation.pdf','name'=>'evaluation.pdf'],
+  ],['organization_id'=>(string)$organization->id,'title'=>'Leadership workshop']);
+  $report=$create('DOC-REPORT','activity','rejected',['completion_report'=>'completion-reports/after-event.pdf'],['completion_report'=>true]);
+  $create('DOC-ACHIEVEMENT','achievement','approved',['evidence'=>'requests/award.pdf']);
+  $create('DOC-EMPTY','activity','pending',[]);
+  $create('DOC-PERSONAL','complaint','pending',['evidence'=>'requests/private.pdf']);
+  $page='/workspace/organization-documents';
+  $this->actingAs($this->actor('assistant'))->get($page)->assertForbidden();
+  $this->actingAs($this->actor('admin'))->get($page)->assertOk()
+   ->assertSee('agenda.pdf')->assertSee('evaluation.pdf')->assertSee('after-event.pdf')->assertSee('award.pdf')
+   ->assertDontSee('DOC-EMPTY')->assertDontSee('DOC-PERSONAL');
+  $this->get($page.'?organization='.$organization->id)->assertOk()->assertSee('agenda.pdf')->assertDontSee('after-event.pdf');
+  $this->get($page.'?search=award.pdf')->assertOk()->assertSee('DOC-ACHIEVEMENT')->assertDontSee('DOC-PROPOSAL');
+  $this->get('/requests/'.$proposal->id.'/files/pre_matrix/view')->assertOk()->assertHeader('Content-Type','application/pdf');
+  $this->get('/requests/'.$report->id.'/files/completion_report/view')->assertOk()->assertHeader('Content-Type','application/pdf');
+ }
  public function test_admin_view_links_open_one_record_and_keep_the_list_filters():void {
   $admin=$this->actor('admin');
   $student=$this->actor('student');
@@ -265,6 +295,10 @@ class StaffPortalTest extends TestCase {
    'user_id'=>$student->id,'ticket'=>'CMP-ARCHIVED','kind'=>'complaint','status'=>'approved',
    'details'=>['respondent'=>'Jamie Santos','complaint_type'=>'Harassment','archived'=>true],
   ]);
+  $custom=ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'CMP-CUSTOM','kind'=>'complaint','status'=>'pending',
+   'details'=>['complaint_type'=>'Other','other_complaint'=>'Unauthorized use of student records'],
+  ]);
 
   $this->actingAs($head)->get('/workspace/complaints?search=Jamie&status=pending')->assertOk()
    ->assertSee('Find Archived')->assertSee('1 archived')->assertSee('CMP-ACTIVE')->assertDontSee('CMP-ARCHIVED');
@@ -275,6 +309,10 @@ class StaffPortalTest extends TestCase {
   $this->get('/workspace/complaints?archive=1&search=Harassment&status=approved')->assertOk()
    ->assertSee('Archived Complaints')->assertSee('Back to Active')->assertSee('CMP-ARCHIVED')
    ->assertDontSee('CMP-ACTIVE');
+  $page='/workspace/complaints?search=student+records';
+  $this->get($page)->assertOk()->assertSee('CMP-CUSTOM')->assertSee('Unauthorized use of student records')->assertDontSee('CMP-ACTIVE');
+  $this->get($page.'&review='.$custom->id)->assertOk()->assertSee('id="transaction-review"',false)
+   ->assertSeeInOrder(['Type of Complaint','Unauthorized use of student records']);
  }
 
  public function test_cvu_complaint_review_preserves_the_unit_workflow():void
@@ -312,6 +350,36 @@ class StaffPortalTest extends TestCase {
   $this->from($page)->post($submit,['complaint_action'=>'save','review_note'=>$remarks,'status'=>'unit_approved'])
    ->assertRedirect($page)->assertSessionHasNoErrors();
   $this->assertSame('unit_approved',$complaint->fresh()->status);
+ }
+
+ public function test_cvu_can_record_a_guardian_contact_and_schedule_a_case_conference():void
+ {
+  $student=$this->actor('student');
+  $head=$this->actor('cvu_head');
+  $complaint=ServiceRequest::create([
+   'user_id'=>$student->id,'ticket'=>'CMP-CONFERENCE','kind'=>'complaint','status'=>'pending',
+   'details'=>['description'=>'Complaint submitted before guardian contacts were collected.'],
+  ]);
+  $page='/workspace/complaints?review='.$complaint->id;
+  $contactUrl='/workspace/request/'.$complaint->id.'/parent-guardian';
+  $contact=['parent_guardian_name'=>'Alex Reyes','parent_guardian_relationship'=>'Guardian','parent_guardian_phone'=>'+63 912 555 0123'];
+  $this->actingAs($this->actor('sfu_head'))->post($contactUrl,$contact)->assertForbidden();
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('No contact recorded.');
+  $this->from($page)->post($contactUrl,$contact)->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame('pending',$complaint->fresh()->status);
+  $this->assertSame($contact,array_intersect_key($complaint->fresh()->details,$contact));
+
+  $meeting=now()->addDays(2)->format('Y-m-d\TH:i');
+  $this->from($page)->post('/workspace/request/'.$complaint->id.'/note',[
+   'complaint_action'=>'schedule','meeting_type'=>'Case Conference','interview_at'=>$meeting,
+   'review_note'=>'The student may attend with their guardian.',
+  ])->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->get($page)->assertOk()->assertSeeInOrder(['Scheduled case conference',$meeting,'Parent or guardian contact','Alex Reyes']);
+  $this->assertSame($contact,array_intersect_key($complaint->fresh()->details,$contact));
+  $this->assertSame('Case Conference',$complaint->fresh()->details['meeting_type']);
+  $this->from($page)->post($contactUrl,['parent_guardian_phone'=>''])->assertRedirect($page);
+  $this->assertArrayNotHasKey('parent_guardian_phone',$complaint->fresh()->details);
+  $this->assertSame('Alex Reyes',$complaint->fresh()->details['parent_guardian_name']);
  }
 
  public function test_cvu_lost_and_found_lists_only_reports_and_tracks_claim_release():void

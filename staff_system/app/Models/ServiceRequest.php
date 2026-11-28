@@ -37,6 +37,17 @@ class ServiceRequest extends Model {
    default=>$this->status,
   };
  }
+ public function complaintType():?string {
+  $customType=$this->details['other_complaint']??null;
+  return filled($customType)?$customType:($this->details['complaint_type']??null);
+ }
+ public function canEditComplaintContact():bool {
+  return $this->kind==='complaint'&&in_array($this->status,['pending','in_review','needs_revision'],true);
+ }
+ public function canMarkIdReprinted():bool {
+  return $this->kind==='id-replacement'&&$this->status==='approved'
+   &&empty($this->details['reprinted_at'])&&empty($this->details['released']);
+ }
  public function attachmentPath(string $key):?string{
   $file=$this->files[$key]??null;
   $path=is_array($file)?($file['path']??null):$file;

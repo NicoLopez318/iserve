@@ -1,5 +1,26 @@
-document.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>{const form=button.closest('form'),basic=form.querySelector('[data-basic]');if(![...basic.querySelectorAll('input,select')].every(input=>input.reportValidity()))return;form.querySelector('[data-identity-summary]').textContent=[...basic.querySelectorAll('input:not([type=hidden]),select')].map(input=>input.value).join(' · ');basic.hidden=true;const details=form.querySelector('[data-details]');details.hidden=false;details.querySelectorAll('[disabled]').forEach(input=>input.disabled=false);}));
-document.querySelectorAll('[data-back]').forEach(button=>button.addEventListener('click',()=>{const form=button.closest('form');form.querySelector('[data-basic]').hidden=false;const details=form.querySelector('[data-details]');details.hidden=true;details.querySelectorAll('input,textarea').forEach(input=>input.disabled=true);}));
+document.querySelectorAll('.readmission-form').forEach(form => {
+    const basic = form.querySelector('[data-basic]');
+    const details = form.querySelector('[data-details]');
+    const identity = [...basic.querySelectorAll('input,select')];
+    const fields = details.querySelectorAll('input,select,textarea');
+    const submit = details.querySelector('[data-readmission-submit]');
+
+    function showDetails(visible) {
+        if (visible) {
+            form.querySelector('[data-identity-summary]').textContent = identity.map(input => input.value).join(' · ');
+        }
+        basic.hidden = visible;
+        details.hidden = !visible;
+        fields.forEach(input => { input.disabled = !visible; });
+        submit.disabled = !visible;
+    }
+
+    form.querySelector('[data-next]').addEventListener('click', () => {
+        if (identity.every(input => input.reportValidity())) showDetails(true);
+    });
+    form.querySelector('[data-back]').addEventListener('click', () => showDetails(false));
+    showDetails(details.hasAttribute('data-return-to-details'));
+});
 document.querySelectorAll('[data-join]').forEach(button=>button.addEventListener('click',()=>{const form=document.querySelector(`[data-seminar-form="${button.dataset.join}"]`);form.hidden=false;form.scrollIntoView({behavior:'smooth'});}));
 document.querySelector('[data-slot-date]')?.addEventListener('change',event=>{const time=document.querySelector('[data-slot-time]');time.value='';[...time.options].forEach(option=>{if(option.value)option.hidden=option.dataset.date!==event.target.value;});});
 document.querySelectorAll('[data-expand]').forEach(button=>button.addEventListener('click',()=>{const text=button.previousElementSibling;text.classList.toggle('expanded');button.textContent=text.classList.contains('expanded')?'Show less':'Show more';}));

@@ -9,9 +9,27 @@ class PortalController extends Controller {
   $this->requireCondition(in_array($portal,['values','leadership','scholar']),404);
   $this->requireCondition(in_array($page,['dashboard','violations','community-service','journal','profile','settings','events','organization','members','leaderboards','propose','archives','tuition']),404);
   $this->requireCondition($r->user()->account_type==='student'||$r->user()->isStaff(),403);
-  $u=$r->user();$assignment=$u->assignment;$minutes=$assignment?->approvedMinutes()??0;
+  $u=$r->user();
   $events=Event::where('status','published')->orderBy('starts_at')->get();
   $attendances=Attendance::where('user_id',$u->id)->with('event')->latest()->get();
+  $assignments=collect();
+  $assignment=null;
+  $openServiceSession=null;
+  if($portal==='values'){
+   $assignments=$u->assignments()->withSum(['attendances as verified_minutes'=>fn($query)=>$query->where('status','approved')],'minutes')->latest('id')->get();
+   $active=$assignments->where('status','active');
+   $completed=$assignments->where('status','completed');
+   $openServiceSession=$attendances->first(fn($entry)=>$entry->status==='in_progress'&&$entry->time_in&&!$entry->time_out&&$active->contains('id',$entry->assignment_id));
+   if($r->filled('assignment')){
+    $r->validate(['assignment'=>'integer|min:1']);
+    $assignment=$assignments->firstWhere('id',$r->integer('assignment'));
+    abort_unless($assignment,404);
+   }else{
+    $assignment=$active->firstWhere('id',$openServiceSession?->assignment_id)??$active->first()??$completed->first();
+   }
+  }
+  $minutes=(int)($assignment?->verified_minutes??0);
+  if($page==='community-service')$assignment?->load('feedbackEntries.author');
   $requests=$u->requests()->latest()->get();
   $leaders=User::where('account_type','student')->select('users.*')->selectSub(Point::selectRaw('COALESCE(SUM(amount),0)')->whereColumn('points.user_id','users.id'),'xp')->orderByDesc('xp')->limit(50)->get();
   $xp=Point::where('user_id',$u->id)->sum('amount');
@@ -21,7 +39,7 @@ class PortalController extends Controller {
   $settings=DB::table('settings')->pluck('value','key');
   $fees=['Tuition Fee'=>(int)($settings['tuition']??2000000),'Laboratory Fee'=>(int)($settings['laboratory']??500000),'Miscellaneous Fee'=>(int)($settings['miscellaneous']??350000)];
   $rate=(int)($scholarship?->details['discount_rate']??0);$total=array_sum($fees);$discount=array_sum(array_map(fn($cents)=>(int)round($cents*$rate/100),$fees));
-  return view('portal.page',compact('portal','page','u','assignment','minutes','events','attendances','requests','leaders','xp','organization','posts','scholarship','fees','rate','total','discount'));
+  return view('portal.page',compact('portal','page','u','assignments','assignment','openServiceSession','minutes','events','attendances','requests','leaders','xp','organization','posts','scholarship','fees','rate','total','discount'));
  }
  public function post(Request $r){
   $r->validate(['body'=>'required|string|min:3|max:3000']);$this->requireCondition($r->user()->organization_id,403);
@@ -38,25 +56,44 @@ class PortalController extends Controller {
   $this->requireCondition($post->organization_id===$r->user()->organization_id,403);$r->validate(['body'=>'required|string|max:1000']);
   $post->comments()->create(['user_id'=>$r->user()->id,'body'=>$r->body]);return back()->with('success','Comment added.');
  }
+ private function activeServiceAssignment(Request $r, ?int $openAssignmentId=null):Assignment
+ {
+  $active=$r->user()->assignments()->where('status','active')->lockForUpdate();
+  $id=$r->integer('assignment_id')?:$openAssignmentId;
+  if($id)return $active->findOrFail($id);
+
+  $available=$active->limit(2)->get();
+  $this->requireCondition($available->count()===1,422,$available->isEmpty()
+   ?'No active community service record.':'Select the violation for this community service record.');
+  return $available->first();
+ }
  public function journal(Request $r){
-  $r->validate(['module'=>'required|integer|between:1,4','answer'=>'required|string|min:30|max:10000']);
-  $a=$r->user()->assignment;$this->requireCondition($a&&$a->status==='active',422);
-  $required=[1=>0,2=>(int)ceil($a->required_minutes/3),3=>(int)ceil($a->required_minutes*2/3),4=>$a->required_minutes];
-  $this->requireCondition($a->approvedMinutes()>=$required[$r->integer('module')],422,'This module is still locked.');
-  $j=Journal::firstOrNew(['assignment_id'=>$a->id,'module'=>$r->integer('module')]);$this->rejectIf($j->exists&&$j->status==='approved',422,'An approved journal cannot be changed.');
-  $j->fill(['answer'=>$r->answer,'status'=>'pending'])->save();return back()->with('success','Journal sent for review.');
+  $r->validate(['assignment_id'=>'nullable|integer|min:1','module'=>'required|integer|between:1,4','answer'=>'required|string|min:30|max:10000']);
+  DB::transaction(function()use($r){
+   $a=$this->activeServiceAssignment($r);
+   $required=[1=>0,2=>(int)ceil($a->required_minutes/3),3=>(int)ceil($a->required_minutes*2/3),4=>$a->required_minutes];
+   $this->requireCondition($a->approvedMinutes()>=$required[$r->integer('module')],422,'This module is still locked.');
+   $j=Journal::firstOrNew(['assignment_id'=>$a->id,'module'=>$r->integer('module')]);$this->rejectIf($j->exists&&$j->status==='approved',422,'An approved journal cannot be changed.');
+   $j->fill(['answer'=>$r->answer,'status'=>'pending'])->save();
+  });
+  return back()->with('success','Journal sent for review.');
  }
  public function clock(Request $r){
-  $r->validate(['action'=>'required|in:in,out','photo'=>'required|image|max:5120']);
+  $r->validate(['assignment_id'=>'nullable|integer|min:1','action'=>'required|in:in,out','photo'=>'required|image|max:5120']);
   DB::transaction(function()use($r){
-   $a=$r->user()->assignment;$this->requireCondition($a&&$a->status==='active',422,'No active community service record.');
-   $open=Attendance::where('assignment_id',$a->id)->whereNull('time_out')->lockForUpdate()->first();
+   // Serialize clocks across all assignments for this student.
+   User::lockForUpdate()->findOrFail($r->user()->id);
+   $open=Attendance::where('user_id',$r->user()->id)->whereNotNull('assignment_id')
+    ->whereNotNull('time_in')->whereNull('time_out')->where('status','in_progress')
+    ->whereHas('assignment',fn($query)=>$query->where('status','active'))->lockForUpdate()->first();
+   $a=$this->activeServiceAssignment($r,$r->action==='out'?$open?->assignment_id:null);
    if($r->action==='in'){
-    $this->rejectIf($open,422,'You already have an active session.');
-    $this->rejectIf(Attendance::where('assignment_id',$a->id)->whereDate('time_in',today())->exists(),422,'Only one duty session is allowed each day.');
+    $this->rejectIf($open,422,'Time out of your active duty session before starting another.');
+    $this->rejectIf(Attendance::where('assignment_id',$a->id)->whereDate('time_in',today())->exists(),422,'Only one duty session per violation is allowed each day.');
     Attendance::create(['assignment_id'=>$a->id,'user_id'=>$r->user()->id,'time_in'=>now(),'photo_in'=>$r->file('photo')->store('attendance'),'status'=>'in_progress']);
    } else {
     $this->requireCondition($open,422,'Time in before timing out.');
+    $this->requireCondition((int)$open->assignment_id===$a->id,422,'Time out from the same violation you timed in for.');
     $mins=min(480,max(0,(int)$open->time_in->diffInMinutes(now())));
     $open->update(['time_out'=>now(),'minutes'=>$mins,'photo_out'=>$r->file('photo')->store('attendance'),'status'=>'pending']);
    }

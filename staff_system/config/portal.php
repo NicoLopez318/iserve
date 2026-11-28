@@ -2,6 +2,11 @@
 return [
  'staff_url'=>env('STAFF_PORTAL_URL',env('APP_URL','http://127.0.0.1:8002')),
  'student_url'=>env('USER_PORTAL_URL','http://127.0.0.1:8001'),
+ 'id_replacement_affidavit_reasons'=>['Lost','Stolen'],
+ 'id_replacement_payment_rules'=>[
+  'details.receipt_number'=>'required|string|max:80',
+  'details.payment_amount'=>'required|numeric|decimal:0,2|gt:0',
+ ],
  'fields'=>[
  'scholarship'=>['student_type'=>'select:Undergraduate,Graduate','semester'=>'select:1st Semester,2nd Semester,Summer','academic_year'=>'text','reason'=>'textarea'],
  'leadership'=>['organization_id'=>'organization','position'=>'text','reason'=>'textarea'],
@@ -21,7 +26,7 @@ return [
  'complaint'=>['evidence'=>'Supporting evidence (optional)'],
  'lost'=>['item_photo'=>'Item photo (optional)'],'found'=>['item_photo'=>'Item photo'],
  'readmission'=>['evidence'=>'Supporting document'],
- 'id-replacement'=>['evidence'=>'Affidavit / damaged ID'],
+ 'id-replacement'=>['evidence'=>'Affidavit of loss or photo of damaged ID'],
  'achievement'=>['evidence'=>'Achievement evidence'],
  'activity'=>['pre_intent'=>'Letter of Intent','pre_matrix'=>'Program Matrix','pre_evaluation'=>'Evaluation Form','pre_resolution'=>'Resolution','pre_budget'=>'Budget Proposal','pre_consent'=>'Consent Form / Waiver','pre_cmo'=>'CMO No. 63','post_documentation'=>'Activity Documentation','post_narrative'=>'Narrative Report','post_evaluation'=>'Evaluation Report','post_financial'=>'Financial Report','post_attendance'=>'Attendance Sheet','post_consent'=>'Consent Form / Waiver','post_cmo'=>'CMO No. 63'],
  ],

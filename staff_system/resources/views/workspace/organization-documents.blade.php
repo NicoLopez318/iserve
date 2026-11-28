@@ -39,8 +39,9 @@
                                 @foreach($submission->files ?? [] as $key => $attachment)
                                     @if($path = $submission->attachmentPath($key))
                                         @php($filename = basename(is_array($attachment) ? ($attachment['name'] ?? $path) : $path))
+                                        @php($label = config('portal.documents.'.$submission->kind, [])[$key] ?? str($key)->headline())
                                         <a class="file" href="{{ route('staff.requests.attachment-view', ['serviceRequest'=>$submission, 'key'=>$key]) }}" target="_blank" rel="noopener">
-                                            <span>{{ $filename }}</span><small>View / Download</small>
+                                            <span><strong>{{ $label }}</strong><small>{{ $filename }}</small></span><small>View / Download</small>
                                         </a>
                                     @endif
                                 @endforeach

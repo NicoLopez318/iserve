@@ -10,6 +10,7 @@ Route::middleware(['auth','staff'])->group(function(){
  Route::get('/workspace/organization-documents',[Portal::class,'organizationDocuments'])->name('staff.organization-documents');
  Route::get('/workspace/request/{serviceRequest}',[Portal::class,'request']);
  Route::post('/workspace/request/{serviceRequest}/note',[Portal::class,'requestNote']);
+ Route::post('/workspace/request/{serviceRequest}/parent-guardian',[Portal::class,'complaintParentGuardian'])->name('staff.complaints.parent-guardian');
  Route::post('/workspace/request/{serviceRequest}/disposition',[Portal::class,'disposition']);
  Route::get('/workspace/request/{serviceRequest}/slip',[Portal::class,'slip']);
  Route::get('/workspace/report/{report}',[Portal::class,'report']);
@@ -31,6 +32,8 @@ Route::middleware(['auth','staff'])->group(function(){
  Route::post('/workspace/points-rules',[Portal::class,'rules']);
  Route::post('/workspace/adjustments',[Portal::class,'adjustment']);
  Route::post('/workspace/assignments',[Portal::class,'assignment']);
+ Route::post('/workspace/community/hour-limits',[Portal::class,'communityServiceHours'])->name('staff.community.hour-limits');
+ Route::post('/workspace/assignment/{assignment}/feedback',[Portal::class,'assignmentFeedback'])->name('staff.community.feedback.store');
  Route::post('/workspace/assignment/{assignment}',[Portal::class,'assignmentUpdate']);
  Route::post('/workspace/content',[Portal::class,'content']);
  Route::post('/workspace/content/{id}',[Portal::class,'content'])->whereNumber('id');

@@ -38,7 +38,17 @@ class StaffController extends Controller {
    $q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);
    $this->requireCondition(array_key_exists($v['status'],$q->reviewActions($r->user())),422,'This action is not allowed at the current review stage. Unit approval must be forwarded by the assistant before admin approval.');
    $details=$q->details;
-   if($q->kind==='readmission'&&$v['status']==='unit_approved')$this->requireCondition(!empty($details['interview_at'])&&\Carbon\Carbon::parse($details['interview_at'])->lte(now()),422,'Schedule and complete the interview before approving re-admission.');
+   if($q->kind==='readmission'&&$v['status']==='unit_approved'){
+    $interview=validator(['interview_at'=>$details['interview_at']??null],['interview_at'=>'required|date|before_or_equal:now']);
+    $this->requireCondition($interview->passes(),422,'Schedule and complete the interview before approving re-admission.');
+   }
+   if($q->kind==='id-replacement'&&$v['status']==='unit_approved'){
+    $requiresAffidavit=in_array($details['replacement_reason']??null,config('portal.id_replacement_affidavit_reasons'),true);
+    $this->requireCondition(!$requiresAffidavit||$q->attachmentPath('evidence'),422,'An affidavit of loss is required before approving a lost or stolen ID replacement.');
+    $payment=validator(['details'=>$details],config('portal.id_replacement_payment_rules'));
+    $this->requireCondition($payment->passes(),422,'A receipt number and valid payment amount are required before approving ID replacement.');
+    $details['student_name']??=$q->user->name;
+   }
    if($q->kind==='clearance'&&in_array($v['status'],['unit_approved','approved']))$this->requireCondition(!Assignment::where('user_id',$q->user_id)->where('status','active')->exists(),422,'Complete the active community service record before clearing this student.');
    if($q->kind==='scholarship'&&in_array($v['status'],['unit_approved','approved'])){
     $rate=$v['discount_rate']??($details['discount_rate']??null);$this->requireCondition($rate&&$rate>0&&$rate<=100,422,'Specify a discount rate.');$details['discount_rate']=(int)$rate;
@@ -65,19 +75,29 @@ class StaffController extends Controller {
    if($v['status']==='awaiting_admin')\App\Support\StaffAlerts::role('admin','Forwarded transaction: '.$q->ticket,'/workspace/request/'.$q->id);
    if(in_array($v['status'],['approved','needs_revision','rejected']))\App\Support\StaffAlerts::role($q->office(),'Review update: '.$q->ticket,'/workspace/request/'.$q->id,'feedback',$r->user()->id);
    $studentUrl=rtrim(config('app.student_portal_url','http://127.0.0.1:8001'),'/').(in_array($q->kind,['readmission','clearance','seminar'])&&$q->status!=='needs_revision'?'/cvu/submitted/':'/requests/').$q->id;
-   if($q->user->preferences['in_app']??true)$q->user->notifications()->create(['id'=>Str::uuid(),'type'=>'request','data'=>['title'=>$q->ticket.' '.$v['status'],'url'=>$studentUrl,'message'=>$note??'']]);
+   $title=$q->ticket.' '.$v['status'];
+   $subject='iServe request update: '.$q->ticket;
+   $message=$note??'';
+   $statusText='Your request '.$q->ticket.' is now '.str_replace('_',' ',$v['status']).'.';
+   if($q->kind==='id-replacement'){
+    $title='ID replacement '.str_replace('_',' ',$v['status']).': '.$q->ticket;
+    $subject='iServe '.$title;
+    if($v['status']==='approved')$message=trim("Your request is approved. You will receive an update when the replacement ID is reprinted.\n\n".$message);
+   }
+   if($q->user->preferences['in_app']??true)$q->user->notifications()->create(['id'=>Str::uuid(),'type'=>'request','data'=>['title'=>$title,'url'=>$studentUrl,'message'=>$message]]);
    \App\Support\TransactionEmail::sendAfterCommit(
     $q->user,
-    'iServe request update: '.$q->ticket,
-    'Your request '.$q->ticket.' is now '.str_replace('_',' ',$v['status']).".\n\n".($note?"$note\n\n":'').'View your request: '.$studentUrl,
+    $subject,
+    $statusText."\n\n".($message?"$message\n\n":'').'View your request: '.$studentUrl,
     ['request_id'=>$q->id],
    );
   });return back()->with('success','Review saved. Notifications follow the applicant’s preferences.');
  }
  public function assignment(Request $r){
   $this->office($r,'cvu_head');$v=$r->validate(['user_id'=>'required|exists:users,id','offense'=>'required|string|max:200','severity'=>'required|in:Minor,Major','department'=>'required|string|max:120','supervisor'=>'required|string|max:120','required_hours'=>'required|integer|between:1,500','note'=>'nullable|string|max:3000']);
+  \App\Support\CommunityServiceHours::validate($v['severity'],(int)$v['required_hours']);
   DB::transaction(function()use($r,$v){
-   $user=User::lockForUpdate()->findOrFail($v['user_id']);$this->requireCondition($user->account_type==='student',422);$this->rejectIf(Assignment::where('user_id',$user->id)->where('status','active')->exists(),422,'Student already has an active record.');
+   $user=User::lockForUpdate()->findOrFail($v['user_id']);$this->requireCondition($user->account_type==='student',422);
    unset($v['required_hours']);$a=Assignment::create([...$v,'record_number'=>'CV-'.now()->format('Y').'-'.strtoupper(Str::random(6)),'required_minutes'=>$r->integer('required_hours')*60]);
    $this->audit($r,'assignment.create',$a->record_number);
   });return back()->with('success','Community service record created.');
@@ -95,7 +115,7 @@ class StaffController extends Controller {
    if($a->event_id&&$a->event->type!=='seminar'&&$r->status==='approved')Point::firstOrCreate(['source'=>'attendance:'.$a->id],['user_id'=>$a->user_id,'amount'=>$a->event->points,'reason'=>$a->event->title]);
    $this->audit($r,'attendance.'.$r->status,(string)$a->id,$r->review_note);
    if($a->assignment_id||$a->event?->type==='leadership'){
-    $path=$a->assignment_id?'/portal/values/community-service':'/portal/leadership/events#event-'.$a->event_id;
+    $path=$a->assignment_id?'/portal/values/community-service?assignment='.$a->assignment_id:'/portal/leadership/events#event-'.$a->event_id;
     \App\Support\StaffAlerts::account($a->user,'Attendance '.$a->status,$path,message:$r->review_note);
    }
   });
@@ -106,15 +126,18 @@ class StaffController extends Controller {
  }
  public function journal(Request $r,Journal $journal){
   $this->office($r,'cvu_head');$r->validate(['status'=>'required|in:approved,rejected']);
-  $this->requireCondition($journal->status==='pending',422);$journal->update(['status'=>$r->status]);$this->audit($r,'journal.'.$r->status,(string)$journal->id);\App\Support\StaffAlerts::account($journal->assignment->user,'Duty journal '.$journal->status,'/portal/values/journal');return back()->with('success','Journal reviewed.');
+  $this->requireCondition($journal->status==='pending',422);$journal->update(['status'=>$r->status]);$this->audit($r,'journal.'.$r->status,(string)$journal->id);\App\Support\StaffAlerts::account($journal->assignment->user,'Duty journal '.$journal->status,'/portal/values/journal?assignment='.$journal->assignment_id);return back()->with('success','Journal reviewed.');
  }
  public function complete(Request $r,Assignment $assignment){
   $this->office($r,'cvu_head');
   DB::transaction(function()use($r,$assignment){
    $a=Assignment::lockForUpdate()->findOrFail($assignment->id);$this->requireCondition($a->status==='active',422);
+   $this->rejectIf($a->attendances()->where('status','in_progress')->whereNull('time_out')->exists(),422,'Record Time Out before completing this assignment.');
    $this->requireCondition($a->approvedMinutes()>=$a->required_minutes&&$a->journals()->where('status','approved')->whereIn('module',array_keys(config('portal.journals')))->distinct()->count('module')===count(config('portal.journals')),422,'Verified hours and all four approved journal modules are required.');
    $a->update(['status'=>'completed']);$this->audit($r,'assignment.complete',$a->record_number);
-  });return back()->with('success','Record completed. The student may request clearance.');
+  });
+  $hasActiveAssignments=Assignment::where('user_id',$assignment->user_id)->where('status','active')->exists();
+  return back()->with('success',$hasActiveAssignments?'Record completed. The student still has active service assignments.':'Record completed. The student may request clearance.');
  }
  public function event(Request $r){
   $this->office($r,'slu_head');

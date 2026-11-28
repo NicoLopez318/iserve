@@ -3,7 +3,13 @@
 @if($q->review_note)<div class="notice"><strong>Office response</strong><p>{{ $q->review_note }}</p></div>@endif
 @if($q->files)<h3>Documents</h3>@foreach($q->files as $key=>$file)<a class="file-link" href="/requests/{{ $q->id }}/files/{{ $key }}">{{ $file['name'] }} ↗</a>@endforeach
 @endif
-@if($q->user_id===auth()->id()&&$q->status==='needs_revision')<form method="post" action="/requests/{{ $q->id }}/revise" enctype="multipart/form-data">@csrf<label>Response to the reviewer<textarea name="revision" rows="4" required minlength="10"></textarea></label>@foreach(($q->details['completion_report']??false)?['completion_report'=>'Completion Report']:config('portal.documents.'.$q->kind,[]) as $key=>$label)<label>Replace {{ $label }} (optional)<input type="file" name="documents[{{ $key }}]" accept=".pdf,.jpg,.jpeg,.png,.docx"></label>@endforeach<button class="btn orange full">Resubmit for Review</button></form>@endif
+@if($q->user_id===auth()->id()&&$q->status==='needs_revision')<form method="post" action="/requests/{{ $q->id }}/revise" enctype="multipart/form-data">@csrf<label>Response to the reviewer<textarea name="revision" rows="4" required minlength="10"></textarea></label>
+@php($addAffidavit = false)
+@if($q->kind==='id-replacement')
+    @include('transactions.id-replacement-payment', ['paymentDetails'=>$q->details])
+    @php($addAffidavit = in_array($q->details['replacement_reason'] ?? null, config('portal.id_replacement_affidavit_reasons'), true) && empty($q->files['evidence']))
+@endif
+@foreach(($q->details['completion_report']??false)?['completion_report'=>'Completion Report']:config('portal.documents.'.$q->kind,[]) as $key=>$label)<label>{{ $addAffidavit && $key==='evidence' ? 'Affidavit of loss' : 'Replace '.$label.' (optional)' }}<input type="file" name="documents[{{ $key }}]" @required($addAffidavit && $key==='evidence') accept=".pdf,.jpg,.jpeg,.png,.docx"></label>@endforeach<button class="btn orange full">Resubmit for Review</button></form>@endif
 @php($reviewActions=$q->reviewActions(auth()->user()))
 @if($reviewActions)
 <fieldset><legend>Review Request</legend><form method="post" action="/staff/requests/{{ $q->id }}">@csrf<label>Decision<select name="status">

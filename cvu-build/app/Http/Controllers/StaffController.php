@@ -60,7 +60,7 @@ class StaffController extends Controller {
  public function assignment(Request $r){
   $this->office($r,'cvu_head');$v=$r->validate(['user_id'=>'required|exists:users,id','offense'=>'required|string|max:200','severity'=>'required|in:Minor,Major','department'=>'required|string|max:120','supervisor'=>'required|string|max:120','required_hours'=>'required|integer|between:1,500','note'=>'nullable|string|max:3000']);
   DB::transaction(function()use($r,$v){
-   $user=User::lockForUpdate()->findOrFail($v['user_id']);$this->requireCondition($user->account_type==='student',422);$this->rejectIf($user->assignment&&$user->assignment->status==='active',422,'Student already has an active record.');
+   $user=User::lockForUpdate()->findOrFail($v['user_id']);$this->requireCondition($user->account_type==='student',422);
    unset($v['required_hours']);$a=Assignment::create([...$v,'record_number'=>'CV-'.now()->format('Y').'-'.strtoupper(Str::random(6)),'required_minutes'=>$r->integer('required_hours')*60]);
    $this->audit($r,'assignment.create',$a->record_number);
   });return back()->with('success','Community service record created.');
@@ -87,6 +87,7 @@ class StaffController extends Controller {
   $this->office($r,'cvu_head');
   DB::transaction(function()use($r,$assignment){
    $a=Assignment::lockForUpdate()->findOrFail($assignment->id);$this->requireCondition($a->status==='active',422);
+   $this->rejectIf($a->attendances()->where('status','in_progress')->whereNull('time_out')->exists(),422,'Record Time Out before completing this assignment.');
    $this->requireCondition($a->approvedMinutes()>=$a->required_minutes&&$a->journals()->where('status','approved')->whereIn('module',array_keys(config('portal.journals')))->distinct()->count('module')===count(config('portal.journals')),422,'Verified hours and all four approved journal modules are required.');
    $a->update(['status'=>'completed']);$this->audit($r,'assignment.complete',$a->record_number);
   });return back()->with('success','Record completed. The student may request clearance.');

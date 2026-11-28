@@ -46,8 +46,9 @@ final class TransactionEmail
         $action = $resubmitted ? 'resubmitted' : 'received';
         $recipient = $request->user;
         $path = '/requests/'.$request->id;
-        $subject = 'iServe request '.$action.': '.$request->ticket;
-        $confirmation = "Your request {$request->ticket} was {$action} and is pending review.";
+        $requestType = $request->kind === 'id-replacement' ? 'ID replacement request' : 'request';
+        $subject = 'iServe '.$requestType.' '.$action.': '.$request->ticket;
+        $confirmation = "Your {$requestType} {$request->ticket} was {$action} and is pending review.";
 
         if ($recipient->preferences['in_app'] ?? true) {
             $recipient->notifications()->create([

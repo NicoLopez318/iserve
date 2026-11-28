@@ -11,5 +11,6 @@ class User extends Authenticatable implements MustVerifyEmail {
  public function isStaff():bool{return in_array($this->role,['admin','assistant','sfu_head','cvu_head','slu_head']);}
  public function requests(){return $this->hasMany(ServiceRequest::class);}
  public function assignment(){return $this->hasOne(Assignment::class)->latestOfMany();}
+ public function assignments(){return $this->hasMany(Assignment::class);}
  public function organization(){return $this->belongsTo(Organization::class);}
 }

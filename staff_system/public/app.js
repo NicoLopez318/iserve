@@ -10,7 +10,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 document.addEventListener('DOMContentLoaded',()=>{
  document.querySelectorAll('[data-transaction-wizard]').forEach(form=>{
-  let step=0; const groups=[...form.querySelectorAll('[data-form-step]')];
+  let step=Number(form.dataset.wizardStart ?? 0); const groups=[...form.querySelectorAll('[data-form-step]')];
+  const affidavit = form.querySelector('[data-affidavit-reasons]');
+  if (affidavit) {
+   const reason = form.elements.namedItem('details[replacement_reason]');
+   const affidavitReasons = affidavit.dataset.affidavitReasons.split(',');
+   const updateAffidavitRequirement = () => { affidavit.required = affidavitReasons.includes(reason.value); };
+   reason.addEventListener('change', updateAffidavitRequirement);
+   updateAffidavitRequirement();
+  }
   const next=form.querySelector('[data-wizard-next]'),back=form.querySelector('[data-wizard-back]');
   const show=()=>{groups.forEach(el=>{el.hidden=Number(el.dataset.formStep)!==step;});next.hidden=step!==0;back.hidden=step!==1;form.closest('.blue-card').querySelectorAll('.steps span').forEach((el,i)=>el.classList.toggle('active',i===step));};
   next.addEventListener('click',()=>{const invalid=[...form.querySelectorAll('[data-form-step="0"] input,[data-form-step="0"] select')].find(el=>!el.checkValidity());if(invalid){invalid.reportValidity();return;}step=1;show();});

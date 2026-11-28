@@ -54,8 +54,8 @@ Route::middleware('auth')->group(function(){
  Route::post('/requests/{serviceRequest}/completion',[App\Http\Controllers\EventCompletionController::class,'store'])->middleware(['verified','throttle:10,1'])->name('activity.completion.store');
  Route::get('/requests/{serviceRequest}/slip',function(Request $r,App\Models\ServiceRequest $serviceRequest){
   abort_unless($serviceRequest->user_id===$r->user()->id&&$serviceRequest->kind==='readmission'&&$serviceRequest->status==='approved',403);
-  return view('transactions.readmission-slip',['item'=>$serviceRequest->load('user'),'canSend'=>false]);
- });
+  return view('transactions.readmission-slip',['item'=>$serviceRequest->load(['user','reviewer'])]);
+ })->name('readmission.slip');
  Route::post('/requests/{serviceRequest}/cancel',[RequestController::class,'cancel']);
  Route::post('/requests/{serviceRequest}/revise',[RequestController::class,'revise'])->middleware('verified');
  Route::get('/requests/{serviceRequest}/files/{key}',[RequestController::class,'download']);

@@ -156,7 +156,7 @@ class WorkflowTest extends TestCase {
   $details=['title'=>'Submitted activity','description'=>'A complete activity description','venue'=>'Campus','starts_at'=>now()->addDays(2)->format('Y-m-d H:i'),'ends_at'=>now()->addDays(2)->addHours(2)->format('Y-m-d H:i'),'points'=>100];
   $this->post('/apply/activity',['declaration'=>1,'details'=>$details+['capacity'=>1001]])->assertSessionHasErrors('details.capacity');
   $this->post('/apply/activity',['declaration'=>1,'details'=>$details+['capacity'=>1000]])->assertRedirect()->assertSessionHasNoErrors();
-  $q=ServiceRequest::first();$this->assertSame('pending',$q->status);$this->assertSame('photo.png',$q->files['pre_intent']['name']);Storage::assertExists($q->files['pre_intent']['path']);$this->assertDatabaseCount('proposal_drafts',0);
+  $q=ServiceRequest::first();$this->assertSame('pending',$q->status);$this->assertSame($org->id,$q->details['organization_id']);$this->assertSame('photo.png',$q->files['pre_intent']['name']);Storage::assertExists($q->files['pre_intent']['path']);$this->assertDatabaseCount('proposal_drafts',0);
   $this->assertSame('New transaction: '.$q->ticket,$following->notifications()->sole()->data['title']);
   $this->assertSame(0,$muted->notifications()->count());
  }
@@ -179,7 +179,7 @@ class WorkflowTest extends TestCase {
   $org=Organization::create(['name'=>'Report Organization']);
   $student=$this->user(extra:['organization_id'=>$org->id]);
   $other=$this->user(extra:['organization_id'=>$org->id]);
-  $proposal=$this->request($student,'activity',['title'=>'Campus Activity']);
+  $proposal=$this->request($student,'activity',['title'=>'Campus Activity','organization_id'=>$org->id]);
   $proposal->update(['status'=>'approved']);
   $event=Event::create([
    'title'=>'Campus Activity','description'=>'An activity report test','venue'=>'Campus',
@@ -197,10 +197,12 @@ class WorkflowTest extends TestCase {
   $this->post($path,$data+['report'=>$this->image()])->assertUnprocessable();
   $this->assertSame([],Storage::allFiles('completion-reports'));
   $event->update(['ends_at'=>now()->subHour()]);
+  $student->update(['organization_id'=>null]);
   $this->get($path)->assertOk()->assertSee('Submit after-event report');
   $this->post($path,$data+['report'=>$this->image()])->assertRedirect();
   $report=ServiceRequest::whereKeyNot($proposal->id)->sole();
   $this->assertSame($event->id,$report->details['event_id']);
+  $this->assertSame($org->id,$report->details['organization_id']);
   $this->assertTrue($report->details['completion_report']);
   $this->assertSame('approved',$proposal->fresh()->status);
   Storage::assertExists($report->files['completion_report']['path']);
@@ -284,6 +286,14 @@ class WorkflowTest extends TestCase {
   $u=$this->user('student',['email_verified_at'=>null]);$this->actingAs($u)->post('/apply/complaint',[])->assertRedirect('/email/verify');
   Storage::fake('local');$u->update(['email_verified_at'=>now()]);$this->actingAs($u)->post('/apply/scholarship',['details'=>['student_type'=>'Undergraduate','semester'=>'1st Semester','academic_year'=>'2026-2027','reason'=>'Apply for scholarship support','discount_rate'=>100],'documents'=>['application'=>UploadedFile::fake()->create('app.pdf',2,'application/pdf'),'photo'=>$this->image(),'registration'=>UploadedFile::fake()->create('reg.pdf',2,'application/pdf')],'declaration'=>1])->assertRedirect();
   $this->assertArrayNotHasKey('discount_rate',ServiceRequest::first()->details);
+ }
+ public function test_scholarship_eligibility_is_displayed_before_information_and_document_submission():void
+ {
+  $this->actingAs($this->user());
+  foreach(['/scholar/information','/apply/scholarship'] as $page){
+   $this->get($page)->assertOk()
+    ->assertSeeInOrder(['Scholarship discount eligibility','Form 137 or Form 138','81%','View UCU’s requirements for each grant','<form method="post"'],false);
+  }
  }
  public function test_review_transitions_office_isolation_and_notification():void{
   $u=$this->user();$q=$this->request($u,'scholarship');$wrong=$this->user('cvu_head');$this->actingAs($wrong)->post('/staff/requests/'.$q->id,['status'=>'approved','review_note'=>'Approved for scholarship','discount_rate'=>30])->assertForbidden();

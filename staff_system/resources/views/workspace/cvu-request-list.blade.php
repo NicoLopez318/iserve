@@ -63,7 +63,7 @@
                         <tr>
                             <td class="cvu-record-muted">{{ $item->ticket }}</td>
                             <td>{{ $isLostFound ? $item->user->name : ($item->details['respondent'] ?? '—') }}</td>
-                            <td>{{ $isLostFound ? $reportTypes[$item->kind] : ($item->details['complaint_type'] ?? '—') }}</td>
+                            <td>{{ $isLostFound ? $reportTypes[$item->kind] : ($item->complaintType() ?? '—') }}</td>
                             <td class="cvu-record-muted"><time datetime="{{ $item->created_at->toDateString() }}">{{ $item->created_at->format('M j, Y') }}</time></td>
                             <td><span class="cvu-record-status is-{{ $status }}">{{ $statuses[$status] ?? str($status)->headline() }}</span></td>
                             <td><a class="cvu-record-action" href="{{ request()->fullUrlWithQuery(['review' => $item->id, 'report' => null]) }}" aria-label="{{ $action }} {{ $item->ticket }}">{{ $action }}</a></td>

@@ -38,6 +38,14 @@ class RequestController extends Controller {
    $rules['details.'.$name]=$rule;
   }
   foreach(config('portal.optional_fields.'.$kind,[]) as $name=>$type)$rules['details.'.$name]='nullable|string|max:500';
+  if($kind==='complaint'){
+   $rules['details.other_complaint']='exclude_unless:details.complaint_type,Other|required|string|max:500';
+   if($r->user()->account_type==='student'){
+    $rules['details.parent_guardian_name']='nullable|string|max:120';
+    $rules['details.parent_guardian_relationship']='nullable|string|max:60';
+    $rules['details.parent_guardian_phone']='nullable|string|max:40';
+   }
+  }
   if($kind==='clearance')$rules['details.appointment_date']='required|date|after:today';
   if($kind==='activity'){
    $rules['details.ends_at']='required|date|after:details.starts_at';
@@ -45,15 +53,26 @@ class RequestController extends Controller {
    $rules['details.off_campus']='sometimes|boolean';
   }
   foreach(config('portal.documents.'.$kind,[]) as $key=>$label)$rules['documents.'.$key]=(in_array($kind.'.'.$key,config('portal.optional_documents'))?'nullable':'required').'|file|mimes:pdf,jpg,jpeg,png|max:'.($kind==='activity'?'10240':'5120');
-  $v=$r->validate($rules);$draft=$kind==='activity'?DB::table('proposal_drafts')->where('user_id',$r->user()->id)->first():null;$paths=$draft?json_decode($draft->files,true):[];$newPaths=[];
+  if($kind==='id-replacement'){
+   $rules+=config('portal.id_replacement_payment_rules');
+   $rules['documents.evidence']='required_if:details.replacement_reason,'.implode(',',config('portal.id_replacement_affidavit_reasons')).'|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120';
+  }
+  $v=$r->validate($rules,[
+   'details.other_complaint.required'=>'Enter your complaint type when you select Others.',
+   'documents.evidence.required_if'=>'Upload an affidavit of loss for a lost or stolen ID.',
+  ],['details.other_complaint'=>'custom complaint type','details.receipt_number'=>'receipt number','details.payment_amount'=>'payment amount']);$draft=$kind==='activity'?DB::table('proposal_drafts')->where('user_id',$r->user()->id)->first():null;$paths=$draft?json_decode($draft->files,true):[];$newPaths=[];
   try{
-   foreach($r->file('documents',[]) as $key=>$f)if(isset($rules['documents.'.$key])){$paths[$key]=['path'=>$f->store('requests'),'name'=>$f->getClientOriginalName()];$newPaths[]=$paths[$key]['path'];}
+   foreach($r->file('documents',[]) as $key=>$f)if(isset($rules['documents.'.$key])){
+    $path=$f->store('requests');
+    if(!$path)throw \Illuminate\Validation\ValidationException::withMessages(['documents.'.$key=>'The file could not be saved. Please upload it again.']);
+    $paths[$key]=['path'=>$path,'name'=>$f->getClientOriginalName()];$newPaths[]=$path;
+   }
    $q=DB::transaction(function()use($r,$kind,$v,$paths){
     // Lock the owner to serialize duplicate submissions.
     DB::table('users')->where('id',$r->user()->id)->update(['updated_at'=>now()]);
     $this->rejectIf(in_array($kind,['scholarship','leadership','clearance'])&&ServiceRequest::where('user_id',$r->user()->id)->where('kind',$kind)->whereIn('status',['pending','in_review','needs_revision','unit_approved','awaiting_admin'])->exists(),422,'You already have an open request of this type.');
     if($kind==='clearance'){
-     $a=$r->user()->assignment;$this->rejectIf($a&&$a->status!=='completed',422,'Finish your community service and final verification before requesting clearance.');
+     $this->rejectIf($r->user()->assignments()->where('status','active')->exists(),422,'Finish your community service and final verification before requesting clearance.');
      $slot=ServiceRequest::where('kind','clearance')->whereIn('status',['pending','in_review','unit_approved','awaiting_admin','approved'])->get()->filter(fn($q)=>($q->details['appointment_date']??null)===$v['details']['appointment_date']&&($q->details['schedule']??null)===$v['details']['schedule'])->count();
      $configured=json_decode(DB::table('settings')->where('key','staff.clearance-slots')->lockForUpdate()->value('value')??'[]',true);$capacity=10;if($configured){$chosen=$configured[$v['details']['appointment_date'].' '.$v['details']['schedule']]??null;$this->requireCondition($chosen&&($chosen['open']??false),422,'This office appointment is not available. Choose an open date and time.');$capacity=(int)$chosen['capacity'];}
      $this->rejectIf($slot>=$capacity,422,'This appointment slot is full. Choose another time.');
@@ -61,13 +80,17 @@ class RequestController extends Controller {
     if($kind==='seminar'){
      $event=Event::lockForUpdate()->findOrFail($v['details']['event_id']);$this->requireCondition($event->type==='seminar'&&$event->status==='published'&&$event->starts_at->isFuture(),422);
     }
-    $request=ServiceRequest::create(['user_id'=>$r->user()->id,'ticket'=>strtoupper(substr($kind,0,3)).'-'.now()->format('ymd').'-'.strtoupper(Str::random(6)),'kind'=>$kind,'details'=>$v['details'],'files'=>$paths]);
+    $details=$v['details'];
+    if(in_array($kind,['activity','achievement'],true))$details['organization_id']=$r->user()->organization_id;
+    if($kind==='id-replacement')$details['student_name']=$r->user()->name;
+    $request=ServiceRequest::create(['user_id'=>$r->user()->id,'ticket'=>strtoupper(substr($kind,0,3)).'-'.now()->format('ymd').'-'.strtoupper(Str::random(6)),'kind'=>$kind,'details'=>$details,'files'=>$paths]);
     \App\Support\TransactionEmail::receipt($request);
     return $request;
    });
   }catch(\Throwable $e){foreach($newPaths as $p)Storage::delete($p);throw $e;}
   if($draft){DB::table('proposal_drafts')->where('id',$draft->id)->delete();foreach(json_decode($draft->files,true) as $key=>$p)if(($paths[$key]['path']??null)!==$p['path'])Storage::delete($p['path']);}
-  \App\Support\StaffAlerts::role($q->office(),'New transaction: '.$q->ticket,'/workspace/request/'.$q->id,$kind==='activity'?'proposals':'submissions');
+  $alertTitle=$kind==='id-replacement'?'New ID replacement request: ':'New transaction: ';
+  \App\Support\StaffAlerts::role($q->office(),$alertTitle.$q->ticket,'/workspace/request/'.$q->id,$kind==='activity'?'proposals':'submissions');
   return redirect('/requests/'.$q->id)->with('success','Your request has been submitted successfully.');
  }
  public function draft(Request $r){
@@ -103,15 +126,33 @@ class RequestController extends Controller {
   $this->requireCondition($serviceRequest->user_id===$r->user()->id&&$serviceRequest->status==='needs_revision',403);
   $isCompletionReport=!empty($serviceRequest->details['completion_report']);
   $types=$isCompletionReport?'pdf,docx,png,jpg,jpeg':'pdf,png,jpg,jpeg';
-  $v=$r->validate(['revision'=>'required|string|min:10|max:5000','documents.*'=>'nullable|file|mimes:'.$types.'|max:'.($serviceRequest->kind==='activity'?'10240':'5120')]);
+  $rules=['revision'=>'required|string|min:10|max:5000','documents.*'=>'nullable|file|mimes:'.$types.'|max:'.($serviceRequest->kind==='activity'?'10240':'5120')];
+  if($serviceRequest->kind==='id-replacement'){
+   foreach(config('portal.id_replacement_payment_rules') as $field=>$rule){
+    $rules[$field]=filled(data_get($serviceRequest,$field))?'sometimes|'.$rule:$rule;
+   }
+   $evidence=$serviceRequest->files['evidence']??null;
+   if(in_array($serviceRequest->details['replacement_reason']??null,config('portal.id_replacement_affidavit_reasons'),true)
+    &&blank(is_array($evidence)?($evidence['path']??null):$evidence))$rules['documents.evidence']='required|file|mimes:pdf,jpg,jpeg,png|max:5120';
+  }
+  $v=$r->validate($rules,['documents.evidence.required'=>'Upload an affidavit of loss for a lost or stolen ID.'],['details.receipt_number'=>'receipt number','details.payment_amount'=>'payment amount']);
   $files=$serviceRequest->files??[];$stored=[];$replaced=[];
   $allowed=$isCompletionReport?['completion_report']:array_unique([...array_keys(config('portal.documents.'.$serviceRequest->kind,[])),...array_keys($files)]);
   foreach(array_keys($r->file('documents',[])) as $key)$this->requireCondition(in_array($key,$allowed,true),422,'Unknown document requirement.');
   try{
-  foreach($r->file('documents',[]) as $key=>$f){if(isset($files[$key]['path']))$replaced[]=$files[$key]['path'];$path=$f->store('requests');$stored[]=$path;$files[$key]=['path'=>$path,'name'=>$f->getClientOriginalName()];}
-  DB::transaction(function()use($serviceRequest,$r,$files){
+  foreach($r->file('documents',[]) as $key=>$f){
+   if(isset($files[$key]['path']))$replaced[]=$files[$key]['path'];
+   $path=$f->store('requests');
+   if(!$path)throw \Illuminate\Validation\ValidationException::withMessages(['documents.'.$key=>'The file could not be saved. Please upload it again.']);
+   $stored[]=$path;$files[$key]=['path'=>$path,'name'=>$f->getClientOriginalName()];
+  }
+  DB::transaction(function()use($serviceRequest,$r,$files,$v){
    $q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);$this->requireCondition($q->status==='needs_revision',422);
    $details=[...$q->details,'revision'=>$r->revision];if($q->kind==='clearance'){unset($details['identity_verified'],$details['hymn_completed']);}
+   if($q->kind==='id-replacement'){
+    $details=array_replace($details,$v['details']??[]);
+    $details['student_name']??=$q->user->name;
+   }
    if($q->kind==='seminar'){$event=Event::whereKey($details['event_id']??0)->lockForUpdate()->first();$this->requireCondition($event&&in_array($event->status,['published','completed']),422,'This seminar is no longer available for revision.');$attendance=$event->attendances()->where('user_id',$q->user_id)->lockForUpdate()->first();$this->requireCondition($attendance&&$attendance->status!=='cancelled',422,'This registration is no longer active.');if($attendance->status==='rejected')$attendance->update(['status'=>'pending','reflection'=>$r->revision]);}
    $q->update(['details'=>$details,'files'=>$files,'status'=>'pending']);DB::table('audit_logs')->insert(['user_id'=>$r->user()->id,'action'=>'request.resubmitted','subject'=>$q->ticket,'created_at'=>now()]);\App\Support\StaffAlerts::role($q->office(),'Revised request: '.$q->ticket,($q->kind==='leadership'?'/workspace/organizations?review='.$q->id:'/workspace/request/'.$q->id),'resubmitted');
    \App\Support\TransactionEmail::receipt($q, resubmitted:true);

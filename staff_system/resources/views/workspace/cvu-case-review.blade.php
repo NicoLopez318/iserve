@@ -26,7 +26,7 @@
     ] : [
         ['Reference Number', $item->ticket],
         ['Student ID', $item->user->student_id],
-        ['Type of Complaint', $details['other_complaint'] ?? $details['complaint_type'] ?? null],
+        ['Type of Complaint', $item->complaintType()],
         ['Date & Time of Incident', $incident],
         ['Location of Incident', $details['location'] ?? null],
         ['Respondent Complained Against', $details['respondent'] ?? null],
@@ -94,8 +94,11 @@
             </ul>
         </section>
 
-        @if(!$isLostFound && filled($details['interview_at'] ?? null))
-            <p class="cvu-complaint-interview">Scheduled interview <strong>{{ $details['interview_at'] }}</strong></p>
+        @if(!$isLostFound)
+            @if(filled($details['interview_at'] ?? null))
+                <p class="cvu-complaint-interview">Scheduled {{ strtolower($details['meeting_type'] ?? 'Interview') }} <strong>{{ $details['interview_at'] }}</strong></p>
+            @endif
+            @include('workspace.complaint-parent-guardian')
         @endif
         @if($reviewActions)
             <form method="post" action="{{ url('/workspace/request/'.$item->id.'/note') }}" class="cvu-case-decision">
@@ -126,12 +129,20 @@
                         <button type="submit" name="{{ $actionField }}" value="validate" class="cvu-review-action cvu-review-primary">Validate Claim</button>
                     @else
                         <details class="cvu-complaint-schedule" @if($scheduleOpen) open @endif>
-                            <summary class="cvu-review-action cvu-review-primary">Schedule Interview</summary>
-                            <label>Interview Date &amp; Time
+                            <summary class="cvu-review-action cvu-review-primary">Schedule Interview or Case Conference</summary>
+                            <label>Meeting Type
+                                <select name="meeting_type">
+                                    @foreach(['Interview','Case Conference'] as $meetingType)
+                                        <option @selected(old('meeting_type', $details['meeting_type'] ?? 'Interview') === $meetingType)>{{ $meetingType }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            @error('meeting_type')<p class="cvu-case-error" role="alert">{{ $message }}</p>@enderror
+                            <label>Meeting Date &amp; Time
                                 <input type="datetime-local" name="interview_at" value="{{ old('interview_at') }}">
                             </label>
                             @error('interview_at')<p class="cvu-case-error" role="alert">{{ $message }}</p>@enderror
-                            <button type="submit" name="complaint_action" value="schedule" class="cvu-review-action">Save Interview</button>
+                            <button type="submit" name="complaint_action" value="schedule" class="cvu-review-action">Save Schedule</button>
                         </details>
                         <button type="submit" name="complaint_action" value="save" class="cvu-review-action">Save Review</button>
                         <button type="button" class="cvu-review-action" title="Final approval requires Assistant forwarding and Admin approval." disabled>Finalize Case</button>

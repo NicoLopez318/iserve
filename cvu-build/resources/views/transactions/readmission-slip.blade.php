@@ -5,17 +5,28 @@
 </style></head><body><main class="virtual-slip">
 @if(session('success'))<p class="notice" role="status">{{session('success')}}</p>@endif
 <h1>Re-Admission Virtual Slip</h1>
+@php
+    $applicant = $item->details['applicant'] ?? [];
+    $interviewDate = strtotime($item->details['interview_at'] ?? '');
+    $issuedDate = strtotime($item->details['issued_at'] ?? $item->details['slip_issued_at'] ?? '');
+@endphp
 <dl class="slip-grid">
-<div><dt>Slip Number</dt><dd>{{$item->ticket}}</dd></div><div><dt>Student ID</dt><dd>{{$item->user->student_id??'—'}}</dd></div>
-<div><dt>Student Name</dt><dd>{{$item->user->name}}</dd></div><div><dt>Course</dt><dd>{{strtoupper($item->user->course??'—')}}</dd></div>
-<div><dt>Year</dt><dd>{{$item->user->year_level??'—'}}</dd></div><div><dt>Instructor</dt><dd>{{$item->details['instructor']??'—'}}</dd></div>
+<div><dt>Slip Number</dt><dd>{{$item->ticket}}</dd></div><div><dt>Student ID</dt><dd>{{$applicant['student_id']??$item->user->student_id??'—'}}</dd></div>
+<div><dt>Student Name</dt><dd>{{$applicant['name']??$item->user->name}}</dd></div><div><dt>Course</dt><dd>{{strtoupper($applicant['course']??$item->user->course??'—')}}</dd></div>
+<div><dt>Year</dt><dd>{{$applicant['year_level']??$item->user->year_level??'—'}}</dd></div><div><dt>Instructor</dt><dd>{{$item->details['instructor']??'—'}}</dd></div>
+@if(filled($item->details['subject']??null))
+<div><dt>Subject</dt><dd>{{$item->details['subject']}}</dd></div>
+@endif
+@if(filled($item->details['subject_code']??null))
+<div><dt>Subject Code</dt><dd>{{$item->details['subject_code']}}</dd></div>
+@endif
 </dl>
 <dl class="slip-decision">
 <div><dt>Decision</dt><dd class="approved">Approved for Admission</dd></div>
-<div><dt>Interview Date</dt><dd class="slip-date">{{isset($item->details['interview_at'])?\Carbon\Carbon::parse($item->details['interview_at'])->format('M j, Y'):'—'}}</dd></div>
+<div><dt>Interview Date</dt><dd class="slip-date">{{ $interviewDate !== false ? date('M j, Y', $interviewDate) : '—' }}</dd></div>
 <div><dt>Remarks</dt><dd>{{$item->review_note?:'Student may return to class and present this virtual slip to the instructor.'}}</dd></div>
 </dl>
-<dl class="slip-grid"><div><dt>Issued By</dt><dd>CSLD</dd></div><div><dt>Date Issued</dt><dd class="slip-date">{{isset($item->details['slip_issued_at'])?\Carbon\Carbon::parse($item->details['slip_issued_at'])->format('M j, Y'):($item->reviewed_at?->format('M j, Y')??'—')}}</dd></div></dl>
+<dl class="slip-grid"><div><dt>Issued By</dt><dd>{{ $item->details['issued_by'] ?? $item->reviewer?->name ?? 'CSLD' }}</dd></div><div><dt>Date Issued</dt><dd class="slip-date">{{ $issuedDate !== false ? date('M j, Y', $issuedDate) : ($item->reviewed_at?->format('M j, Y') ?? '—') }}</dd></div></dl>
 <p class="slip-note">This is a system-generated readmission slip<br>please present this slip to your instructor upon return to class.</p>
-@if($canSend??false)<form class="slip-actions" method="post" action="/workspace/request/{{$item->id}}/slip/send">@csrf<button>Send to Student</button></form>@endif
+<div class="slip-actions"><button type="button" onclick="window.print()">Print / Save PDF</button></div>
 </main></body></html>

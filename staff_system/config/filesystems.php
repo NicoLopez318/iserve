@@ -1,5 +1,7 @@
 <?php
 
+$studentApp = is_file(base_path('../cvu-build/bootstrap/app.php')) ? 'cvu-build' : 'pre-defense_system';
+
 return [
 
     /*
@@ -32,7 +34,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => env('SHARED_PRIVATE_ROOT', base_path('../pre-defense_system/storage/app/private')),
+            'root' => env('SHARED_PRIVATE_ROOT', base_path("../{$studentApp}/storage/app/private")),
             'serve' => false,
             'throw' => false,
             'report' => false,

@@ -3,6 +3,11 @@ return [
  'staff_url'=>env('STAFF_PORTAL_URL','https://goldenrod-turkey-247730.hostingersite.com'),
  'student_url'=>env('USER_PORTAL_URL',env('APP_URL','http://127.0.0.1:8001')),
  'activity_capacity_max'=>1000,
+ 'id_replacement_affidavit_reasons'=>['Lost','Stolen'],
+ 'id_replacement_payment_rules'=>[
+  'details.receipt_number'=>'required|string|max:80',
+  'details.payment_amount'=>'required|numeric|decimal:0,2|gt:0',
+ ],
  'fields'=>[
  'scholarship'=>['student_type'=>'select:Undergraduate,Graduate','semester'=>'select:1st Semester,2nd Semester,Summer','academic_year'=>'text','reason'=>'textarea'],
  'leadership'=>['organization_id'=>'organization','position'=>'text','reason'=>'textarea'],
@@ -22,12 +27,12 @@ return [
  'complaint'=>['evidence'=>'Supporting evidence (optional)'],
  'lost'=>['item_photo'=>'Item photo (optional)'],'found'=>['item_photo'=>'Item photo'],
  'readmission'=>['evidence'=>'Supporting document'],
- 'id-replacement'=>['evidence'=>'Affidavit / damaged ID'],
+ 'id-replacement'=>['evidence'=>'Affidavit of loss or photo of damaged ID'],
  'achievement'=>['evidence'=>'Achievement evidence'],
  'activity'=>['pre_intent'=>'Letter of Intent','pre_matrix'=>'Program Matrix','pre_evaluation'=>'Evaluation Form','pre_resolution'=>'Resolution','pre_budget'=>'Budget Proposal','pre_consent'=>'Consent Form / Waiver','pre_cmo'=>'CMO No. 63','post_documentation'=>'Activity Documentation','post_narrative'=>'Narrative Report','post_evaluation'=>'Evaluation Report','post_financial'=>'Financial Report','post_attendance'=>'Attendance Sheet','post_consent'=>'Consent Form / Waiver','post_cmo'=>'CMO No. 63'],
  ],
  'optional_documents'=>['complaint.evidence','lost.item_photo','readmission.evidence','id-replacement.evidence','activity.pre_intent','activity.pre_matrix','activity.pre_evaluation','activity.pre_resolution','activity.pre_budget','activity.pre_consent','activity.pre_cmo','activity.post_documentation','activity.post_narrative','activity.post_evaluation','activity.post_financial','activity.post_attendance','activity.post_consent','activity.post_cmo'],
- 'optional_fields'=>['complaint'=>['incident_time'=>'time','respondent'=>'text','relationship'=>'text','witness'=>'text','other_complaint'=>'text'],'readmission'=>['subject_code'=>'text'],'id-replacement'=>['last_seen_location'=>'text']],
+ 'optional_fields'=>['complaint'=>['incident_time'=>'time','respondent'=>'text','relationship'=>'text','witness'=>'text'],'readmission'=>['subject_code'=>'text'],'id-replacement'=>['last_seen_location'=>'text']],
  'journals'=>[1=>'Pre-program Expectations',2=>'Service Experience & Learning',3=>'Community Impact',4=>'Final Reflection'],
  'office'=>['sfu_head'=>['scholarship'],'slu_head'=>['leadership','activity','achievement'],'cvu_head'=>['complaint','lost','found','readmission','id-replacement','clearance','seminar']],
 ];

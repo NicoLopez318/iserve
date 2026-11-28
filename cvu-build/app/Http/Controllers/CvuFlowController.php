@@ -27,7 +27,10 @@ class CvuFlowController extends Controller {
    'seminar'=>['details.event_id'=>'required|integer|exists:events,id'],default=>abort(404)};
   $v=$r->validate($rules);$path=null;
   try{
-   if($r->hasFile('evidence'))$path=$r->file('evidence')->store('requests');
+   if($r->hasFile('evidence')){
+    $path=$r->file('evidence')->store('requests');
+    $this->requireFlow((bool)$path,'The evidence could not be saved. Please upload it again.','evidence');
+   }
    $q=DB::transaction(function()use($r,$u,$kind,$identity,$v,$path){
     $owner=User::lockForUpdate()->findOrFail($u->id);
     $this->requireFlow($kind==='seminar'||!ServiceRequest::where('user_id',$u->id)->where('kind',$kind)->whereNotIn('status',['approved','rejected','cancelled','released'])->exists(),'You already have an open request of this type.');
@@ -59,7 +62,11 @@ class CvuFlowController extends Controller {
   return redirect('/cvu/submitted/'.$q->id);
  }
  public function submitted(Request $r,ServiceRequest $serviceRequest){abort_unless($serviceRequest->user_id===$r->user()->id,403);return view('cvu.success',['q'=>$serviceRequest]);}
- public function community(Request $r){$u=$this->student($r);$a=$u->assignment;return view('cvu.community',compact('u','a'));}
+ public function community(Request $r){
+  $u=$this->student($r);
+  $a=$u->assignments()->whereIn('status',['active','completed'])->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")->latest('id')->first();
+  return view('cvu.community',compact('u','a'));
+ }
  public function confirmStudent(Request $r){
   $u=$this->student($r);
   $v=$r->validate(['student_id'=>'required|string|max:40']);

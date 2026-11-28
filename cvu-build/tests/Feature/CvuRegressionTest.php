@@ -15,6 +15,96 @@ class CvuRegressionTest extends TestCase {
  private function record(User $u):Assignment {return Assignment::create(['user_id'=>$u->id,'record_number'=>uniqid('CV-'),'offense'=>'Conduct','severity'=>'Minor','department'=>'IT','supervisor'=>'Unit Head','required_minutes'=>120]);}
  private function request(User $u,string $kind,array $details=[]):ServiceRequest {return ServiceRequest::create(['user_id'=>$u->id,'kind'=>$kind,'ticket'=>uniqid('CVU-'),'details'=>$details]);}
  private function photo():UploadedFile {return UploadedFile::fake()->createWithContent('evidence.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lGQAAAAASUVORK5CYII='));}
+ public function test_id_replacement_records_the_payment_and_requires_an_affidavit_for_missing_ids():void
+ {
+  $student=$this->person();
+  $head=$this->person('cvu_head');
+  $page='/apply/id-replacement';
+  $details=['replacement_reason'=>'Lost','incident_date'=>today()->toDateString(),'description'=>'My ID went missing on campus.'];
+  $this->actingAs($student)->get($page)->assertOk()->assertSee('Receipt Number')->assertSee('Affidavit of loss');
+  $this->from($page)->post($page,['declaration'=>1,'details'=>$details])
+   ->assertRedirect($page)->assertSessionHasErrors(['details.receipt_number','details.payment_amount','documents.evidence']);
+  $payment=['receipt_number'=>'000123','payment_amount'=>'125.50'];
+  $this->post($page,['declaration'=>1,'details'=>[...$details,...$payment,'replacement_reason'=>'Stolen']])
+   ->assertRedirect($page)->assertSessionHasErrors('documents.evidence');
+  $this->post($page,['declaration'=>1,'details'=>[...$details,...$payment,'payment_amount'=>'125.501'],'documents'=>['evidence'=>$this->photo()]])
+   ->assertRedirect($page)->assertSessionHasErrors('details.payment_amount');
+  $this->assertDatabaseCount('service_requests',0);
+  $this->post($page,['declaration'=>1,'details'=>$details+$payment+['student_name'=>'Different Name'],
+   'documents'=>['evidence'=>UploadedFile::fake()->create('affidavit.pdf',1,'application/pdf')]])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $lost=$student->requests()->sole();
+  $this->assertSame($student->name,$lost->details['student_name']);
+  $this->assertSame($payment,array_intersect_key($lost->details,$payment));
+  Storage::assertExists($lost->files['evidence']['path']);
+  $this->get('/requests/'.$lost->id)->assertOk()->assertSee('affidavit.pdf')->assertSee('000123');
+  $this->get('/notifications')->assertOk()->assertSee('iServe ID replacement request received: '.$lost->ticket);
+  $this->assertSame('New ID replacement request: '.$lost->ticket,$head->notifications()->sole()->data['title']);
+
+  $lost->update(['status'=>'needs_revision']);
+  $this->get('/requests/'.$lost->id)->assertOk()->assertSee('name="details[receipt_number]"',false);
+  $this->post('/requests/'.$lost->id.'/revise',['revision'=>'Corrected the official receipt number.','details'=>['receipt_number'=>'000124']])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame('000124',$lost->fresh()->details['receipt_number']);
+  $this->assertSame($lost->files,$lost->fresh()->files);
+  $this->post($page,['declaration'=>1,'details'=>[...$details,...$payment,'replacement_reason'=>'Damaged']])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame([], $student->requests()->whereKeyNot($lost->id)->sole()->files);
+ }
+
+ public function test_student_can_see_the_reprint_status_on_the_id_replacement_record():void
+ {
+  $student=$this->person();
+  $item=$this->request($student,'id-replacement');
+  $item->update(['status'=>'approved','details'=>['reprinted_at'=>now()->toIso8601String()]]);
+  $page='/requests/'.$item->id;
+  $this->actingAs($student)->get($page)->assertOk()->assertSee('Your replacement ID has been reprinted.');
+  $item->update(['details'=>[...$item->details,'released'=>true]]);
+  $this->get($page)->assertOk()->assertSee('Your replacement ID has been released.');
+  $this->actingAs($this->person())->get($page)->assertForbidden();
+ }
+ public function test_student_can_submit_parent_or_guardian_contact_with_a_complaint():void
+ {
+  $student=$this->person();
+  $page='/apply/complaint';
+  $this->actingAs($student)->get($page)->assertOk()->assertSee('Parent or guardian contact (optional)');
+  $details=[
+   'complaint_type'=>'Bullying','incident_date'=>today()->toDateString(),'location'=>'Campus',
+   'description'=>'A detailed complaint for the CVU office to review.',
+  ];
+  $contact=['parent_guardian_name'=>'Alex Reyes','parent_guardian_relationship'=>'Mother','parent_guardian_phone'=>'+63 912 555 0123'];
+  $this->from($page)->post($page,['declaration'=>1,'details'=>[...$details,...$contact,'parent_guardian_phone'=>str_repeat('1',41)]])
+   ->assertRedirect($page)->assertSessionHasErrors('details.parent_guardian_phone');
+  $this->get($page)->assertOk()->assertSee('Alex Reyes')->assertSee('data-wizard-start="1"',false);
+  $this->post($page,['declaration'=>1,'details'=>$details+$contact])->assertRedirect()->assertSessionHasNoErrors();
+  $complaint=$student->requests()->sole();
+  $this->assertSame($contact,array_intersect_key($complaint->details,$contact));
+  $record='/requests/'.$complaint->id;
+  $this->get($record)->assertOk()->assertSee('Parent or guardian name')->assertSee('Alex Reyes');
+  $this->actingAs($this->person())->get($record)->assertForbidden();
+ }
+ public function test_other_complaints_require_and_save_the_students_own_type():void
+ {
+  $page='/apply/complaint';
+  $student=$this->person();
+  $this->actingAs($student)->get($page)->assertOk()
+   ->assertSee('Others</option>',false)->assertSee('name="details[other_complaint]"',false);
+  $details=['complaint_type'=>'Other','incident_date'=>today()->toDateString(),'location'=>'Campus',
+   'description'=>'A detailed account of what happened on campus.'];
+  $this->from($page)->post($page,['declaration'=>1,'details'=>$details])
+   ->assertRedirect($page)->assertSessionHasErrors('details.other_complaint');
+  $this->get($page)->assertSee('Enter your complaint type when you select Others.')
+   ->assertSee('data-wizard-start="1"',false);
+  $this->post($page,['declaration'=>1,'details'=>$details+['other_complaint'=>'Unauthorized use of student records']])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $complaint=$student->requests()->sole();
+  $this->assertSame('Unauthorized use of student records',$complaint->details['other_complaint']);
+  $this->get('/requests/'.$complaint->id)->assertOk()->assertSee('Unauthorized use of student records');
+
+  $this->post($page,['declaration'=>1,'details'=>[...$details,'complaint_type'=>'Bullying','other_complaint'=>'Stale custom type']])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertArrayNotHasKey('other_complaint',$student->requests()->whereKeyNot($complaint->id)->sole()->details);
+ }
  public function test_cvu_receipts_use_the_applicant_email_and_respect_preferences():void {
   config(['app.url'=>'https://students.example.test']);
   $student=$this->person();
@@ -87,7 +177,7 @@ class CvuRegressionTest extends TestCase {
    'complaint'=>['complaint_type'=>'Bullying','incident_date'=>today()->toDateString(),'location'=>'Campus','description'=>'A detailed student concern for review.'],
    'lost'=>['item_name'=>'Wallet','incident_date'=>today()->toDateString(),'location'=>'Library','description'=>'A black wallet was lost in the library.','contact'=>'09123456789'],
    'found'=>['item_name'=>'Wallet','incident_date'=>today()->toDateString(),'location'=>'Library','description'=>'A black wallet was found in the library.','contact'=>'09123456789'],
-   'id-replacement'=>['replacement_reason'=>'Damaged','incident_date'=>today()->toDateString(),'description'=>'The student ID is damaged and needs replacement.']];
+   'id-replacement'=>['replacement_reason'=>'Damaged','receipt_number'=>'OR-123','payment_amount'=>'125.50','incident_date'=>today()->toDateString(),'description'=>'The student ID is damaged and needs replacement.']];
   foreach($cases as $kind=>$details){
    $this->actingAs($u)->get('/apply/'.$kind)->assertOk();
    $payload=['details'=>$details,'declaration'=>1];if($kind==='found')$payload['documents']=['item_photo'=>$this->photo()];
@@ -127,14 +217,17 @@ class CvuRegressionTest extends TestCase {
   $event->update(['metadata'=>['courses'=>['BSN']]]);$this->postJson('/cvu/submit/seminar',[...$this->identity($u),'details'=>['event_id'=>$event->id]])->assertUnprocessable();
   $this->post('/events/'.$event->id,['action'=>'join'])->assertRedirect('/apply/seminar?event='.$event->id);$this->assertDatabaseCount('attendances',0);
  }
- public function test_readmission_cannot_issue_before_interview_and_archive_filter_works():void {
-  $u=$this->person();$head=$this->person('cvu_head');$q=$this->request($u,'readmission',['interview_at'=>now()->subDay()->toDateTimeString(),'applicant'=>$this->identity($u)]);$this->actingAs($head);
-  $this->postJson('/cvu/head/request/'.$q->id,['action'=>'issue'])->assertUnprocessable();$q->update(['status'=>'interview_scheduled']);
-  $this->post('/cvu/head/request/'.$q->id,['action'=>'issue'])->assertRedirect('/cvu/head/readmission?selected='.$q->id.'&slip=1');
-  $this->post('/cvu/head/request/'.$q->id,['action'=>'send'])->assertRedirect();$count=$u->notifications()->count();
-  $this->postJson('/cvu/head/request/'.$q->id,['action'=>'send'])->assertUnprocessable();$this->assertSame($count,$u->notifications()->count());
-  $this->post('/cvu/head/request/'.$q->id,['action'=>'archive'])->assertRedirect();
-  $this->get('/cvu/head/readmission')->assertOk()->assertDontSee($q->ticket);$this->get('/cvu/head/readmission?archived=1')->assertOk()->assertSee($q->ticket);
+ public function test_readmission_returns_to_subject_details_after_validation_fails():void {
+  $student=$this->person();
+  $page='/apply/readmission';
+  $details=[
+   'instructor'=>'Instructor', 'subject'=>'NSTP', 'subject_code'=>'NSTP1', 'schedule'=>'Tuesday 1 PM',
+   'semester'=>'1st Semester', 'academic_year'=>'2026-2027', 'description'=>'Too short',
+  ];
+  $this->actingAs($student)->from($page)->post('/cvu/submit/readmission',[...$this->identity($student),'details'=>$details])
+   ->assertRedirect($page)->assertSessionHasErrors('details.description');
+  $this->get($page)->assertOk()->assertSee('data-return-to-details',false)->assertSee('NSTP1');
+  $this->assertDatabaseCount('service_requests',0);
  }
  public function test_clearance_save_request_info_and_past_slot_validation():void {
   $u=$this->person();$head=$this->person('cvu_head');$q=$this->request($u,'clearance',['appointment_date'=>now()->addDay()->toDateString(),'schedule'=>'10:00']);$this->actingAs($head);

@@ -1,15 +1,19 @@
 @php
     $sessions = $attendances->where('assignment_id', $assignment->id);
     $todaySession = $sessions->first(fn ($entry) => $entry->time_in?->isToday());
-    $openSession = $sessions->first(fn ($entry) => $entry->time_in && !$entry->time_out);
+    $openSession = $openServiceSession?->assignment_id === $assignment->id ? $openServiceSession : null;
     $displaySession = $openSession ?? $todaySession;
 @endphp
+@if($openServiceSession && !$openSession)
+    <p class="notice"><a href="{{ url('/portal/values/community-service').'?assignment='.$openServiceSession->assignment_id }}">Return to your open duty session</a> to record Time Out.</p>
+@endif
 <div class="two-columns">
     @foreach (['in' => 'Time In', 'out' => 'Time Out'] as $action => $label)
         @php
             $reason = match (true) {
                 $assignment->status !== 'active' => 'This community service assignment is closed.',
                 $action === 'in' && $openSession !== null => 'Time In is already recorded. Use Time Out to close the session.',
+                $action === 'in' && $openServiceSession !== null => 'Another violation has an open duty session.',
                 $action === 'in' && $todaySession !== null => 'You have already completed today’s session.',
                 $action === 'out' && $openSession === null => $todaySession
                     ? 'Time Out is already recorded for today.'
@@ -26,6 +30,7 @@
             @else
                 <form action="/community/clock" method="post" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
                     <input type="hidden" name="action" value="{{ $action }}">
                     <label class="camera-input">
                         <img src="{{ asset('design-assets/17121.svg') }}" alt="">

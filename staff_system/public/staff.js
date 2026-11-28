@@ -28,6 +28,21 @@ document.querySelectorAll('dialog[data-auto-open]').forEach(dialog => {
 });
 document.querySelectorAll('dialog form').forEach(form=>{const field=document.createElement('input');field.type='hidden';field.name='_dialog';field.value=form.closest('dialog').id;form.append(field);});
 const restore=document.getElementById('form-restore');if(restore){const state=JSON.parse(restore.textContent);const dialog=document.getElementById(state.dialog);if(dialog){for(const form of dialog.querySelectorAll('form'))for(const [name,value]of Object.entries(state.fields)){const field=form.elements.namedItem(name);if(field&&field.type!=='file'&&field.type!=='password'){if(field.type==='checkbox')field.checked=Boolean(value);else field.value=value??'';}}if(!dialog.open)dialog.showModal();}}
+const communityServiceSeverity = document.querySelector('[data-community-hours]');
+if (communityServiceSeverity) {
+    const form = communityServiceSeverity.form;
+    const hours = form.elements.namedItem('required_hours');
+    const hint = document.getElementById('assignment-hour-range');
+    const updateHourRange = () => {
+        const { minHours, maxHours } = communityServiceSeverity.selectedOptions[0]?.dataset ?? {};
+        hours.min = minHours ?? '1';
+        hours.max = maxHours ?? '500';
+        hint.textContent = `Enter ${hours.min} to ${hours.max} hours.`;
+    };
+    communityServiceSeverity.addEventListener('change', updateHourRange);
+    form.closest('dialog').addEventListener('toggle', updateHourRange);
+    updateHourRange();
+}
 document.querySelectorAll('form').forEach(form=>form.addEventListener('submit',event=>{if(form.dataset.submitting==='true'){event.preventDefault();return;}form.dataset.submitting='true';setTimeout(()=>{form.setAttribute('aria-busy','true');form.querySelectorAll('button[type="submit"],button:not([type])').forEach(button=>{button.disabled=true;});},0);}));
 window.addEventListener('pageshow',()=>document.querySelectorAll('form[aria-busy]').forEach(form=>{delete form.dataset.submitting;form.removeAttribute('aria-busy');form.querySelectorAll('button').forEach(button=>button.disabled=false);}));
 

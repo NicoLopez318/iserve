@@ -43,11 +43,12 @@ class CvuExistingWorkspaceTest extends TestCase {
  }
  public function test_student_readmission_reaches_existing_staff_review_and_approved_slip():void {
   $u=$this->user();$head=$this->user('cvu_head');$this->actingAs($u)->post('/cvu/submit/readmission',[...$this->identity($u),'details'=>['instructor'=>'Instructor','subject'=>'NSTP','subject_code'=>'NSTP1','schedule'=>'Tuesday 1 PM','semester'=>'1st Semester','academic_year'=>'2026-2027','description'=>'Explanation of absence and request to return.']])->assertRedirect();
-  $q=ServiceRequest::firstOrFail();$alert=json_decode($head->notifications()->firstOrFail()->data,true);$this->assertSame('https://goldenrod-turkey-247730.hostingersite.com/workspace/request/'.$q->id,$alert['url']);
+  $q=ServiceRequest::firstOrFail();$alert=$head->notifications()->firstOrFail()->data;$this->assertSame('https://goldenrod-turkey-247730.hostingersite.com/workspace/request/'.$q->id,$alert['url']);
   $this->actingAs($head)->post('/test-staff/note/'.$q->id,['review_note'=>'Please attend the interview.','interview_at'=>now()->addDay()->toDateTimeString()])->assertRedirect();
   $this->postJson('/test-staff/review/'.$q->id,['status'=>'unit_approved','review_note'=>'Interview has not taken place yet.'])->assertUnprocessable();$this->travel(2)->days();
   foreach([[$head,'unit_approved'],[$this->user('assistant'),'awaiting_admin'],[$this->user('admin'),'approved']] as [$actor,$status])$this->actingAs($actor)->post('/test-staff/review/'.$q->id,['status'=>$status,'review_note'=>'The request has been checked by the office.'])->assertRedirect();
   $this->actingAs($u)->get('/cvu/submitted/'.$q->id)->assertOk()->assertSee('Re-Admission Virtual Slip')->assertSee('Approved for Admission');
+  $this->get('/requests/'.$q->id.'/slip')->assertOk()->assertSee('NSTP1')->assertSee('Print / Save PDF');
   $this->actingAs($this->user())->get('/cvu/submitted/'.$q->id)->assertForbidden();
  }
  public function test_existing_staff_seminar_creation_appears_in_ivory_and_students_can_join_multiple():void {
@@ -78,7 +79,7 @@ class CvuExistingWorkspaceTest extends TestCase {
  }
  public function test_other_cvu_transactions_use_existing_staff_chain_and_private_evidence():void {
   $u=$this->user();$head=$this->user('cvu_head');$assistant=$this->user('assistant');$admin=$this->user('admin');$outsider=$this->user();
-  foreach(['complaint'=>['complaint_type'=>'Bullying','incident_date'=>today()->toDateString(),'location'=>'Campus','description'=>'Detailed concern submitted to the office.'],'lost'=>['item_name'=>'Wallet','incident_date'=>today()->toDateString(),'location'=>'Library','description'=>'A black wallet was lost at the library.','contact'=>'09123456789'],'found'=>['item_name'=>'Wallet','incident_date'=>today()->toDateString(),'location'=>'Library','description'=>'A wallet was found at the library.','contact'=>'09123456789'],'id-replacement'=>['replacement_reason'=>'Damaged','incident_date'=>today()->toDateString(),'description'=>'The ID is damaged and needs replacement.']] as $kind=>$details){
+  foreach(['complaint'=>['complaint_type'=>'Bullying','incident_date'=>today()->toDateString(),'location'=>'Campus','description'=>'Detailed concern submitted to the office.'],'lost'=>['item_name'=>'Wallet','incident_date'=>today()->toDateString(),'location'=>'Library','description'=>'A black wallet was lost at the library.','contact'=>'09123456789'],'found'=>['item_name'=>'Wallet','incident_date'=>today()->toDateString(),'location'=>'Library','description'=>'A wallet was found at the library.','contact'=>'09123456789'],'id-replacement'=>['replacement_reason'=>'Damaged','receipt_number'=>'OR-123','payment_amount'=>'125.50','incident_date'=>today()->toDateString(),'description'=>'The ID is damaged and needs replacement.']] as $kind=>$details){
    $payload=['details'=>$details,'declaration'=>1];if($kind==='found')$payload['documents']=['item_photo'=>UploadedFile::fake()->createWithContent('photo.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lGQAAAAASUVORK5CYII='))];
    $this->actingAs($u)->post('/apply/'.$kind,$payload)->assertRedirect();$q=ServiceRequest::where('kind',$kind)->firstOrFail();$this->get('/requests/'.$q->id)->assertOk();$this->actingAs($outsider)->get('/requests/'.$q->id)->assertForbidden();
    if($kind==='found'){$this->get('/requests/'.$q->id.'/files/item_photo')->assertForbidden();$this->actingAs($head)->get('/requests/'.$q->id.'/files/item_photo')->assertOk();}

@@ -12,6 +12,7 @@ class User extends Authenticatable implements MustVerifyEmail {
  public function hasScholarPortalAccess():bool{return $this->account_type==='student'&&$this->requests()->where('kind','scholarship')->whereIn('status',['unit_approved','awaiting_admin','approved'])->exists();}
  public function requests(){return $this->hasMany(ServiceRequest::class);}
  public function assignment(){return $this->hasOne(Assignment::class)->latestOfMany();}
+ public function assignments(){return $this->hasMany(Assignment::class);}
  public function organization(){return $this->belongsTo(Organization::class);}
  public function canManageOrganization():bool{
   return $this->organization_id!==null

@@ -38,6 +38,9 @@
 @endforelse
 @endif
 @endif
+@if($item->kind==='clearance' && auth()->user()->role==='cvu_head')
+    <p><a href="{{ url('/workspace/community').'?check_student='.$item->user_id.'#pending-service' }}">Check Pending Community Service</a></p>
+@endif
 @if(!$proposalReview || $item->review_note)
 <h3>{{ $item->kind === 'leadership' && $item->status === 'rejected' ? 'Reason for rejection' : 'Reviewer Remarks' }}</h3><p class="text-body">{{$item->review_note??'No review yet.'}}</p>
 @endif
@@ -70,13 +73,13 @@
 @endif
 @endif
 @if(auth()->user()->role===$item->office()&&in_array($item->status,['pending','in_review'])&&in_array($item->kind,['complaint','readmission','clearance']))
-<details><summary>Save Review / Schedule</summary><form method="post" action="/workspace/request/{{$item->id}}/note">@csrf
+<details @if($item->kind==='readmission' && $errors->has('interview_at')) open @endif><summary>{{ $item->kind==='readmission' ? 'Save Remarks / Schedule Interview' : 'Save Review / Schedule' }}</summary><form method="post" action="/workspace/request/{{$item->id}}/note">@csrf
 <label class="field">Remarks<textarea name="review_note" required minlength="5" maxlength="3000">{{old('review_note',$item->review_note)}}</textarea></label>
 @if($item->kind==='clearance')
 <label class="field">Appointment Date<input type="date" name="appointment_date" value="{{$item->details['appointment_date']??''}}"></label>
 <label class="field">Appointment Time<input type="time" name="schedule" value="{{$item->details['schedule']??''}}"></label>
 @else
-<label class="field">Interview Date & Time<input type="datetime-local" name="interview_at"></label>
+@include('workspace.interview-field')
 @endif
 <button class="outline">Save Review</button></form></details>
 @endif

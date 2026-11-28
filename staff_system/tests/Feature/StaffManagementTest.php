@@ -500,6 +500,105 @@ class StaffManagementTest extends TestCase {
    ->assertRedirect()->assertSessionHasNoErrors();
   $this->get('/workspace/events')->assertOk()->assertSee('<option value="Training Annex">',false);
  }
+ public function test_cvu_head_can_check_pending_service_and_send_assignment_feedback():void
+ {
+  $head=$this->actor('cvu_head');
+  $student=$this->actor('student');
+  $other=$this->actor('student');
+  $record=fn($user,$reference,$status)=>$user->assignments()->create([
+   'record_number'=>$reference,'offense'=>'Campus conduct','severity'=>'Minor',
+   'department'=>'Library','supervisor'=>'Unit Supervisor','required_minutes'=>120,'status'=>$status,
+  ]);
+  $active=$record($student,'CV-PENDING','active');
+  $record($student,'CV-FINISHED','completed');
+  $record($other,'CV-OTHER','completed');
+  $active->attendances()->create(['user_id'=>$student->id,'minutes'=>60,'status'=>'approved']);
+  $active->attendances()->create(['user_id'=>$student->id,'minutes'=>60,'status'=>'pending']);
+  $active->journals()->create(['module'=>1,'answer'=>'Service reflection submitted.','status'=>'approved']);
+  $page='/workspace/community?check_student='.$student->id;
+  $feedbackUrl='/workspace/assignment/'.$active->id.'/feedback';
+  $message='Please complete your remaining duty hour and submit the next journal module.';
+  $this->actingAs($this->actor('slu_head'))->post($feedbackUrl,['feedback'=>$message])->assertForbidden();
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('1 active assignment.')
+   ->assertSee('1.00 hours remaining')->assertSee('1 session awaiting review')->assertSee('1/4 journal modules approved');
+  $this->get('/workspace/community?check_student='.$other->id)->assertOk()->assertSee('No pending community service.');
+  $this->get('/workspace/community?check_student='.$head->id)->assertNotFound();
+  $this->from($page)->post($feedbackUrl,['feedback'=>' '])->assertRedirect($page)->assertSessionHasErrors('feedback');
+  $this->post($feedbackUrl,['feedback'=>$message])->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->post($feedbackUrl,['feedback'=>'Bring your verification slip to the office.'])->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame([$head->id,$head->id],$active->feedbackEntries()->pluck('author_id')->all());
+  $this->assertSame(2,$student->notifications()->count());
+  $this->assertStringEndsWith('/portal/values/community-service?assignment='.$active->id,$student->notifications()->first()->data['url']);
+  $this->assertSame(0,$other->notifications()->count());
+  $this->get($page)->assertOk()->assertSee('Feedback to Student')->assertSeeInOrder(['Bring your verification slip',$message]);
+ }
+
+ public function test_cvu_can_assign_multiple_violations_and_verify_each_record_separately():void
+ {
+  $head=$this->actor('cvu_head');
+  $student=$this->actor('student');
+  $page='/workspace/community';
+  $fields=['user_id'=>$student->id,'severity'=>'Minor','department'=>'Library','supervisor'=>'Unit Supervisor',
+   'required_hours'=>2,'start_date'=>today()->toDateString(),'target_date'=>today()->addWeek()->toDateString(),
+   'duty_start'=>'08:00','duty_end'=>'12:00'];
+  $this->actingAs($head)->from($page)->post('/workspace/assignments',$fields+['offense'=>'Campus conduct'])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->post('/workspace/assignments',[...$fields,'offense'=>'Laboratory safety','severity'=>'Major'])
+   ->assertRedirect($page)->assertSessionHasNoErrors();
+  [$first,$second]=$student->assignments()->orderBy('id')->get()->all();
+  $session=$first->attendances()->create([
+   'user_id'=>$student->id,'time_in'=>now()->subHours(2),'time_out'=>now(),'minutes'=>120,'status'=>'pending',
+  ]);
+  $this->get($page)->assertOk()->assertSee('Add Violation')->assertSee('Campus conduct')->assertSee('Laboratory safety');
+  $this->post('/staff/attendance/'.$session->id,['status'=>'approved','review_note'=>'Verified time in and time out.'])
+   ->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame(120,$first->approvedMinutes());
+  $this->assertSame(0,$second->approvedMinutes());
+  $this->assertStringContainsString('?assignment='.$first->id,$student->notifications()->sole()->data['url']);
+  foreach(range(1,4) as $module)$first->journals()->create(['module'=>$module,'answer'=>'Verified service reflection.','status'=>'approved']);
+  $this->post('/staff/assignments/'.$first->id.'/complete')->assertRedirect()->assertSessionHas('success','Record completed. The student still has active service assignments.');
+  $this->assertSame('completed',$first->fresh()->status);
+  $this->assertSame('active',$second->fresh()->status);
+ }
+
+ public function test_community_service_hours_are_validated_by_violation_severity():void
+ {
+  $page='/workspace/community';
+  $policyUrl=$page.'/hour-limits';
+  $head=$this->actor('cvu_head');
+  $student=$this->actor('student');
+  $majorStudent=$this->actor('student');
+  $limits=['Minor'=>['min'=>'4','max'=>'8'],'Major'=>['min'=>'12','max'=>'20']];
+  $assignment=[
+   'user_id'=>$student->id,'offense'=>'Student conduct','severity'=>'Minor','department'=>'Library',
+   'supervisor'=>'Unit Supervisor','required_hours'=>12,'start_date'=>today()->toDateString(),
+   'target_date'=>today()->addWeek()->toDateString(),'duty_start'=>'08:00','duty_end'=>'12:00',
+  ];
+  $this->actingAs($this->actor('slu_head'))->post($policyUrl,$limits)->assertForbidden();
+  $this->actingAs($head)->get($page)->assertOk()->assertSee('The general 1–500 hour limit applies');
+  $this->from($page)->post('/workspace/assignments',$assignment)->assertRedirect($page)->assertSessionHasNoErrors();
+  $minor=Assignment::sole();
+  $this->post($policyUrl,[...$limits,'Minor'=>['min'=>'8','max'=>'4']])
+   ->assertRedirect($page)->assertSessionHasErrors('Minor.max');
+  $this->post($policyUrl,$limits)->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->get($page)->assertOk()->assertSee('data-max-hours="8"',false)->assertSee('data-min-hours="12"',false);
+
+  $major=[...$assignment,'user_id'=>$majorStudent->id,'severity'=>'Major'];
+  $this->post('/workspace/assignments',[...$major,'required_hours'=>8])
+   ->assertRedirect($page)->assertSessionHasErrors(['required_hours'=>'Major violations require 12 to 20 community service hours.']);
+  $this->post('/staff/assignments',[...$major,'severity'=>'Minor','required_hours'=>9])
+   ->assertRedirect($page)->assertSessionHasErrors(['required_hours'=>'Minor violations require 4 to 8 community service hours.']);
+  $this->post('/workspace/assignments',$major)->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame(720,$majorStudent->assignment()->firstOrFail()->required_minutes);
+
+  $edit='/workspace/assignment/'.$minor->id;
+  $this->post($edit,[...$assignment,'department'=>'Records'])->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame(720,$minor->fresh()->required_minutes);
+  $this->post($edit,[...$assignment,'required_hours'=>9])->assertRedirect($page)->assertSessionHasErrors('required_hours');
+  $this->post($edit,[...$assignment,'required_hours'=>8])->assertRedirect($page)->assertSessionHasNoErrors();
+  $this->assertSame(480,$minor->fresh()->required_minutes);
+ }
+
  public function test_populated_screens_and_management_forms():void{
   $student=$this->actor('student');$heads=[];foreach(['admin','assistant','sfu_head','cvu_head','slu_head'] as $role)$heads[$role]=$this->actor($role);
   $this->actingAs($heads['slu_head'])->post('/workspace/organizations',['name'=>'Test Organization','description'=>'Verified university organization','president_id'=>$student->id,'acronym'=>'TEST','college'=>'CITE','type'=>'Academic','adviser'=>'Verified Adviser'])->assertRedirect()->assertSessionHasNoErrors();$org=Organization::first();$this->assertSame($org->id,$student->fresh()->organization_id);

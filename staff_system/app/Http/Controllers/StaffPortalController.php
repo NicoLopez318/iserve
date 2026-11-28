@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use App\Support\StaffDrafts;
 use App\Support\LeadershipPoints;
 use App\Support\PortalContent;
+use App\Support\CommunityServiceHours;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
@@ -38,7 +39,8 @@ class StaffPortalController extends Controller
    ->whereNotNull('files')->whereNotIn('files',['[]','{}','null']);
 
   if(isset($filters['organization'])){
-   $this->filterRequestOrganization($query,[$request->integer('organization')]);
+   $organizationId=$request->integer('organization');
+   $this->filterRequestOrganization($query,[$organizationId,(string)$organizationId]);
   }
   if(filled($filters['search']??null)){
    $term='%'.$filters['search'].'%';
@@ -157,7 +159,7 @@ class StaffPortalController extends Controller
    $scope->where(fn($query)=>$query->where('ticket','like',$term)
     ->orWhereHas('user',fn($user)=>$user->where('name','like',$term)->orWhere('student_id','like',$term))
     ->when($cvuComplaints,fn($complaints)=>$complaints->orWhere('details->respondent','like',$term)
-     ->orWhere('details->complaint_type','like',$term))
+     ->orWhere('details->complaint_type','like',$term)->orWhere('details->other_complaint','like',$term))
     ->when($cvuLostFound,fn($items)=>$items->orWhere('details->item_name','like',$term)
      ->orWhereIn('kind',$reportKinds))
     ->when($membershipTab,fn($membership)=>$membership->orWhereIn('details->organization_id',Organization::select('id')->where('name','like',$term)))
@@ -208,6 +210,16 @@ class StaffPortalController extends Controller
    $eventCalendar=$this->eventCalendar($r,$leadershipEvents);
   }
   $assignments=Assignment::with(['user','attendances','journals'])->latest()->get();$students=User::where('account_type','student')->get();
+  $checkedStudent=null;
+  if($page==='community'){
+   $r->validate(['check_student'=>'nullable|integer|min:1']);
+   if($r->filled('check_student')){
+    $checkedStudent=$students->firstWhere('id',$r->integer('check_student'));
+    abort_unless($checkedStudent,404);
+   }
+   $assignments->load('feedbackEntries.author');
+  }
+  $communityHourLimits=$r->user()->role==='cvu_head'?CommunityServiceHours::limits():[];
   $attendance=Attendance::with(['user','event','assignment'])->where('status','pending')->get();$journals=Journal::with('assignment.user')->where('status','pending')->get();
   $points=Point::with('user')->latest()->get();
   $organizationPoints=($sluOrganizations&&!$membershipTab)?Point::join('users','points.user_id','=','users.id')
@@ -284,7 +296,7 @@ class StaffPortalController extends Controller
   $sluActivity=$sluDashboard?$this->sluActivity($r):collect();
   $orgDirectory=$sluOrganizations&&!$membershipTab?$this->organizationDirectory($r,$organizations,$organizationPoints):null;
   $orgForm=$sluOrganizations?$this->organizationFormOptions():null;
-  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','reportPeriods','sluReportActivity','counts','reportCounts','organizations','events','eventVenues','eventCalendar','assignments','students','attendance','journals','points','leadershipPoints','scoringPublication','scoringHistory','audit','contentLibrary','slots','rules','sfuPrograms','sfuSummary','fullSluQueue','fullProposalQueue','sluDeadlines','sluActivity','membershipTab','orgDirectory','orgForm','achievementCategories','achievementMatch','cvuSummary','cvuReviewQueue','cvuCommunityStats','archivedRequestCount'));
+  return view('workspace.page',compact('selectedReport','reportHistory','selectedRequest','selectedHistory','page','menus','design','requests','reports','reportPeriods','sluReportActivity','counts','reportCounts','organizations','events','eventVenues','eventCalendar','assignments','students','attendance','journals','points','leadershipPoints','scoringPublication','scoringHistory','audit','contentLibrary','slots','rules','sfuPrograms','sfuSummary','fullSluQueue','fullProposalQueue','sluDeadlines','sluActivity','membershipTab','orgDirectory','orgForm','achievementCategories','achievementMatch','cvuSummary','cvuReviewQueue','cvuCommunityStats','archivedRequestCount','communityHourLimits','checkedStudent'));
  }
  private function contentLibrary(Request $request):array
  {
@@ -475,10 +487,30 @@ class StaffPortalController extends Controller
   $serviceRequest->load(['user','reviewer']);$history=DB::table('audit_logs')->leftJoin('users','users.id','=','audit_logs.user_id')->where('subject',$serviceRequest->ticket)->select('audit_logs.*','users.name')->orderBy('audit_logs.id')->get();
   return view('workspace.request',['item'=>$serviceRequest,'history'=>$history,'menus'=>self::menus($r->user()->role)]);
  }
+ public function complaintParentGuardian(Request $request, ServiceRequest $serviceRequest)
+ {
+  $this->only($request,'cvu_head');
+  abort_unless($serviceRequest->kind==='complaint',404);
+  $contact=$request->validate([
+   'parent_guardian_name'=>'sometimes|nullable|string|max:120',
+   'parent_guardian_relationship'=>'sometimes|nullable|string|max:60',
+   'parent_guardian_phone'=>'sometimes|nullable|string|max:40',
+  ]);
+
+  DB::transaction(function()use($request,$serviceRequest,$contact){
+   $complaint=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);
+   abort_unless($complaint->canEditComplaintContact(),403);
+   $details=array_diff_key($complaint->details,$contact)+array_filter($contact,fn($value)=>filled($value));
+   $complaint->update(['details'=>$details]);
+   $this->audit($request,'request.parent_guardian_updated',$complaint->ticket);
+  });
+
+  return back()->with('parent_guardian_saved','Parent or guardian contact saved.');
+ }
  public function requestNote(Request $r,ServiceRequest $serviceRequest){
   abort_unless($r->user()->role===$serviceRequest->office()&&in_array($serviceRequest->status,['pending','in_review']),403);
   $action=null;$status=null;
-  if(isset(ServiceRequest::LOST_FOUND_TYPES[$serviceRequest->kind])&&$r->has('lost_found_action')){
+  if($r->has('lost_found_action')&&isset(ServiceRequest::LOST_FOUND_TYPES[$serviceRequest->kind])){
    $decision=$r->validate([
     'lost_found_action'=>'required|in:save,request-info,validate',
     'status'=>'nullable|in:rejected',
@@ -510,7 +542,9 @@ class StaffPortalController extends Controller
    'save'=>'exclude',
    default=>'nullable|date|after:now',
   };
-  $v=$r->validate(['review_note'=>'required|string|min:5|max:3000','interview_at'=>$interviewRules,'appointment_date'=>'nullable|date','schedule'=>'nullable|date_format:H:i','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean']);
+  if($serviceRequest->kind==='readmission'&&!$r->filled('interview_at'))$interviewRules='exclude';
+  $v=$r->validate(['review_note'=>'required|string|min:5|max:3000','interview_at'=>$interviewRules,'appointment_date'=>'nullable|date','schedule'=>'nullable|date_format:H:i','identity_verified'=>'nullable|boolean','hymn_completed'=>'nullable|boolean',
+   'meeting_type'=>$action==='schedule'?'sometimes|required|in:Interview,Case Conference':'exclude']);
   DB::transaction(function()use($r,$serviceRequest,$v){
    if($serviceRequest->kind==='clearance'){DB::table('settings')->insertOrIgnore(['key'=>'staff.clearance-slots','value'=>'[]']);DB::table('settings')->where('key','staff.clearance-slots')->lockForUpdate()->first();}
    $q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);$this->requireCondition(in_array($q->status,['pending','in_review']),422);$details=$q->details;
@@ -520,7 +554,7 @@ class StaffPortalController extends Controller
     if($changed){$this->requireCondition(\Carbon\Carbon::parse($key)->isFuture()&&$slot&&($slot['open']??false),422,'Choose an open future appointment.');$booked=ServiceRequest::where('kind','clearance')->where('id','!=',$q->id)->whereNotIn('status',['rejected','cancelled'])->where('details->appointment_date',$date)->where('details->schedule',$time)->count();$this->requireCondition($booked<(int)$slot['capacity'],422,'This appointment slot is full.');}
     $details['appointment_date']=$date;$details['schedule']=$time;$details['appointment_slot']=$key;$details['appointment_status']='confirmed';
    }
-   foreach(['interview_at','identity_verified','hymn_completed'] as $key)if(array_key_exists($key,$v))$details[$key]=$v[$key];
+   foreach(['interview_at','identity_verified','hymn_completed','meeting_type'] as $key)if(array_key_exists($key,$v))$details[$key]=$v[$key];
    $q->update(['details'=>$details,'status'=>'in_review','review_note'=>$v['review_note'],'reviewed_by'=>$r->user()->id,'reviewed_at'=>now()]);$this->audit($r,'request.review_saved',$q->ticket,$v['review_note']);
    if(isset($v['interview_at'])||$q->kind==='clearance'){
     $studentUrl=rtrim(config('app.student_portal_url','http://127.0.0.1:8001'),'/').(in_array($q->kind,['readmission','clearance','seminar'])?'/cvu/submitted/':'/requests/').$q->id;
@@ -751,7 +785,53 @@ class StaffPortalController extends Controller
   return back()->with('success','Scoring rules saved.')->with('scoring_rules_saved',true);
  }
  public function assignment(Request $r){$this->only($r,'cvu_head');\App\Support\StaffDrafts::assertOwned($r->user(),'assignment',$r->input('draft_id'));$schedule=$r->validate(['start_date'=>'required|date','target_date'=>'required|date|after_or_equal:start_date','duty_start'=>'required|date_format:H:i','duty_end'=>'required|date_format:H:i|after:duty_start']);$r->merge(['note'=>trim(($r->note??'')."\nStart: ".$schedule['start_date']."; Target: ".$schedule['target_date']."; Duty: ".$schedule['duty_start'].' - '.$schedule['duty_end'])]);$response=app(StaffController::class)->assignment($r);\App\Support\StaffDrafts::consume($r->user(),'assignment',$r->input('draft_id'));return $response;}
- public function assignmentUpdate(Request $r,Assignment $assignment){$this->only($r,'cvu_head');$v=$r->validate(['department'=>'required|string|max:120','supervisor'=>'required|string|max:120','required_hours'=>'required|integer|between:1,500','note'=>'nullable|string|max:3000']);abort_unless($assignment->status==='active'&&$v['required_hours']*60>=$assignment->approvedMinutes(),422);$assignment->update(['department'=>$v['department'],'supervisor'=>$v['supervisor'],'required_minutes'=>$v['required_hours']*60,'note'=>$v['note']??null]);$this->audit($r,'assignment.update',$assignment->record_number);return back()->with('success','Assignment saved.');}
+ public function communityServiceHours(Request $request)
+ {
+  $this->only($request,'cvu_head');
+  $limits=$request->validate([
+   'Minor.min'=>'required|integer|between:1,500',
+   'Minor.max'=>'required|integer|between:1,500|gte:Minor.min',
+   'Major.min'=>'required|integer|between:1,500',
+   'Major.max'=>'required|integer|between:1,500|gte:Major.min',
+  ],[
+   'Minor.max.gte'=>'The minor maximum must be at least the minor minimum.',
+   'Major.max.gte'=>'The major maximum must be at least the major minimum.',
+  ]);
+  DB::transaction(function()use($request,$limits){
+   $this->saveMetadata(CommunityServiceHours::SETTING,$limits);
+   $this->audit($request,'assignment.hour_limits','CVU',json_encode($limits));
+  });
+  return back()->with('success','Community service hour limits saved.');
+ }
+ public function assignmentUpdate(Request $r,Assignment $assignment)
+ {
+  $this->only($r,'cvu_head');
+  $v=$r->validate(['department'=>'required|string|max:120','supervisor'=>'required|string|max:120','required_hours'=>'required|integer|between:1,500','note'=>'nullable|string|max:3000']);
+  DB::transaction(function()use($r,$assignment,$v){
+   $current=Assignment::lockForUpdate()->findOrFail($assignment->id);
+   $minutes=(int)$v['required_hours']*60;
+   abort_unless($current->status==='active',422);
+   if($minutes!==(int)$current->required_minutes)CommunityServiceHours::validate($current->severity,(int)$v['required_hours']);
+   if($minutes<$current->approvedMinutes()){
+    throw ValidationException::withMessages(['required_hours'=>'Required hours cannot be less than the hours already verified.']);
+   }
+   $current->update(['department'=>$v['department'],'supervisor'=>$v['supervisor'],'required_minutes'=>$minutes,'note'=>$v['note']??null]);
+   $this->audit($r,'assignment.update',$current->record_number);
+  });
+  return back()->with('success','Assignment saved.');
+ }
+ public function assignmentFeedback(Request $request, Assignment $assignment)
+ {
+  $this->only($request,'cvu_head');
+  $feedback=$request->validate(['feedback'=>'required|string|max:3000']);
+  DB::transaction(function()use($request,$assignment,$feedback){
+   $assignment->feedbackEntries()->create(['author_id'=>$request->user()->id,'message'=>$feedback['feedback']]);
+   $this->audit($request,'assignment.feedback_posted',$assignment->record_number);
+   \App\Support\StaffAlerts::account($assignment->user,'New community service feedback: '.$assignment->record_number,
+    '/portal/values/community-service?assignment='.$assignment->id,message:'Open your service record to read the CVU Head’s feedback.');
+  });
+  return back()->with('success','Feedback saved.')->with('community_feedback_assignment',$assignment->id);
+ }
  public function content(Request $r,?int $id=null){
   $this->only($r,'slu_head');$v=$r->validate(['title'=>'required|string|max:180','body'=>'required|string|max:10000','publish'=>'nullable|boolean','published_at'=>'nullable|date','ends_at'=>'nullable|date|after:published_at','content_type'=>'required|in:Announcement Banner,Featured Event,Organization Feature,Notification,Helping Content','portal_location'=>'required|in:Student Dashboard,Event & Activities,Achievement Form','audience'=>'required|in:All Students,All Student Leaders','cta_label'=>'nullable|string|max:80','cta_destination'=>'nullable|in:events,organizations,proposals,achievements','image'=>'nullable|image|mimes:png,jpg,jpeg,webp|max:5120']);
   if($id)abort_unless(DB::table('announcements')->where('id',$id)->where('unit','leadership')->exists(),404);
@@ -837,5 +917,39 @@ class StaffPortalController extends Controller
   return back()->with('success',$savingDraft?'Scholar application draft saved.':'Application recorded for unit review.');
  }
  public function adjustment(Request $r){$this->only($r,'slu_head');$v=$r->validate(['user_id'=>'required|exists:users,id','amount'=>'required|integer|between:-1000,1000|not_in:0','reason'=>'required|string|min:10|max:3000']);$u=User::findOrFail($v['user_id']);abort_unless($u->account_type==='student'&&$u->organization_id,422);$q=ServiceRequest::create(['user_id'=>$u->id,'ticket'=>'ADJ-'.now()->format('Y').'-'.strtoupper(Str::random(8)),'kind'=>'achievement','status'=>'unit_approved','details'=>['title'=>'Point Adjustment','description'=>$v['reason'],'awarded_points'=>$v['amount'],'adjustment'=>true],'review_note'=>$v['reason'],'reviewed_by'=>$r->user()->id,'reviewed_at'=>now()]);$this->audit($r,'request.unit_approved',$q->ticket,$v['reason']);return back()->with('success','Point adjustment sent to Assistant for forwarding. Points apply after final Admin approval.');}
- public function disposition(Request $r,ServiceRequest $serviceRequest){abort_unless($r->user()->role===$serviceRequest->office(),403);$v=$r->validate(['action'=>'required|in:archive,restore,release','review_note'=>'required|string|min:5|max:3000']);DB::transaction(function()use($r,$serviceRequest,$v){$q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);abort_unless(in_array($q->status,['approved','rejected','cancelled']),422);$details=$q->details;if($v['action']==='release'){abort_unless($q->status==='approved'&&in_array($q->kind,['lost','found','id-replacement']),422);$details['released']=true;$details['released_at']=now()->toIso8601String();}else $details['archived']=$v['action']==='archive';$q->update(['details'=>$details]);$this->audit($r,'request.'.$v['action'],$q->ticket,$v['review_note']);});return back()->with('success','Record updated.');}
+ public function disposition(Request $r,ServiceRequest $serviceRequest)
+ {
+  abort_unless($r->user()->role===$serviceRequest->office(),403);
+  $v=$r->validate(['action'=>'required|in:archive,restore,release,reprint','review_note'=>'required_unless:action,reprint|nullable|string|min:5|max:3000']);
+  DB::transaction(function()use($r,$serviceRequest,$v){
+   $q=ServiceRequest::lockForUpdate()->findOrFail($serviceRequest->id);
+   if($v['action']==='reprint'){
+    if($q->kind==='id-replacement'&&filled($q->details['reprinted_at']??null))return;
+    $this->requireCondition($q->canMarkIdReprinted(),422,'Only approved ID replacements awaiting release can be marked as reprinted.');
+    $q->update(['details'=>[...$q->details,'reprinted_at'=>now()->toIso8601String()]]);
+    $this->audit($r,'request.reprinted',$q->ticket);
+    $title='Replacement ID reprinted: '.$q->ticket;
+    $message='Your replacement ID has been reprinted. Contact the CVU office for pickup.';
+    $url=rtrim(config('app.student_portal_url'),'/').'/requests/'.$q->id;
+    if($q->user->preferences['in_app']??true)$q->user->notifications()->create([
+     'id'=>Str::uuid(),'type'=>'request','data'=>['title'=>$title,'url'=>$url,'message'=>$message],
+    ]);
+    \App\Support\TransactionEmail::sendAfterCommit($q->user,'iServe '.$title,$message."\n\nView your request: ".$url,['request_id'=>$q->id]);
+    return;
+   }
+
+   abort_unless(in_array($q->status,['approved','rejected','cancelled']),422);
+   $details=$q->details;
+   if($v['action']==='release'){
+    abort_unless($q->status==='approved'&&in_array($q->kind,['lost','found','id-replacement']),422);
+    $details['released']=true;
+    $details['released_at']=now()->toIso8601String();
+   }else{
+    $details['archived']=$v['action']==='archive';
+   }
+   $q->update(['details'=>$details]);
+   $this->audit($r,'request.'.$v['action'],$q->ticket,$v['review_note']);
+  });
+  return back()->with('success',$v['action']==='reprint'?'Replacement ID marked as reprinted.':'Record updated.');
+ }
 }

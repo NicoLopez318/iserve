@@ -10,6 +10,59 @@ class CvuFlowTest extends TestCase {
  private function person($role='student',$data=[]){return User::create([...['name'=>'Example Student','username'=>uniqid('u'),'email'=>uniqid().'@example.test','password'=>'TestPassword!123','role'=>$role,'account_type'=>'student','student_id'=>uniqid('S'),'course'=>'BSIT','year_level'=>'3rd Year','phone'=>'09123456789','profile_complete'=>true,'email_verified_at'=>now()],...$data]);}
  private function record($u){return Assignment::create(['user_id'=>$u->id,'record_number'=>uniqid('CV-'),'offense'=>'Conduct','severity'=>'Minor','department'=>'IT','supervisor'=>'Head','required_minutes'=>120]);}
  private function identity($u){return ['name'=>$u->name,'student_id'=>$u->student_id,'course'=>$u->course,'year_level'=>$u->year_level,'contact'=>$u->phone,'confirmations'=>[1,1,1]];}
+ public function test_student_feedback_is_visible_only_on_the_related_service_record():void
+ {
+  $student=$this->person(data:['values_verified_at'=>now()]);
+  $outsider=$this->person(data:['values_verified_at'=>now()]);
+  $first=$this->record($student);
+  $second=$this->record($student);
+  $this->record($outsider);
+  $head=$this->person('cvu_head',['name'=>'CVU Reviewer']);
+  $first->feedbackEntries()->create(['author_id'=>$head->id,'message'=>'Please bring the signed attendance slip.']);
+  $page='/portal/values/community-service?assignment=';
+  $this->actingAs($student)->get($page.$first->id)->assertOk()->assertSee('CVU Feedback')
+   ->assertSee('CVU Reviewer')->assertSee('Please bring the signed attendance slip.');
+  $this->get($page.$second->id)->assertOk()->assertSee('No feedback for this violation yet.')
+   ->assertDontSee('Please bring the signed attendance slip.');
+  $this->actingAs($outsider)->get($page.$first->id)->assertNotFound();
+ }
+ public function test_multiple_violations_keep_service_sessions_and_journals_separate():void
+ {
+  Storage::fake('local');
+  $student=$this->person(data:['values_verified_at'=>now()]);
+  $first=$this->record($student);
+  $first->update(['offense'=>'Campus conduct']);
+  $second=$this->record($student);
+  $second->update(['offense'=>'Laboratory safety']);
+  $foreign=$this->record($this->person());
+  $image=fn()=>UploadedFile::fake()->createWithContent('duty.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a17kAAAAASUVORK5CYII='));
+  $page='/portal/values/community-service';
+  $clock='/community/clock';
+  $this->travelTo(now()->setTime(8,0));
+  $this->actingAs($student)->get('/portal/values/violations')->assertOk()->assertSee('Campus conduct')->assertSee('Laboratory safety');
+  $this->get('/portal/values')->assertOk()->assertSee('2 ACTIVE');
+  $this->get($page.'?assignment='.$foreign->id)->assertNotFound();
+  $this->post($clock,['action'=>'in','assignment_id'=>$foreign->id,'photo'=>$image()])->assertNotFound();
+  $this->from($page)->post($clock,['action'=>'in','photo'=>$image()])->assertSessionHasErrors('workflow');
+  $this->post($clock,['action'=>'in','assignment_id'=>$first->id,'photo'=>$image()])->assertRedirect()->assertSessionHasNoErrors();
+  $this->get($page.'?assignment='.$second->id)->assertOk()->assertSee('Another violation has an open duty session.');
+  $this->post($clock,['action'=>'out','assignment_id'=>$second->id,'photo'=>$image()])->assertSessionHasErrors('workflow');
+  $this->post($clock,['action'=>'in','assignment_id'=>$second->id,'photo'=>$image()])->assertSessionHasErrors('workflow');
+  $this->travel(120)->minutes();
+  $this->post($clock,['action'=>'out','assignment_id'=>$first->id,'photo'=>$image()])->assertRedirect()->assertSessionHasNoErrors();
+  $session=$first->attendances()->sole();
+  $this->assertSame(120,$session->minutes);
+  $this->assertSame(0,$first->approvedMinutes());
+  $session->update(['status'=>'approved']);
+  $this->post($clock,['action'=>'in','assignment_id'=>$second->id,'photo'=>$image()])->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame(0,$second->approvedMinutes());
+  $journal=['module'=>2,'answer'=>str_repeat('My service learning reflection. ',3)];
+  $this->post('/community/journal',$journal+['assignment_id'=>$second->id])->assertSessionHasErrors('workflow');
+  $this->post('/community/journal',$journal+['assignment_id'=>$first->id])->assertRedirect()->assertSessionHasNoErrors();
+  $this->assertSame(2,$first->journals()->sole()->module);
+  $this->assertSame(0,$second->journals()->count());
+  $this->get($page)->assertOk()->assertSee('Time In is already recorded. Use Time Out to close the session.');
+ }
  public function test_completed_community_attendance_notifies_only_the_enabled_unit_head():void {
   $disk=Storage::fake('notification-attendance');
   Storage::set('local',$disk);
@@ -69,15 +122,18 @@ class CvuFlowTest extends TestCase {
   $a->update(['status'=>'cancelled']);$u->unsetRelation('assignment');
   $this->get('/portal/values')->assertRedirect('/community-link');
  }
- public function test_readmission_submit_review_interview_issue_and_private_slip(){
+ public function test_readmission_slip_is_visible_only_to_the_owner_after_approval(){
   $u=$this->person();$this->actingAs($u)->get('/apply/readmission')->assertOk()->assertSee('Basic Information');
   $this->post('/cvu/submit/readmission',[...$this->identity($u),'details'=>['instructor'=>'Instructor','subject'=>'NSTP','subject_code'=>'NSTP101','schedule'=>'Tue 1PM','semester'=>'1st Semester','academic_year'=>'2026-2027','description'=>'A detailed explanation for the absence.']])->assertRedirect();
-  $q=ServiceRequest::firstOrFail();$head=$this->person('cvu_head');$this->actingAs($head)->postJson('/cvu/head/request/'.$q->id,['action'=>'issue'])->assertStatus(422);
-  $this->post('/cvu/head/request/'.$q->id,['action'=>'interview','interview_at'=>now()->addDay()->format('Y-m-d H:i'),'remarks'=>'Attend interview.'])->assertRedirect();
-  $this->travel(2)->days();$this->post('/cvu/head/request/'.$q->id,['action'=>'issue','remarks'=>'Approved after interview.'])->assertRedirect();
-  $this->post('/cvu/head/request/'.$q->id,['action'=>'send'])->assertRedirect();$this->assertNotNull($q->fresh()->details['sent_at']);
-  $this->actingAs($u)->get('/cvu/submitted/'.$q->id)->assertOk()->assertSee('Re-Admission Virtual Slip');
+  $q=ServiceRequest::firstOrFail();
+  $slip='/requests/'.$q->id.'/slip';
+  $this->get($slip)->assertForbidden();
+  $q->update(['status'=>'approved','details'=>[...$q->details,'issued_by'=>'Approving Officer','issued_at'=>'2026-09-15T10:00:00+08:00']]);
+  $this->get('/cvu/submitted/'.$q->id)->assertOk()->assertSee($slip)->assertSee('Approved for Admission');
+  $this->get('/requests/'.$q->id)->assertOk()->assertSee($slip);
+  $this->get($slip)->assertOk()->assertSee('Approving Officer')->assertSee('Sep 15, 2026');
   $this->actingAs($this->person())->get('/cvu/submitted/'.$q->id)->assertForbidden();
+  $this->get($slip)->assertForbidden();
  }
  public function test_clearance_slot_capacity_and_complete_checks(){
   $head=$this->person('cvu_head');$date=now()->addDay()->toDateString();$this->actingAs($head)->post('/cvu/head/availability',['date'=>$date,'start'=>'10:00','capacity'=>1,'open'=>1])->assertRedirect();
